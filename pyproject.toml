@@ -9,6 +9,7 @@ readme = "README.md"
 python = "^3.12"
 openai = "^1.41.0"
 chess = "^1.10.0"
+python-dotenv = "^1.0.1"
 
 
 [build-system]
