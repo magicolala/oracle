@@ -1,0 +1,54 @@
+# Configuration for Ruff
+
+# Exclude certain paths
+extend-exclude = [
+    "docs/*",
+    "tests/fixtures/git/*",
+    "tests/fixtures/project_with_setup*/*",
+    "tests/masonry/builders/fixtures/pep_561_stub_only*/*",
+    "tests/utils/fixtures/setups/*",
+]
+
+# Automatically fix errors when possible
+fix = true
+
+# Maximum line length
+line-length = 100
+
+# Target Python version
+target-version = "py38"
+
+[lint]
+# Additional rule selections
+extend-select = [
+    "B", # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "ERA", # flake8-eradicate/eradicate
+    "I", # isort
+    "N", # pep8-naming
+    "PIE", # flake8-pie
+    "PGH", # pygrep
+    "RUF", # ruff checks
+    "SIM", # flake8-simplify
+    "T20", # flake8-print
+    "TCH", # flake8-type-checking
+    "TID", # flake8-tidy-imports
+    "UP", # pyupgrade
+]
+
+# Ignore specific rules
+ignore = [
+    "B904", # use 'raise ... from err'
+    "B905", # use explicit 'strict=' parameter with 'zip()'
+    "N818", # Exception name should be named with an Error suffix
+]
+
+# Enable additional safe fixes
+extend-safe-fixes = [
+    "TCH", # move import from and to TYPE_CHECKING blocks
+]
+
+# Rules that cannot be auto-fixed
+unfixable = [
+    "ERA", # do not autoremove commented out code
+]
