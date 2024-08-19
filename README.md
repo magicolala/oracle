@@ -20,17 +20,17 @@ Oracle is the first chess engine that plays like a human, from amateur to super 
 
 ## Examples
 
-![Ding vs. Nepo, round 14 after 58...a3](Readme_DingvsNepo_chesscom.png)
+![Ding vs. Nepo, round 14 after 58...a3](docs/static/ding_vs_nepo_chesscom.png)
 
 Position after 58...a3 in the last tie-break of the [2023 World Championship.](https://www.chess.com/events/2023-fide-world-chess-championship/18/Nepomniachtchi_Ian-Ding_Liren) Stockfish shows 0.00, but considering it's rapid, Oracle only gives white a 18.50% expected score. Nepo ended up blundering with 59. Qc7??, which was the likeliest move according to Oracle. 
 
-![Ding vs. Nepo, Input and Ouput](Readme_DingvsNepo.png)
+![Ding vs. Nepo, Input and Ouput](docs/static/ding_vs_nepo.png)
 
-![Dubov vs. Nepo, position after 11... Nc6](Readme_DubovvsNepo_lichess.png)
+![Dubov vs. Nepo, position after 11... Nc6](docs/static/dubov_vs_nepo_lichess.png)
 
 Position after 11...Nc6 in the infamous "Danse of the Knights" pre-arranged draw between [Daniil Dubov and Ian Nepomniachtchi](https://lichess.org/broadcast/2023-fide-world-blitz-championship--boards-1-30/round-11/yem1lgfo/ESRRgphO) at the 2023 World Blitz Championship. Despite it being an obviously bad move, Oracle predicts 12. Nb1 that was actually played by Nepo and gives it a high 72% likelihood.
 
-![Dubov vs. Nepo - Input and Ouput](Readme_DubovvsNepo.png)
+![Dubov vs. Nepo - Input and Ouput](docs/static/dubov_vs_nepo.png)
 
 ## Requirements
 
@@ -53,7 +53,7 @@ I am a FIDE Master and Woman International Master with no previous coding experi
 
 ## Oracle's name
 
-![The Oracle from The Matrix](Oracle.jpg)
+![The Oracle from The Matrix](docs/static/logo.jpg)
 
 I've decided to name my chess engine Oracle because just like the Oracle from The Matrix, her predictions feel magical even though they are just pure calculations performed by a program. For that reason, Oracle should be referred to as she/her. 
 
@@ -70,7 +70,7 @@ I have dedicated several hundred hours to this project and invested a significan
 If you value my work and wish to support Oracle and me, please consider [making a donation.](https://www.paypal.com/donate/?hosted_button_id=6WTAEDBXAPTLC)
 <p align="center">
   <a href="https://www.paypal.com/donate/?hosted_button_id=6WTAEDBXAPTLC">
-    <img src="Paypal.png" alt="Donate via Paypal" />
+    <img src="docs/static/paypal.png" alt="Donate via Paypal" />
   </a>
 </p>
 
