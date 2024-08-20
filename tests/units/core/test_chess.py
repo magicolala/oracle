@@ -1,8 +1,8 @@
 import chess
 import pytest
-from conftest import get_list_pgn
 
 from oracle.core._chess import get_legal_moves
+from tests.conftest import get_list_pgn
 
 
 @pytest.mark.parametrize("pgn_content", get_list_pgn())

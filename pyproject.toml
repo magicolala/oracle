@@ -7,7 +7,7 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.12"
-openai = "^1.41.0"
+openai = "^1.41.1"
 chess = "^1.10.0"
 python-dotenv = "^1.0.1"
 
@@ -19,3 +19,7 @@ pytest = "^8.3.2"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+# Include the src directory in the PYTHONPATH
+pythonpath = ["src"]

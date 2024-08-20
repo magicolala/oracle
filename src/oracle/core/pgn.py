@@ -4,7 +4,7 @@ from typing import List
 import chess.pgn
 from chess import Move
 
-from oracle.core._chess import uci_to_san
+from src.oracle.core._chess import uci_to_san
 
 
 def extract_moves_from_pgn(pgn_content: str) -> List[Move]:
