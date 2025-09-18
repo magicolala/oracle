@@ -1,7 +1,7 @@
 import pytest
-from tests.conftest import get_list_pgn
 
 from oracle.core.pgn import extract_san_moves_from_pgn
+from tests.conftest import get_list_pgn
 
 
 @pytest.mark.parametrize("pgn_content", get_list_pgn())
