@@ -17,6 +17,7 @@ Oracle is the first chess engine that plays like a human, from amateur to super 
 
 - **Oracle_one_move:** Set your openAI API key and the path to your Stockfish at the top of the file then run the file. Past the PGN up to the move you want to predict into the console, type END and press Enter
 - **Oracle_pgn_file:** Set your openAI API key, the path to your Stockfish, your input pgn file, and your output csv file, and then run the file. Oracle will write her predictions for every move of every game of the PGN into the csv file.
+- **Web interface:** Export your OpenAI key as `OPENAI_API_KEY` and the Stockfish binary path as `STOCKFISH_PATH`, then launch `uvicorn src.oracle.web.app:app --reload` to access a browser-based PGN form.
 
 ## Examples
 

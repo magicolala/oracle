@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Oracle Analyzer - Result</title>
+  </head>
+  <body>
+    <h1>Predicted Moves</h1>
+    <p>Current evaluation: {{ '%.2f'|format(current_win_percentage) }}%</p>
+    <table border="1" cellpadding="6" cellspacing="0">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Move</th>
+          <th>Likelihood</th>
+          <th>Evaluation</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for prediction in predictions %}
+        <tr>
+          <td>#{{ loop.index }}</td>
+          <td>
+            {{ prediction.move }}{{ prediction.notation }}
+            {% if prediction.is_best_move %}<strong>(best)</strong>{% endif %}
+          </td>
+          <td>{{ '%.2f'|format(prediction.likelihood) }}%</td>
+          <td>{{ '%.2f'|format(prediction.win_percentage) }}%</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <p>
+      Tokens used: {{ metrics.input_tokens }} in / {{ metrics.output_tokens }} out – Estimated cost: $
+      {{ '%.6f'|format(metrics.cost) }}
+    </p>
+    <p><a href="/">Analyze another PGN</a></p>
+  </body>
+</html>
