@@ -51,17 +51,52 @@ class MovePrediction:
 
 
 @dataclass
+class PredictionSnapshot:
+    """Snapshot of the prediction for a truncated PGN sequence."""
+
+    ply: int
+    pgn: str
+    moves: list[MovePrediction]
+    current_win_percentage: float
+    is_white_to_move: bool
+
+    @property
+    def san(self) -> str:
+        """Return the SAN sequence associated with the snapshot."""
+
+        lines = [line for line in self.pgn.splitlines() if line.strip()]
+        return lines[-1] if lines else ""
+
+
+@dataclass
 class PredictionResult:
     """Structured predictions returned by the prediction service."""
 
-    moves: list[MovePrediction]
-    current_win_percentage: float
+    history: list[PredictionSnapshot] = field(default_factory=list)
     metrics: PredictionMetrics = field(default_factory=PredictionMetrics)
+
+    @property
+    def moves(self) -> list[MovePrediction]:
+        """Expose the moves from the most recent snapshot for compatibility."""
+
+        return self.history[-1].moves if self.history else []
+
+    @property
+    def current_win_percentage(self) -> float:
+        """Expose the evaluation from the most recent snapshot for compatibility."""
+
+        return self.history[-1].current_win_percentage if self.history else 0.0
+
+    def last(self) -> PredictionSnapshot | None:
+        """Return the latest prediction snapshot when available."""
+
+        return self.history[-1] if self.history else None
 
 
 __all__ = [
     "OracleConfig",
     "PredictionMetrics",
     "MovePrediction",
+    "PredictionSnapshot",
     "PredictionResult",
 ]

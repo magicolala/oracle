@@ -126,6 +126,7 @@ def test_cli_main_uses_factory_with_simulated_adapters(monkeypatch, caplog):
         "cli-token",
         "cli/model",
         "/fake/stockfish",
+        "q",
     ])
 
     monkeypatch.setattr("builtins.input", lambda _prompt="": responses.popleft())
@@ -149,4 +150,4 @@ def test_cli_main_uses_factory_with_simulated_adapters(monkeypatch, caplog):
     first_move = wrapper.last_result.moves[0].move
     assert first_move in caplog.text
     assert "Likelihood" in caplog.text
-    assert "Current Evaluation" in caplog.text
+    assert "Évaluation actuelle" in caplog.text

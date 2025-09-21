@@ -7,7 +7,7 @@ import re
 
 from tabulate import tabulate
 
-from oracle.domain import MovePrediction, OracleConfig
+from oracle.domain import MovePrediction, OracleConfig, PredictionSnapshot
 from oracle.domain.services import adjust_rating, determine_game_type
 from oracle.service.prediction import build_predict_next_moves_use_case
 
@@ -46,6 +46,9 @@ def _resolve_game_type(pgn_content: str) -> str:
 
 
 def _format_predictions(predictions: list[MovePrediction]) -> str:
+    if not predictions:
+        return "Aucun coup disponible pour cette position."
+
     headers = ["#", "Move", "Likelihood", "Evaluation"]
     rows = [
         [
@@ -57,6 +60,13 @@ def _format_predictions(predictions: list[MovePrediction]) -> str:
         for idx, prediction in enumerate(predictions[:5])
     ]
     return tabulate(rows, headers=headers, tablefmt="pretty")
+
+
+def _describe_snapshot(snapshot: PredictionSnapshot) -> str:
+    san_line = snapshot.san
+    turn = "blancs" if snapshot.is_white_to_move else "noirs"
+    label = san_line if san_line else "Début de partie"
+    return f"{label} - trait aux {turn}"
 
 
 def main() -> None:
@@ -108,10 +118,60 @@ def main() -> None:
     )
 
     result = service.execute(pgn_content)
+    history = result.history
+    if not history:
+        logger.warning("Aucun résultat disponible pour cette analyse.")
+        return
 
-    table = _format_predictions(result.moves)
-    logger.debug("\n%s", table)
-    logger.debug("Current Evaluation: %.2f%%", result.current_win_percentage)
+    logger.info("Positions disponibles :")
+    for idx, snapshot in enumerate(history, start=1):
+        logger.info("  %d) %s", idx, _describe_snapshot(snapshot))
+
+    index = len(history) - 1
+    total = len(history)
+
+    while True:
+        snapshot = history[index]
+        logger.debug(
+            "Position %d/%d - trait aux %s",
+            index + 1,
+            total,
+            "blancs" if snapshot.is_white_to_move else "noirs",
+        )
+        logger.debug("PGN courant : %s", snapshot.san or "Début de partie")
+        table = _format_predictions(snapshot.moves)
+        logger.debug("\n%s", table)
+        logger.debug(
+            "Évaluation actuelle : %.2f%% de chances pour les blancs",
+            snapshot.current_win_percentage,
+        )
+
+        command = input(
+            "Sélectionnez un coup (n=suivant, p=précédent, numéro, q=quitter) : "
+        ).strip().lower()
+
+        if command in {"", "q"}:
+            break
+        if command == "n":
+            if index < total - 1:
+                index += 1
+            else:
+                logger.info("Dernière position atteinte.")
+            continue
+        if command == "p":
+            if index > 0:
+                index -= 1
+            else:
+                logger.info("Première position atteinte.")
+            continue
+        if command.isdigit():
+            choice = int(command) - 1
+            if 0 <= choice < total:
+                index = choice
+            else:
+                logger.info("Indice invalide. Sélectionnez une valeur entre 1 et %d.", total)
+            continue
+        logger.info("Commande inconnue. Utilisez n, p, un numéro ou q.")
 
 
 if __name__ == "__main__":

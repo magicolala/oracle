@@ -1,13 +1,11 @@
 from __future__ import annotations
 
 import math
-from typing import TYPE_CHECKING
+
+import chess
 
 from oracle.application.predict_next_moves import PredictNextMoves
 from oracle.domain import OracleConfig
-
-if TYPE_CHECKING:
-    import chess
 
 PGN_SNIPPET = """
 [Event "?"]
@@ -19,11 +17,14 @@ PGN_SNIPPET = """
 [BlackElo "1400"]
 [TimeControl "600+5"]
 
-1. e4
+1. e4 e5 2. Nf3 Nc6
 """.strip()
 
 
 class StubSequenceProvider:
+    def __init__(self) -> None:
+        self.prompts: list[str] = []
+
     def get_top_sequences(
         self,
         prompt: str,
@@ -37,11 +38,17 @@ class StubSequenceProvider:
         repetition_penalty: float | None = None,
         retries: int = 3,
     ):
-        assert "e5" in legal_moves and "c5" in legal_moves
-        metrics.input_tokens += 2
+        self.prompts.append(prompt)
+        metrics.input_tokens += 1
         metrics.output_tokens += 1
         metrics.cost += 0.01
-        return [("e5", math.log(0.6)), ("c5", math.log(0.3))]
+        selected_moves = legal_moves[:2]
+        probabilities = [0.6, 0.3]
+        results: list[tuple[str, float]] = []
+        for index, move in enumerate(selected_moves):
+            weight = probabilities[index] if index < len(probabilities) else 0.1
+            results.append((move, math.log(weight)))
+        return results
 
 
 class StubMoveAnalyzer:
@@ -54,7 +61,15 @@ class StubMoveAnalyzer:
         threads: int,
         hash_size: int,
     ):
-        return [("e5", 120.0), ("c5", 40.0)]
+        legal_moves = list(board.legal_moves)[:num_moves]
+        evaluations: list[tuple[str, float]] = []
+        base = 120.0 if board.turn == chess.WHITE else -120.0
+        step = 40.0
+        for index, move in enumerate(legal_moves):
+            san_move = board.san(move)
+            score = base - step * index if board.turn == chess.WHITE else base + step * index
+            evaluations.append((san_move, score))
+        return evaluations
 
 
 def test_use_case_combines_sequence_and_engine_results() -> None:
@@ -66,16 +81,24 @@ def test_use_case_combines_sequence_and_engine_results() -> None:
 
     result = use_case.execute(PGN_SNIPPET)
 
-    assert len(result.moves) == 2
-    best_moves = [move for move in result.moves if move.is_best_move]
+    assert len(result.history) == 5
+    assert result.history[-1].moves == result.moves
+    assert result.history[0].san == "1."
+    assert result.history[1].san == "1. e4"
+    assert result.history[-1].san.endswith("3.")
+
+    final_snapshot = result.history[-1]
+    assert len(final_snapshot.moves) >= 1
+    best_moves = [move for move in final_snapshot.moves if move.is_best_move]
     assert len(best_moves) == 1
-    assert best_moves[0].move == "c5"
-    total_likelihood = sum(move.likelihood for move in result.moves)
+    total_likelihood = sum(move.likelihood for move in final_snapshot.moves)
     assert math.isclose(total_likelihood, 100.0, rel_tol=1e-3)
     recomputed_eval = sum(
-        move.win_percentage * move.likelihood / 100 for move in result.moves
+        move.win_percentage * move.likelihood / 100 for move in final_snapshot.moves
     )
-    assert math.isclose(result.current_win_percentage, recomputed_eval, rel_tol=1e-6)
-    assert result.metrics.input_tokens == 2
-    assert result.metrics.output_tokens == 1
-    assert math.isclose(result.metrics.cost, 0.01, rel_tol=1e-9)
+    assert math.isclose(final_snapshot.current_win_percentage, recomputed_eval, rel_tol=1e-6)
+    assert math.isclose(result.current_win_percentage, final_snapshot.current_win_percentage, rel_tol=1e-6)
+
+    assert result.metrics.input_tokens == len(result.history)
+    assert result.metrics.output_tokens == len(result.history)
+    assert math.isclose(result.metrics.cost, 0.01 * len(result.history), rel_tol=1e-9)

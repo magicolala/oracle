@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import io
 import math
+from collections import deque
 from dataclasses import dataclass
 
 import chess
@@ -13,7 +14,13 @@ from oracle.application.ports import (
     PredictNextMovesUseCase,
     SequenceProvider,
 )
-from oracle.domain import MovePrediction, OracleConfig, PredictionMetrics, PredictionResult
+from oracle.domain import (
+    MovePrediction,
+    OracleConfig,
+    PredictionMetrics,
+    PredictionResult,
+    PredictionSnapshot,
+)
 from oracle.domain.services import (
     adjust_rating,
     calculate_win_percentage,
@@ -37,16 +44,100 @@ class PredictNextMoves(PredictNextMovesUseCase):
         metrics = PredictionMetrics()
 
         cleaned_pgn = clean_pgn(pgn)
-        prompt = cleaned_pgn.strip()
 
         game = chess.pgn.read_game(io.StringIO(cleaned_pgn))
         if game is None:
             raise ValueError("Unable to parse PGN content")
 
-        board = game.board()
-        for move in game.mainline_moves():
-            board.push(move)
+        header_lines, token_queue = self._extract_headers_and_tokens(cleaned_pgn)
+        white_elo_val, black_elo_val, game_type = self._resolve_game_context(game)
+        high_rating = max(white_elo_val, black_elo_val)
 
+        board = game.board()
+        history: list[PredictionSnapshot] = []
+
+        current_tokens: list[str] = []
+        ply_index = 0
+
+        def append_move_numbers() -> None:
+            while token_queue and token_queue[0].endswith("."):
+                current_tokens.append(token_queue.popleft())
+
+        append_move_numbers()
+        prompt = self._compose_prompt(header_lines, current_tokens)
+        moves, evaluation = self._evaluate_position(
+            board,
+            prompt,
+            metrics,
+            white_elo_val,
+            black_elo_val,
+            high_rating,
+            game_type,
+        )
+        history.append(
+            PredictionSnapshot(
+                ply=ply_index,
+                pgn=prompt,
+                moves=moves,
+                current_win_percentage=evaluation,
+                is_white_to_move=board.turn == chess.WHITE,
+            )
+        )
+
+        for move in game.mainline_moves():
+            ply_index += 1
+            expected_san = board.san(move)
+            token = token_queue.popleft() if token_queue else expected_san
+            current_tokens.append(token if token == expected_san else expected_san)
+            board.push(move)
+            append_move_numbers()
+            prompt = self._compose_prompt(header_lines, current_tokens)
+            moves, evaluation = self._evaluate_position(
+                board,
+                prompt,
+                metrics,
+                white_elo_val,
+                black_elo_val,
+                high_rating,
+                game_type,
+            )
+            history.append(
+                PredictionSnapshot(
+                    ply=ply_index,
+                    pgn=prompt,
+                    moves=moves,
+                    current_win_percentage=evaluation,
+                    is_white_to_move=board.turn == chess.WHITE,
+                )
+            )
+
+        return PredictionResult(history=history, metrics=metrics)
+
+    @staticmethod
+    def _extract_headers_and_tokens(cleaned_pgn: str) -> tuple[list[str], deque[str]]:
+        lines = cleaned_pgn.splitlines()
+        header_lines = [line for line in lines if line.startswith("[")]
+        moves_line = ""
+        for line in reversed(lines):
+            if line.strip() and not line.startswith("["):
+                moves_line = line.strip()
+                break
+        tokens = deque(moves_line.split()) if moves_line else deque()
+        return header_lines, tokens
+
+    @staticmethod
+    def _compose_prompt(headers: list[str], tokens: list[str]) -> str:
+        header_section = "\n".join(headers).strip()
+        moves_segment = " ".join(tokens).strip()
+        if header_section and moves_segment:
+            return f"{header_section}\n\n{moves_segment}"
+        if header_section:
+            return header_section
+        return moves_segment
+
+    def _resolve_game_context(
+        self, game: chess.pgn.Game
+    ) -> tuple[int, int, str]:
         white_elo = game.headers.get("WhiteElo")
         black_elo = game.headers.get("BlackElo")
         white_elo_val = (
@@ -64,15 +155,25 @@ class PredictNextMoves(PredictNextMovesUseCase):
         else:
             game_type = self.config.default_game_type
 
-        white_elo_val = adjust_rating(white_elo_val, game_type)
-        black_elo_val = adjust_rating(black_elo_val, game_type)
+        return (
+            adjust_rating(white_elo_val, game_type),
+            adjust_rating(black_elo_val, game_type),
+            game_type,
+        )
 
-        rating = white_elo_val if board.turn == chess.WHITE else black_elo_val
-        high_rating = max(white_elo_val, black_elo_val)
-
+    def _evaluate_position(
+        self,
+        board: chess.Board,
+        prompt: str,
+        metrics: PredictionMetrics,
+        white_rating: int,
+        black_rating: int,
+        high_rating: int,
+        game_type: str,
+    ) -> tuple[list[MovePrediction], float]:
         legal_moves = [board.san(move) for move in board.legal_moves]
         if not legal_moves:
-            return PredictionResult(moves=[], current_win_percentage=0.0, metrics=metrics)
+            return [], 0.0
 
         top_sequences = self.sequence_provider.get_top_sequences(
             prompt,
@@ -108,7 +209,7 @@ class PredictNextMoves(PredictNextMovesUseCase):
                 all_evals.append((move, float(eval_score)))
 
         if not all_evals:
-            return PredictionResult(moves=[], current_win_percentage=0.0, metrics=metrics)
+            return [], 0.0
 
         move_probabilities: dict[str, float] = {}
         for seq, logprob in top_sequences:
@@ -116,6 +217,7 @@ class PredictNextMoves(PredictNextMovesUseCase):
             move_probabilities[seq] = move_probabilities.get(seq, 0.0) + probability
 
         is_white_turn = board.turn == chess.WHITE
+        rating = white_rating if is_white_turn else black_rating
         best_move_idx, best_eval_value = find_best_move_index(all_evals, is_white_turn)
         best_move = all_evals[best_move_idx][0]
 
@@ -230,7 +332,7 @@ class PredictNextMoves(PredictNextMovesUseCase):
             percentage_loss = max(percentage_loss_1500, percentage_loss_rating)
             percentage_losses[move] = percentage_loss
 
-            elo = white_elo_val if is_white_turn else black_elo_val
+            elo = white_rating if is_white_turn else black_rating
 
             mate_in = mate_in_dict.get(move)
             if mate_in is not None and mate_in > 0:
@@ -304,8 +406,4 @@ class PredictNextMoves(PredictNextMovesUseCase):
                 )
             )
 
-        return PredictionResult(
-            moves=final_moves,
-            current_win_percentage=current_win_percentage,
-            metrics=metrics,
-        )
+        return final_moves, current_win_percentage

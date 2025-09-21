@@ -167,7 +167,8 @@ async def analyze(request: Request, pgn: str = Form(...)) -> HTMLResponse:
 
     context = {
         **base_context,
-        "predictions": prediction.moves,
+        "history": prediction.history,
+        "latest": prediction.last(),
         "current_win_percentage": prediction.current_win_percentage,
         "metrics": prediction.metrics,
     }
