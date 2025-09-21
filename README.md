@@ -19,6 +19,67 @@ Oracle is the first chess engine that plays like a human, from amateur to super 
 - **Oracle_pgn_file:** Set your Hugging Face token, the path to your Stockfish, your input pgn file, and your output csv file, and then run the file. Oracle will write her predictions for every move of every game of the PGN into the csv file.
 - **Web interface:** Export your Hugging Face token as `HUGGINGFACEHUB_API_TOKEN` (optional, models supporting anonymous access do not require a token) and the Stockfish binary path as `STOCKFISH_PATH`, then launch `uvicorn src.oracle.web.app:app --reload` to access a browser-based PGN form.
 
+## Documentation de l’interface web
+
+### Aperçu
+
+L’application web d’Oracle s’appuie sur FastAPI et Jinja2 : la page d’accueil accessible sur `/` affiche un formulaire de saisie de PGN tandis que l’endpoint `/analyze` exécute l’analyse avant de renvoyer la page de résultats avec les coups probables et les métriques associées. L’interface adopte Bootstrap et un thème inspiré de GitHub pour offrir une expérience utilisateur claire et soignée.
+
+### Prérequis
+
+1. **Moteur Stockfish** : installez Stockfish localement et exportez son chemin absolu dans la variable d’environnement `STOCKFISH_PATH`. Sans cette variable, l’interface affiche un message d’erreur détaillé permettant de corriger la configuration.
+2. **Modèle Hugging Face** : par défaut, Oracle appelle `mistralai/Mistral-7B-Instruct-v0.2`. Vous pouvez remplacer ce modèle en définissant `HUGGINGFACE_MODEL_ID` et fournir un jeton via `HUGGINGFACEHUB_API_TOKEN` si l’endpoint choisi n’accepte pas les requêtes anonymes.
+3. **Paramètres par défaut** : sans variables d’environnement, Oracle s’appuie sur la configuration définie par `OracleConfig` (profondeur d’analyse, temps limite, etc.), que vous pouvez adapter dans le code si nécessaire.
+
+### Démarrage du serveur
+
+1. Exportez les variables d’environnement nécessaires :
+   ```bash
+   export STOCKFISH_PATH=/chemin/vers/stockfish
+   export HUGGINGFACEHUB_API_TOKEN=...        # optionnel
+   export HUGGINGFACE_MODEL_ID=...            # optionnel
+   ```
+2. Lancez le serveur local avec Uvicorn :
+   ```bash
+   uvicorn src.oracle.web.app:app --reload
+   ```
+   Le serveur écoute alors (par défaut) sur http://127.0.0.1:8000/ et recharge automatiquement lors de modifications en mode développement.
+
+### Saisir un PGN
+
+Sur la page d’accueil :
+
+1. Collez dans la zone de texte le PGN complet jusqu’au coup que vous souhaitez analyser (en incluant les en-têtes si disponibles).
+2. Cliquez sur **Analyser** pour envoyer la requête vers `/analyze` en méthode POST.
+
+### Lire les résultats
+
+La page de résultats affiche :
+
+- Le pourcentage de gain estimé pour les blancs dans la position actuelle.
+- Un tableau classé des coups probables, avec pour chacun la probabilité, l’évaluation et un indicateur si le coup est considéré comme « best ».
+- Les métriques de consommation du modèle (tokens entrants/sortants et coût estimé) présentées sous forme de cartes.
+- Le PGN analysé pour vérification rapide.
+
+Un bouton permet de revenir au formulaire pour une nouvelle analyse.
+
+### Gestion des erreurs
+
+- **Stockfish non configuré** : un message d’alerte s’affiche avec des indications pour définir correctement `STOCKFISH_PATH` lorsque le binaire est manquant, inexistant ou non exécutable.
+- **PGN invalide** : les erreurs de parsing ou de validation côté service se traduisent par une alerte détaillée sur la page, invitant à corriger la notation SAN et la numérotation des coups.
+- **Autres erreurs** : un message générique rappelle de consulter les logs serveur pour obtenir davantage de détails.
+
+### Personnalisation avancée
+
+- Ajustez les paramètres d’analyse (temps limite, profondeur, threads) ou les valeurs par défaut des Elo et contrôles de temps en modifiant `OracleConfig`. Cela peut être utile pour adapter l’application à des contextes particuliers (par exemple des parties blitz).
+- Surcharger `HUGGINGFACE_MODEL_ID` et `HUGGINGFACEHUB_API_TOKEN` à l’exécution permet d’expérimenter avec d’autres modèles hébergés sur Hugging Face sans toucher au code.
+
+### Dépannage rapide
+
+1. **Erreur 500 au démarrage ou à la première requête** : assurez-vous que `STOCKFISH_PATH` pointe vers un binaire exécutable et accessible par l’utilisateur qui lance Uvicorn.
+2. **Pas de prédictions** : vérifiez la validité du PGN (balises, numérotation des coups, format SAN). Les messages d’erreur retournés par l’interface donnent des indices sur la cause exacte.
+3. **Coût ou latence élevés** : choisissez un modèle Hugging Face plus léger ou hébergez votre propre endpoint, et réduisez éventuellement la profondeur/temps d’analyse dans `OracleConfig`.
+
 ## Hugging Face model access
 
 Oracle now defaults to the free [`mistralai/Mistral-7B-Instruct-v0.2`](https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.2) text-generation model served through the Hugging Face Inference API. The hosted endpoint accepts anonymous requests for light usage; create a free Hugging Face account and provide a token if you need higher throughput or want to use a different hosted model.
