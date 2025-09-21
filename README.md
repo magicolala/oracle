@@ -45,6 +45,24 @@ L’application web d’Oracle s’appuie sur FastAPI et Jinja2 : la page d’a
    ```
    Le serveur écoute alors (par défaut) sur http://127.0.0.1:8000/ et recharge automatiquement lors de modifications en mode développement.
 
+### Construire le front-end TypeScript
+
+L’intégration du plateau interactif repose sur un bundle Vite situé dans `src/oracle/web/frontend`. Après toute modification des fichiers TypeScript ou CSS, exécutez les commandes suivantes pour régénérer les ressources servies par FastAPI :
+
+```bash
+cd src/oracle/web/frontend
+npm install          # première installation ou mise à jour des dépendances
+npm run build        # génère src/oracle/web/static/oracle-board.{js,css}
+```
+
+La bibliothèque `magicolala/Neo-Chess-Board-Ts-Library` est déclarée dans `package.json` et packagée dans ce bundle. Le répertoire `src/oracle/web/static/` est monté via `fastapi.staticfiles.StaticFiles`, ce qui permet de servir directement les assets générés par Vite.
+
+### Plateau interactif Neo Chess Board
+
+- **Page d’accueil** : le bouton « Synchroniser le plateau » charge le contenu de la zone de texte sur le plateau, tandis que « Réinitialiser » remet la position initiale. Chaque coup joué sur le plateau met automatiquement à jour le PGN du formulaire.
+- **Page de résultats** : le PGN analysé est chargé automatiquement dans le plateau. Jouer de nouveaux coups met à jour le bloc PGN affiché pour explorer des variantes à partir du résultat obtenu.
+- Les scripts front-end dispatchent un événement `oracle-board:ready` et exposent une API globale `window.oracleBoard` (méthodes `loadPgn`, `reset`, `getPgn`, etc.) si vous souhaitez connecter d’autres composants personnalisés.
+
 ### Saisir un PGN
 
 Sur la page d’accueil :

@@ -10,6 +10,7 @@
       integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
       crossorigin="anonymous"
     />
+    <link rel="stylesheet" href="{{ url_for('static', path='oracle-board.css') }}" />
     <style>
       :root {
         --github-bg: #f6f8fa;
@@ -42,6 +43,59 @@
         border-radius: 12px;
         border: 1px solid var(--github-border);
         box-shadow: 0 1px 3px rgba(27, 31, 35, 0.12);
+      }
+
+      .board-panel {
+        background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+        border: 1px solid var(--github-border);
+        border-radius: 16px;
+        padding: 1rem 1rem 1.5rem;
+        box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+      }
+
+      .board-panel__header {
+        font-size: 0.875rem;
+        letter-spacing: 0.08em;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: #57606a;
+        margin-bottom: 0.5rem;
+      }
+
+      .board-panel__hint {
+        font-size: 0.875rem;
+        color: #6b7280;
+        margin-top: 1rem;
+        text-align: center;
+      }
+
+      .board-actions {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+
+      .form-label-group {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+      }
+
+      @media (max-width: 991.98px) {
+        .form-label-group {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .board-panel {
+          margin: 0 auto;
+        }
       }
 
       textarea {
@@ -118,23 +172,46 @@
           </div>
           {% endif %}
           <div class="card p-4">
-            <h1 class="h3 mb-3">Analyser un PGN</h1>
-            <p class="text-secondary mb-4">
-              Collez ci-dessous la partie jusqu'au coup que vous souhaitez analyser, puis cliquez sur
-              <strong>Analyser</strong> pour obtenir les coups les plus probables selon Oracle.
-            </p>
-            <form method="post" action="/analyze" class="row g-3">
-              <div class="col-12">
-                <label for="pgn" class="form-label fw-semibold">PGN</label>
-                <textarea class="form-control" id="pgn" name="pgn" required>{{ pgn or "" }}</textarea>
+            <div class="row g-4 align-items-start">
+              <div class="col-lg-5 order-lg-2">
+                <div class="board-panel">
+                  <p class="board-panel__header mb-1">Plateau interactif</p>
+                  <div id="oracle-board"></div>
+                  <p class="board-panel__hint mb-0">
+                    Chargez votre PGN ou jouez un coup pour alimenter automatiquement le formulaire.
+                  </p>
+                </div>
               </div>
-              <div class="col-12 d-flex justify-content-end">
-                <button type="submit" class="btn btn-primary">
-                  <span class="me-2" aria-hidden="true">♟️</span>
-                  Analyser
-                </button>
+              <div class="col-lg-7 order-lg-1">
+                <h1 class="h3 mb-3">Analyser un PGN</h1>
+                <p class="text-secondary mb-4">
+                  Collez ci-dessous la partie jusqu'au coup que vous souhaitez analyser, puis cliquez sur
+                  <strong>Analyser</strong> pour obtenir les coups les plus probables selon Oracle.
+                </p>
+                <form method="post" action="/analyze" class="row g-3">
+                  <div class="col-12">
+                    <div class="form-label-group mb-2">
+                      <label for="pgn" class="form-label fw-semibold mb-0">PGN</label>
+                      <div class="board-actions">
+                        <button type="button" class="btn btn-outline-secondary btn-sm" data-load-pgn>
+                          Synchroniser le plateau
+                        </button>
+                        <button type="button" class="btn btn-outline-danger btn-sm" data-reset-board>
+                          Réinitialiser
+                        </button>
+                      </div>
+                    </div>
+                    <textarea class="form-control" id="pgn" name="pgn" required>{{ pgn or "" }}</textarea>
+                  </div>
+                  <div class="col-12 d-flex justify-content-end">
+                    <button type="submit" class="btn btn-primary">
+                      <span class="me-2" aria-hidden="true">♟️</span>
+                      Analyser
+                    </button>
+                  </div>
+                </form>
               </div>
-            </form>
+            </div>
           </div>
           <div class="card p-4 mt-4" id="guide">
             <h2 class="h5 mb-3">Profiter pleinement d'Oracle</h2>
@@ -234,5 +311,55 @@
     <footer class="container pb-5 text-center small">
       <span>Besoin d'aide ? Consultez la documentation dans le README ou vérifiez les logs serveur pour plus de détails.</span>
     </footer>
+    <script type="module" src="{{ url_for('static', path='oracle-board.js') }}"></script>
+    <script type="module">
+      const textarea = document.getElementById('pgn');
+      const loadButton = document.querySelector('[data-load-pgn]');
+      const resetButton = document.querySelector('[data-reset-board]');
+
+      const connectBoard = (board) => {
+        if (!textarea || !board) {
+          return;
+        }
+
+        const initialValue = textarea.value.trim();
+        if (initialValue) {
+          board.loadPgn(initialValue);
+        }
+
+        board.onMove(() => {
+          textarea.value = board.getPgn();
+        });
+
+        board.onUpdate(({ pgn }) => {
+          if (document.activeElement !== textarea) {
+            textarea.value = pgn;
+          }
+        });
+
+        loadButton?.addEventListener('click', () => {
+          board.loadPgn(textarea.value);
+          textarea.focus();
+        });
+
+        resetButton?.addEventListener('click', () => {
+          board.reset();
+          textarea.value = board.getPgn();
+          textarea.focus();
+        });
+      };
+
+      document.addEventListener(
+        'oracle-board:ready',
+        (event) => {
+          connectBoard(event.detail);
+        },
+        { once: true },
+      );
+
+      if (window.oracleBoard) {
+        connectBoard(window.oracleBoard);
+      }
+    </script>
   </body>
 </html>
