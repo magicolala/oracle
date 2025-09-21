@@ -110,6 +110,11 @@
         box-shadow: 0 0 0 0.25rem rgba(9, 105, 218, 0.25);
       }
 
+      textarea[readonly] {
+        background-color: #e9ecef;
+        cursor: not-allowed;
+      }
+
       .btn-primary {
         background-color: var(--github-primary);
         border-color: var(--github-primary);
@@ -171,61 +176,132 @@
             {% endif %}
           </div>
           {% endif %}
-          <div class="card p-4">
+          <div
+            class="card p-4"
+            data-app-root
+            data-active-mode="{{ active_mode or 'analyze' }}"
+            data-game-new-endpoint="/play/new"
+            data-game-move-endpoint="/play/move"
+            data-game-resign-endpoint="/play/resign"
+          >
             <div class="row g-4 align-items-start">
               <div class="col-lg-5 order-lg-2">
                 <div class="board-panel">
                   <p class="board-panel__header mb-1">Plateau interactif</p>
                   <div id="oracle-board"></div>
                   <p class="board-panel__hint mb-0">
-                    Chargez votre PGN ou jouez un coup pour alimenter automatiquement le formulaire.
+                    Selon le mode sélectionné, le plateau se synchronise avec votre PGN ou envoie vos coups à l'ordinateur.
                   </p>
                 </div>
               </div>
               <div class="col-lg-7 order-lg-1">
-                <h1 class="h3 mb-3">Analyser un PGN</h1>
-                <p class="text-secondary mb-4">
-                  Collez ci-dessous la partie jusqu'au coup que vous souhaitez analyser, puis cliquez sur
-                  <strong>Analyser</strong> pour obtenir les coups les plus probables selon Oracle.
-                </p>
-                <form method="post" action="/analyze" class="row g-3">
-                  <div class="col-12">
-                    <div class="form-label-group mb-2">
-                      <label for="pgn" class="form-label fw-semibold mb-0">PGN</label>
-                      <div class="board-actions">
-                        <button type="button" class="btn btn-outline-secondary btn-sm" data-load-pgn>
-                          Synchroniser le plateau
-                        </button>
-                        <button type="button" class="btn btn-outline-danger btn-sm" data-reset-board>
-                          Réinitialiser
-                        </button>
+                <div class="mb-4">
+                  <div class="btn-group" role="group" aria-label="Mode d'utilisation">
+                    <input
+                      type="radio"
+                      class="btn-check"
+                      name="oracle-mode"
+                      id="mode-analyze"
+                      value="analyze"
+                      data-mode-input
+                      {% if active_mode != 'play' %}checked{% endif %}
+                    />
+                    <label class="btn btn-outline-primary" for="mode-analyze">Analyse</label>
+                    <input
+                      type="radio"
+                      class="btn-check"
+                      name="oracle-mode"
+                      id="mode-play"
+                      value="play"
+                      data-mode-input
+                      {% if active_mode == 'play' %}checked{% endif %}
+                    />
+                    <label class="btn btn-outline-primary" for="mode-play">Jouer contre l'ordinateur</label>
+                  </div>
+                </div>
+                <div data-mode-panel="analyze" {% if active_mode == 'play' %}hidden{% endif %}>
+                  <h1 class="h3 mb-3">Analyser un PGN</h1>
+                  <p class="text-secondary mb-4">
+                    Collez ci-dessous la partie jusqu'au coup que vous souhaitez analyser, puis cliquez sur
+                    <strong>Analyser</strong> pour obtenir les coups les plus probables selon Oracle.
+                  </p>
+                  <form method="post" action="/analyze" class="row g-3">
+                    <div class="col-12">
+                      <div class="form-label-group mb-2">
+                        <label for="pgn" class="form-label fw-semibold mb-0">PGN</label>
+                        <div class="board-actions">
+                          <button type="button" class="btn btn-outline-secondary btn-sm" data-load-pgn>
+                            Synchroniser le plateau
+                          </button>
+                          <button type="button" class="btn btn-outline-danger btn-sm" data-reset-board>
+                            Réinitialiser
+                          </button>
+                        </div>
+                      </div>
+                      <textarea class="form-control" id="pgn" name="pgn" required>{{ pgn or "" }}</textarea>
+                    </div>
+                    <div class="col-12 col-md-6">
+                      <label for="analysis-level" class="form-label fw-semibold">Niveau (optionnel)</label>
+                      <select class="form-select" id="analysis-level" name="level">
+                        <option value="" {% if not selected_level %}selected{% endif %}>
+                          Utiliser les Elo du PGN
+                        </option>
+                        {% for option in levels or [] %}
+                        <option value="{{ option.value }}" {% if selected_level == option.value %}selected{% endif %}>
+                          {{ option.label }}
+                        </option>
+                        {% endfor %}
+                      </select>
+                      <div class="form-text">
+                        Choisissez un niveau cible pour ignorer les Elo du PGN et appliquer la cadence correspondante.
                       </div>
                     </div>
-                    <textarea class="form-control" id="pgn" name="pgn" required>{{ pgn or "" }}</textarea>
-                  </div>
-                  <div class="col-12 col-md-6">
-                    <label for="level" class="form-label fw-semibold">Niveau (optionnel)</label>
-                    <select class="form-select" id="level" name="level">
-                      <option value="" {% if not selected_level %}selected{% endif %}>
-                        Utiliser les Elo du PGN
-                      </option>
-                      {% for option in levels or [] %}
-                      <option value="{{ option.value }}" {% if selected_level == option.value %}selected{% endif %}>
-                        {{ option.label }}
-                      </option>
-                      {% endfor %}
-                    </select>
-                    <div class="form-text">
-                      Choisissez un niveau cible pour ignorer les Elo du PGN et appliquer la cadence correspondante.
+                    <div class="col-12 d-flex justify-content-end">
+                      <button type="submit" class="btn btn-primary">
+                        <span class="me-2" aria-hidden="true">♟️</span>
+                        Analyser
+                      </button>
+                    </div>
+                  </form>
+                </div>
+                <div data-mode-panel="play" {% if active_mode != 'play' %}hidden{% endif %}>
+                  <h1 class="h3 mb-3">Jouer contre l'ordinateur</h1>
+                  <p class="text-secondary mb-4">
+                    Choisissez la force adverse, démarrez une nouvelle partie puis jouez vos coups directement sur le plateau.
+                    L'ordinateur répondra automatiquement.
+                  </p>
+                  <div class="row g-3">
+                    <div class="col-12 col-md-6">
+                      <label for="play-level" class="form-label fw-semibold">Niveau de l'adversaire</label>
+                      <select class="form-select" id="play-level" data-game-level>
+                        <option value="" {% if not selected_level %}selected{% endif %}>
+                          Recommandé automatiquement
+                        </option>
+                        {% for option in levels or [] %}
+                        <option value="{{ option.value }}" {% if selected_level == option.value %}selected{% endif %}>
+                          {{ option.label }}
+                        </option>
+                        {% endfor %}
+                      </select>
+                      <div class="form-text">
+                        Ajustez la difficulté ou laissez Oracle choisir un niveau adapté en fonction de la position.
+                      </div>
+                    </div>
+                    <div class="col-12 d-flex flex-wrap gap-2">
+                      <button type="button" class="btn btn-primary" data-game-new>
+                        <span class="me-2" aria-hidden="true">▶️</span>
+                        Nouvelle partie
+                      </button>
+                      <button type="button" class="btn btn-outline-danger" data-game-resign disabled>
+                        <span class="me-2" aria-hidden="true">🏳️</span>
+                        Abandon
+                      </button>
+                    </div>
+                    <div class="col-12">
+                      <div class="alert alert-info mt-2" data-game-status hidden role="alert"></div>
                     </div>
                   </div>
-                  <div class="col-12 d-flex justify-content-end">
-                    <button type="submit" class="btn btn-primary">
-                      <span class="me-2" aria-hidden="true">♟️</span>
-                      Analyser
-                    </button>
-                  </div>
-                </form>
+                </div>
               </div>
             </div>
           </div>
@@ -328,54 +404,5 @@
       <span>Besoin d'aide ? Consultez la documentation dans le README ou vérifiez les logs serveur pour plus de détails.</span>
     </footer>
     <script type="module" src="{{ url_for('static', path='oracle-board.js') }}"></script>
-    <script type="module">
-      const textarea = document.getElementById('pgn');
-      const loadButton = document.querySelector('[data-load-pgn]');
-      const resetButton = document.querySelector('[data-reset-board]');
-
-      const connectBoard = (board) => {
-        if (!textarea || !board) {
-          return;
-        }
-
-        const initialValue = textarea.value.trim();
-        if (initialValue) {
-          board.loadPgn(initialValue);
-        }
-
-        board.onMove(() => {
-          textarea.value = board.getPgn();
-        });
-
-        board.onUpdate(({ pgn }) => {
-          if (document.activeElement !== textarea) {
-            textarea.value = pgn;
-          }
-        });
-
-        loadButton?.addEventListener('click', () => {
-          board.loadPgn(textarea.value);
-          textarea.focus();
-        });
-
-        resetButton?.addEventListener('click', () => {
-          board.reset();
-          textarea.value = board.getPgn();
-          textarea.focus();
-        });
-      };
-
-      document.addEventListener(
-        'oracle-board:ready',
-        (event) => {
-          connectBoard(event.detail);
-        },
-        { once: true },
-      );
-
-      if (window.oracleBoard) {
-        connectBoard(window.oracleBoard);
-      }
-    </script>
   </body>
 </html>

@@ -1,7 +1,7 @@
-var Ci = Object.defineProperty;
-var Mi = (c, e, t) => e in c ? Ci(c, e, { enumerable: !0, configurable: !0, writable: !0, value: t }) : c[e] = t;
-var q = (c, e, t) => Mi(c, typeof e != "symbol" ? e + "" : e, t);
-class Pi {
+var Ms = Object.defineProperty;
+var Es = (h, e, t) => e in h ? Ms(h, e, { enumerable: !0, configurable: !0, writable: !0, value: t }) : h[e] = t;
+var R = (h, e, t) => Es(h, typeof e != "symbol" ? e + "" : e, t);
+class Ts {
   constructor() {
     this.map = /* @__PURE__ */ new Map();
   }
@@ -9,40 +9,40 @@ class Pi {
     return this.map.has(e) || this.map.set(e, /* @__PURE__ */ new Set()), this.map.get(e).add(t), () => this.off(e, t);
   }
   off(e, t) {
-    var s;
-    (s = this.map.get(e)) == null || s.delete(t);
+    var i;
+    (i = this.map.get(e)) == null || i.delete(t);
   }
   emit(e, t) {
-    var s;
-    (s = this.map.get(e)) == null || s.forEach((i) => {
+    var i;
+    (i = this.map.get(e)) == null || i.forEach((s) => {
       try {
-        i(t);
+        s(t);
       } catch (r) {
         console.error(r);
       }
     });
   }
 }
-const Se = ["a", "b", "c", "d", "e", "f", "g", "h"], xe = ["1", "2", "3", "4", "5", "6", "7", "8"];
-function se(c) {
-  return c === c.toUpperCase();
+const qe = ["a", "b", "c", "d", "e", "f", "g", "h"], Qe = ["1", "2", "3", "4", "5", "6", "7", "8"];
+function fe(h) {
+  return h === h.toUpperCase();
 }
-function he(c, e) {
-  return Se[c] + xe[e];
+function _e(h, e) {
+  return qe[h] + Qe[e];
 }
-function lt(c) {
+function dt(h) {
   return {
-    f: Se.indexOf(c[0]),
-    r: xe.indexOf(c[1])
+    f: qe.indexOf(h[0]),
+    r: Qe.indexOf(h[1])
   };
 }
-function le(c) {
-  const e = c.split(" "), t = Array(8).fill(null).map(() => Array(8).fill(null)), s = e[0].split("/");
-  for (let i = 0; i < 8; i++) {
-    const r = s[i];
+function we(h) {
+  const e = h.split(" "), t = Array(8).fill(null).map(() => Array(8).fill(null)), i = e[0].split("/");
+  for (let s = 0; s < 8; s++) {
+    const r = i[s];
     let o = 0;
     for (const n of r)
-      /\d/.test(n) ? o += parseInt(n) : (t[7 - i][o] = n, o++);
+      /\d/.test(n) ? o += parseInt(n) : (t[7 - s][o] = n, o++);
   }
   return {
     board: t,
@@ -53,16 +53,16 @@ function le(c) {
     fullmove: parseInt(e[5] || "1")
   };
 }
-function Pe(c, e, t) {
-  return Math.max(e, Math.min(t, c));
+function Re(h, e, t) {
+  return Math.max(e, Math.min(t, h));
 }
-function ct(c, e, t) {
-  return c + (e - c) * t;
+function mt(h, e, t) {
+  return h + (e - h) * t;
 }
-function Ei(c) {
-  return 1 - Math.pow(1 - c, 3);
+function ks(h) {
+  return 1 - Math.pow(1 - h, 3);
 }
-const St = {
+const Mt = {
   classic: {
     light: "#2a3547",
     dark: "#57728e",
@@ -97,130 +97,130 @@ const St = {
     arrow: "rgba(59,130,246,0.9)",
     squareNameColor: "#E6E8EC"
   }
-}, Ti = "classic", yt = () => St[Ti], ki = (c) => {
-  const e = yt();
+}, qs = "classic", Et = () => Mt[qs], Ns = (h) => {
+  const e = Et();
   return {
     ...e,
-    ...c,
-    pieceStroke: c.pieceStroke ?? e.pieceStroke,
-    pieceHighlight: c.pieceHighlight ?? e.pieceHighlight
+    ...h,
+    pieceStroke: h.pieceStroke ?? e.pieceStroke,
+    pieceHighlight: h.pieceHighlight ?? e.pieceHighlight
   };
-}, ut = (c) => typeof c == "string" ? St[c] ?? yt() : ki(c);
-class qi {
+}, pt = (h) => typeof h == "string" ? Mt[h] ?? Et() : Ns(h);
+class Is {
   constructor(e, t) {
     this.size = e, this.colors = t, this.sheet = this.build(e);
   }
   getSheet() {
     return this.sheet;
   }
-  rr(e, t, s, i, r, o) {
-    const n = Math.min(o, i / 2, r / 2);
-    e.beginPath(), e.moveTo(t + n, s), e.lineTo(t + i - n, s), e.quadraticCurveTo(t + i, s, t + i, s + n), e.lineTo(t + i, s + r - n), e.quadraticCurveTo(t + i, s + r, t + i - n, s + r), e.lineTo(t + n, s + r), e.quadraticCurveTo(t, s + r, t, s + r - n), e.lineTo(t, s + n), e.quadraticCurveTo(t, s, t + n, s), e.closePath();
+  rr(e, t, i, s, r, o) {
+    const n = Math.min(o, s / 2, r / 2);
+    e.beginPath(), e.moveTo(t + n, i), e.lineTo(t + s - n, i), e.quadraticCurveTo(t + s, i, t + s, i + n), e.lineTo(t + s, i + r - n), e.quadraticCurveTo(t + s, i + r, t + s - n, i + r), e.lineTo(t + n, i + r), e.quadraticCurveTo(t, i + r, t, i + r - n), e.lineTo(t, i + n), e.quadraticCurveTo(t, i, t + n, i), e.closePath();
   }
   build(e) {
-    const t = typeof OffscreenCanvas < "u" ? new OffscreenCanvas(e * 6, e * 2) : Object.assign(document.createElement("canvas"), { width: e * 6, height: e * 2 }), s = t.getContext("2d");
+    const t = typeof OffscreenCanvas < "u" ? new OffscreenCanvas(e * 6, e * 2) : Object.assign(document.createElement("canvas"), { width: e * 6, height: e * 2 }), i = t.getContext("2d");
     return ["k", "q", "r", "b", "n", "p"].forEach((r, o) => {
-      this.draw(s, o * e, 0, e, r, "black"), this.draw(s, o * e, e, e, r, "white");
+      this.draw(i, o * e, 0, e, r, "black"), this.draw(i, o * e, e, e, r, "white");
     }), t;
   }
-  draw(e, t, s, i, r, o) {
+  draw(e, t, i, s, r, o) {
     const n = o === "white" ? this.colors.whitePiece : this.colors.blackPiece, a = this.colors.pieceShadow;
-    e.save(), e.translate(t, s), e.fillStyle = a, e.beginPath(), e.ellipse(i * 0.5, i * 0.68, i * 0.28, i * 0.1, 0, 0, Math.PI * 2), e.fill(), e.fillStyle = n, e.lineJoin = "round", e.lineCap = "round";
-    const h = () => {
-      e.beginPath(), e.moveTo(i * 0.2, i * 0.7), e.quadraticCurveTo(i * 0.5, i * 0.6, i * 0.8, i * 0.7), e.lineTo(i * 0.8, i * 0.8), e.quadraticCurveTo(i * 0.5, i * 0.85, i * 0.2, i * 0.8), e.closePath(), e.fill();
+    e.save(), e.translate(t, i), e.fillStyle = a, e.beginPath(), e.ellipse(s * 0.5, s * 0.68, s * 0.28, s * 0.1, 0, 0, Math.PI * 2), e.fill(), e.fillStyle = n, e.lineJoin = "round", e.lineCap = "round";
+    const l = () => {
+      e.beginPath(), e.moveTo(s * 0.2, s * 0.7), e.quadraticCurveTo(s * 0.5, s * 0.6, s * 0.8, s * 0.7), e.lineTo(s * 0.8, s * 0.8), e.quadraticCurveTo(s * 0.5, s * 0.85, s * 0.2, s * 0.8), e.closePath(), e.fill();
     };
-    if (r === "p" && (e.beginPath(), e.arc(i * 0.5, i * 0.38, i * 0.12, 0, Math.PI * 2), e.fill(), e.beginPath(), e.moveTo(i * 0.38, i * 0.52), e.quadraticCurveTo(i * 0.5, i * 0.42, i * 0.62, i * 0.52), e.quadraticCurveTo(i * 0.64, i * 0.6, i * 0.5, i * 0.62), e.quadraticCurveTo(i * 0.36, i * 0.6, i * 0.38, i * 0.52), e.closePath(), e.fill(), h()), r === "r" && (e.beginPath(), this.rr(e, i * 0.32, i * 0.3, i * 0.36, i * 0.34, i * 0.04), e.fill(), e.beginPath(), this.rr(e, i * 0.3, i * 0.22, i * 0.12, i * 0.1, i * 0.02), e.fill(), e.beginPath(), this.rr(e, i * 0.44, i * 0.2, i * 0.12, i * 0.12, i * 0.02), e.fill(), e.beginPath(), this.rr(e, i * 0.58, i * 0.22, i * 0.12, i * 0.1, i * 0.02), e.fill(), h()), r === "n") {
-      e.beginPath(), e.moveTo(i * 0.64, i * 0.6), e.quadraticCurveTo(i * 0.7, i * 0.35, i * 0.54, i * 0.28), e.quadraticCurveTo(i * 0.46, i * 0.24, i * 0.44, i * 0.3), e.quadraticCurveTo(i * 0.42, i * 0.42, i * 0.34, i * 0.44), e.quadraticCurveTo(i * 0.3, i * 0.46, i * 0.28, i * 0.5), e.quadraticCurveTo(i * 0.26, i * 0.6, i * 0.38, i * 0.62), e.closePath(), e.fill();
-      const d = e.fillStyle;
-      e.fillStyle = "rgba(0,0,0,0.15)", e.beginPath(), e.arc(i * 0.5, i * 0.36, i * 0.02, 0, Math.PI * 2), e.fill(), e.fillStyle = d, h();
+    if (r === "p" && (e.beginPath(), e.arc(s * 0.5, s * 0.38, s * 0.12, 0, Math.PI * 2), e.fill(), e.beginPath(), e.moveTo(s * 0.38, s * 0.52), e.quadraticCurveTo(s * 0.5, s * 0.42, s * 0.62, s * 0.52), e.quadraticCurveTo(s * 0.64, s * 0.6, s * 0.5, s * 0.62), e.quadraticCurveTo(s * 0.36, s * 0.6, s * 0.38, s * 0.52), e.closePath(), e.fill(), l()), r === "r" && (e.beginPath(), this.rr(e, s * 0.32, s * 0.3, s * 0.36, s * 0.34, s * 0.04), e.fill(), e.beginPath(), this.rr(e, s * 0.3, s * 0.22, s * 0.12, s * 0.1, s * 0.02), e.fill(), e.beginPath(), this.rr(e, s * 0.44, s * 0.2, s * 0.12, s * 0.12, s * 0.02), e.fill(), e.beginPath(), this.rr(e, s * 0.58, s * 0.22, s * 0.12, s * 0.1, s * 0.02), e.fill(), l()), r === "n") {
+      e.beginPath(), e.moveTo(s * 0.64, s * 0.6), e.quadraticCurveTo(s * 0.7, s * 0.35, s * 0.54, s * 0.28), e.quadraticCurveTo(s * 0.46, s * 0.24, s * 0.44, s * 0.3), e.quadraticCurveTo(s * 0.42, s * 0.42, s * 0.34, s * 0.44), e.quadraticCurveTo(s * 0.3, s * 0.46, s * 0.28, s * 0.5), e.quadraticCurveTo(s * 0.26, s * 0.6, s * 0.38, s * 0.62), e.closePath(), e.fill();
+      const g = e.fillStyle;
+      e.fillStyle = "rgba(0,0,0,0.15)", e.beginPath(), e.arc(s * 0.5, s * 0.36, s * 0.02, 0, Math.PI * 2), e.fill(), e.fillStyle = g, l();
     }
     if (r === "b") {
-      e.beginPath(), e.ellipse(i * 0.5, i * 0.42, i * 0.12, i * 0.18, 0, 0, Math.PI * 2), e.fill();
-      const d = e.globalCompositeOperation;
-      e.globalCompositeOperation = "destination-out", e.beginPath(), e.moveTo(i * 0.5, i * 0.28), e.lineTo(i * 0.5, i * 0.52), e.lineWidth = i * 0.04, e.stroke(), e.globalCompositeOperation = d, h();
+      e.beginPath(), e.ellipse(s * 0.5, s * 0.42, s * 0.12, s * 0.18, 0, 0, Math.PI * 2), e.fill();
+      const g = e.globalCompositeOperation;
+      e.globalCompositeOperation = "destination-out", e.beginPath(), e.moveTo(s * 0.5, s * 0.28), e.lineTo(s * 0.5, s * 0.52), e.lineWidth = s * 0.04, e.stroke(), e.globalCompositeOperation = g, l();
     }
-    r === "q" && (e.beginPath(), e.moveTo(i * 0.3, i * 0.3), e.lineTo(i * 0.4, i * 0.18), e.lineTo(i * 0.5, i * 0.3), e.lineTo(i * 0.6, i * 0.18), e.lineTo(i * 0.7, i * 0.3), e.closePath(), e.fill(), e.beginPath(), e.ellipse(i * 0.5, i * 0.5, i * 0.16, i * 0.16, 0, 0, Math.PI * 2), e.fill(), h()), r === "k" && (e.beginPath(), this.rr(e, i * 0.47, i * 0.16, i * 0.06, i * 0.16, i * 0.02), e.fill(), e.beginPath(), this.rr(e, i * 0.4, i * 0.22, i * 0.2, i * 0.06, i * 0.02), e.fill(), e.beginPath(), this.rr(e, i * 0.36, i * 0.34, i * 0.28, i * 0.26, i * 0.08), e.fill(), h()), e.restore();
+    r === "q" && (e.beginPath(), e.moveTo(s * 0.3, s * 0.3), e.lineTo(s * 0.4, s * 0.18), e.lineTo(s * 0.5, s * 0.3), e.lineTo(s * 0.6, s * 0.18), e.lineTo(s * 0.7, s * 0.3), e.closePath(), e.fill(), e.beginPath(), e.ellipse(s * 0.5, s * 0.5, s * 0.16, s * 0.16, 0, 0, Math.PI * 2), e.fill(), l()), r === "k" && (e.beginPath(), this.rr(e, s * 0.47, s * 0.16, s * 0.06, s * 0.16, s * 0.02), e.fill(), e.beginPath(), this.rr(e, s * 0.4, s * 0.22, s * 0.2, s * 0.06, s * 0.02), e.fill(), e.beginPath(), this.rr(e, s * 0.36, s * 0.34, s * 0.28, s * 0.26, s * 0.08), e.fill(), l()), e.restore();
   }
 }
-function Ni(c) {
-  return c !== null ? { comment: c, variations: [] } : { variations: [] };
+function Os(h) {
+  return h !== null ? { comment: h, variations: [] } : { variations: [] };
 }
-function Oi(c, e, t, s, i) {
-  const r = { move: c, variations: i };
-  return e && (r.suffix = e), t && (r.nag = t), s !== null && (r.comment = s), r;
+function $s(h, e, t, i, s) {
+  const r = { move: h, variations: s };
+  return e && (r.suffix = e), t && (r.nag = t), i !== null && (r.comment = i), r;
 }
-function Ii(...c) {
-  const [e, ...t] = c;
-  let s = e;
-  for (const i of t)
-    i !== null && (s.variations = [i, ...i.variations], i.variations = [], s = i);
+function Rs(...h) {
+  const [e, ...t] = h;
+  let i = e;
+  for (const s of t)
+    s !== null && (i.variations = [s, ...s.variations], s.variations = [], i = s);
   return e;
 }
-function $i(c, e) {
+function Fs(h, e) {
   if (e.marker && e.marker.comment) {
     let t = e.root;
     for (; ; ) {
-      const s = t.variations[0];
-      if (!s) {
+      const i = t.variations[0];
+      if (!i) {
         t.comment = e.marker.comment;
         break;
       }
-      t = s;
+      t = i;
     }
   }
   return {
-    headers: c,
+    headers: h,
     root: e.root,
     result: (e.marker && e.marker.result) ?? void 0
   };
 }
-function Ri(c, e) {
+function Ls(h, e) {
   function t() {
-    this.constructor = c;
+    this.constructor = h;
   }
-  t.prototype = e.prototype, c.prototype = new t();
+  t.prototype = e.prototype, h.prototype = new t();
 }
-function oe(c, e, t, s) {
-  var i = Error.call(this, c);
-  return Object.setPrototypeOf && Object.setPrototypeOf(i, oe.prototype), i.expected = e, i.found = t, i.location = s, i.name = "SyntaxError", i;
+function de(h, e, t, i) {
+  var s = Error.call(this, h);
+  return Object.setPrototypeOf && Object.setPrototypeOf(s, de.prototype), s.expected = e, s.found = t, s.location = i, s.name = "SyntaxError", s;
 }
-Ri(oe, Error);
-function Ee(c, e, t) {
-  return t = t || " ", c.length > e ? c : (e -= c.length, t += t.repeat(e), c + t.slice(0, e));
+Ls(de, Error);
+function Fe(h, e, t) {
+  return t = t || " ", h.length > e ? h : (e -= h.length, t += t.repeat(e), h + t.slice(0, e));
 }
-oe.prototype.format = function(c) {
+de.prototype.format = function(h) {
   var e = "Error: " + this.message;
   if (this.location) {
-    var t = null, s;
-    for (s = 0; s < c.length; s++)
-      if (c[s].source === this.location.source) {
-        t = c[s].text.split(/\r\n|\n|\r/g);
+    var t = null, i;
+    for (i = 0; i < h.length; i++)
+      if (h[i].source === this.location.source) {
+        t = h[i].text.split(/\r\n|\n|\r/g);
         break;
       }
-    var i = this.location.start, r = this.location.source && typeof this.location.source.offset == "function" ? this.location.source.offset(i) : i, o = this.location.source + ":" + r.line + ":" + r.column;
+    var s = this.location.start, r = this.location.source && typeof this.location.source.offset == "function" ? this.location.source.offset(s) : s, o = this.location.source + ":" + r.line + ":" + r.column;
     if (t) {
-      var n = this.location.end, a = Ee("", r.line.toString().length, " "), h = t[i.line - 1], d = i.line === n.line ? n.column : h.length + 1, m = d - i.column || 1;
+      var n = this.location.end, a = Fe("", r.line.toString().length, " "), l = t[s.line - 1], g = s.line === n.line ? n.column : l.length + 1, d = g - s.column || 1;
       e += `
  --> ` + o + `
 ` + a + ` |
-` + r.line + " | " + h + `
-` + a + " | " + Ee("", i.column - 1, " ") + Ee("", m, "^");
+` + r.line + " | " + l + `
+` + a + " | " + Fe("", s.column - 1, " ") + Fe("", d, "^");
     } else
       e += `
  at ` + o;
   }
   return e;
 };
-oe.buildMessage = function(c, e) {
+de.buildMessage = function(h, e) {
   var t = {
-    literal: function(h) {
-      return '"' + i(h.text) + '"';
+    literal: function(l) {
+      return '"' + s(l.text) + '"';
     },
-    class: function(h) {
-      var d = h.parts.map(function(m) {
-        return Array.isArray(m) ? r(m[0]) + "-" + r(m[1]) : r(m);
+    class: function(l) {
+      var g = l.parts.map(function(d) {
+        return Array.isArray(d) ? r(d[0]) + "-" + r(d[1]) : r(d);
       });
-      return "[" + (h.inverted ? "^" : "") + d.join("") + "]";
+      return "[" + (l.inverted ? "^" : "") + g.join("") + "]";
     },
     any: function() {
       return "any character";
@@ -228,289 +228,289 @@ oe.buildMessage = function(c, e) {
     end: function() {
       return "end of input";
     },
-    other: function(h) {
-      return h.description;
+    other: function(l) {
+      return l.description;
     }
   };
-  function s(h) {
-    return h.charCodeAt(0).toString(16).toUpperCase();
+  function i(l) {
+    return l.charCodeAt(0).toString(16).toUpperCase();
   }
-  function i(h) {
-    return h.replace(/\\/g, "\\\\").replace(/"/g, '\\"').replace(/\0/g, "\\0").replace(/\t/g, "\\t").replace(/\n/g, "\\n").replace(/\r/g, "\\r").replace(/[\x00-\x0F]/g, function(d) {
-      return "\\x0" + s(d);
-    }).replace(/[\x10-\x1F\x7F-\x9F]/g, function(d) {
-      return "\\x" + s(d);
+  function s(l) {
+    return l.replace(/\\/g, "\\\\").replace(/"/g, '\\"').replace(/\0/g, "\\0").replace(/\t/g, "\\t").replace(/\n/g, "\\n").replace(/\r/g, "\\r").replace(/[\x00-\x0F]/g, function(g) {
+      return "\\x0" + i(g);
+    }).replace(/[\x10-\x1F\x7F-\x9F]/g, function(g) {
+      return "\\x" + i(g);
     });
   }
-  function r(h) {
-    return h.replace(/\\/g, "\\\\").replace(/\]/g, "\\]").replace(/\^/g, "\\^").replace(/-/g, "\\-").replace(/\0/g, "\\0").replace(/\t/g, "\\t").replace(/\n/g, "\\n").replace(/\r/g, "\\r").replace(/[\x00-\x0F]/g, function(d) {
-      return "\\x0" + s(d);
-    }).replace(/[\x10-\x1F\x7F-\x9F]/g, function(d) {
-      return "\\x" + s(d);
+  function r(l) {
+    return l.replace(/\\/g, "\\\\").replace(/\]/g, "\\]").replace(/\^/g, "\\^").replace(/-/g, "\\-").replace(/\0/g, "\\0").replace(/\t/g, "\\t").replace(/\n/g, "\\n").replace(/\r/g, "\\r").replace(/[\x00-\x0F]/g, function(g) {
+      return "\\x0" + i(g);
+    }).replace(/[\x10-\x1F\x7F-\x9F]/g, function(g) {
+      return "\\x" + i(g);
     });
   }
-  function o(h) {
-    return t[h.type](h);
+  function o(l) {
+    return t[l.type](l);
   }
-  function n(h) {
-    var d = h.map(o), m, p;
-    if (d.sort(), d.length > 0) {
-      for (m = 1, p = 1; m < d.length; m++)
-        d[m - 1] !== d[m] && (d[p] = d[m], p++);
-      d.length = p;
+  function n(l) {
+    var g = l.map(o), d, f;
+    if (g.sort(), g.length > 0) {
+      for (d = 1, f = 1; d < g.length; d++)
+        g[d - 1] !== g[d] && (g[f] = g[d], f++);
+      g.length = f;
     }
-    switch (d.length) {
+    switch (g.length) {
       case 1:
-        return d[0];
+        return g[0];
       case 2:
-        return d[0] + " or " + d[1];
+        return g[0] + " or " + g[1];
       default:
-        return d.slice(0, -1).join(", ") + ", or " + d[d.length - 1];
+        return g.slice(0, -1).join(", ") + ", or " + g[g.length - 1];
     }
   }
-  function a(h) {
-    return h ? '"' + i(h) + '"' : "end of input";
+  function a(l) {
+    return l ? '"' + s(l) + '"' : "end of input";
   }
-  return "Expected " + n(c) + " but " + a(e) + " found.";
+  return "Expected " + n(h) + " but " + a(e) + " found.";
 };
-function Fi(c, e) {
+function Hs(h, e) {
   e = e !== void 0 ? e : {};
-  var t = {}, s = e.grammarSource, i = { pgn: st }, r = st, o = "[", n = '"', a = "]", h = ".", d = "O-O-O", m = "O-O", p = "0-0-0", _ = "0-0", v = "$", P = "{", C = "}", T = ";", k = "(", x = ")", K = "1-0", L = "0-1", Y = "1/2-1/2", te = "*", G = /^[a-zA-Z]/, j = /^[^"]/, ge = /^[0-9]/, Ke = /^[.]/, ze = /^[a-zA-Z1-8\-=]/, Ct = /^[+#]/, Be = /^[!?]/, Ue = /^[^}]/, We = /^[^\r\n]/, je = /^[ \t\r\n]/, Mt = z("tag pair"), Pt = I("[", !1), Ye = I('"', !1), Et = I("]", !1), Tt = z("tag name"), Ce = W([["a", "z"], ["A", "Z"]], !1, !1), kt = z("tag value"), Ge = W(['"'], !0, !1), qt = z("move number"), de = W([["0", "9"]], !1, !1), Nt = I(".", !1), Xe = W(["."], !1, !1), Ot = z("standard algebraic notation"), It = I("O-O-O", !1), $t = I("O-O", !1), Rt = I("0-0-0", !1), Ft = I("0-0", !1), Qe = W([["a", "z"], ["A", "Z"], ["1", "8"], "-", "="], !1, !1), Lt = W(["+", "#"], !1, !1), Ht = z("suffix annotation"), Ve = W(["!", "?"], !1, !1), xt = z("NAG"), Dt = I("$", !1), Kt = z("brace comment"), zt = I("{", !1), Je = W(["}"], !0, !1), Bt = I("}", !1), Ut = z("rest of line comment"), Wt = I(";", !1), Ze = W(["\r", `
-`], !0, !1), jt = z("variation"), Yt = I("(", !1), Gt = I(")", !1), Xt = z("game termination marker"), Qt = I("1-0", !1), Vt = I("0-1", !1), Jt = I("1/2-1/2", !1), Zt = I("*", !1), ei = z("whitespace"), et = W([" ", "	", "\r", `
-`], !1, !1), ti = function(l, f) {
-    return $i(l, f);
-  }, ii = function(l) {
-    return Object.fromEntries(l);
-  }, si = function(l, f) {
-    return [l, f];
-  }, ri = function(l, f) {
-    return { root: l, marker: f };
-  }, ni = function(l, f) {
-    return Ii(Ni(l), ...f.flat());
-  }, oi = function(l, f, g, S, y) {
-    return Oi(l, f, g, S, y);
-  }, ai = function(l) {
-    return l;
-  }, hi = function(l) {
-    return l.replace(/[\r\n]+/g, " ");
-  }, li = function(l) {
-    return l.trim();
-  }, ci = function(l) {
-    return l;
-  }, ui = function(l, f) {
-    return { result: l, comment: f };
-  }, u = e.peg$currPos | 0, ie = [{ line: 1, column: 1 }], U = u, me = e.peg$maxFailExpected || [], w = e.peg$silentFails | 0, ae;
+  var t = {}, i = e.grammarSource, s = { pgn: lt }, r = lt, o = "[", n = '"', a = "]", l = ".", g = "O-O-O", d = "O-O", f = "0-0-0", v = "0-0", _ = "$", b = "{", y = "}", k = ";", I = "(", $ = ")", O = "1-0", L = "0-1", G = "1/2-1/2", se = "*", X = /^[a-zA-Z]/, j = /^[^"]/, ie = /^[0-9]/, me = /^[.]/, S = /^[a-zA-Z1-8\-=]/, M = /^[+#]/, q = /^[!?]/, H = /^[^}]/, W = /^[^\r\n]/, ee = /^[ \t\r\n]/, J = Q("tag pair"), pe = D("[", !1), Je = D('"', !1), kt = D("]", !1), qt = Q("tag name"), Oe = te([["a", "z"], ["A", "Z"]], !1, !1), Nt = Q("tag value"), Ze = te(['"'], !0, !1), It = Q("move number"), Ae = te([["0", "9"]], !1, !1), Ot = D(".", !1), et = te(["."], !1, !1), $t = Q("standard algebraic notation"), Rt = D("O-O-O", !1), Ft = D("O-O", !1), Lt = D("0-0-0", !1), Ht = D("0-0", !1), tt = te([["a", "z"], ["A", "Z"], ["1", "8"], "-", "="], !1, !1), xt = te(["+", "#"], !1, !1), Dt = Q("suffix annotation"), st = te(["!", "?"], !1, !1), zt = Q("NAG"), Kt = D("$", !1), Ut = Q("brace comment"), Bt = D("{", !1), it = te(["}"], !0, !1), jt = D("}", !1), Wt = Q("rest of line comment"), Yt = D(";", !1), rt = te(["\r", `
+`], !0, !1), Gt = Q("variation"), Xt = D("(", !1), Qt = D(")", !1), Vt = Q("game termination marker"), Jt = D("1-0", !1), Zt = D("0-1", !1), es = D("1/2-1/2", !1), ts = D("*", !1), ss = Q("whitespace"), nt = te([" ", "	", "\r", `
+`], !1, !1), is = function(c, m) {
+    return Fs(c, m);
+  }, rs = function(c) {
+    return Object.fromEntries(c);
+  }, ns = function(c, m) {
+    return [c, m];
+  }, os = function(c, m) {
+    return { root: c, marker: m };
+  }, as = function(c, m) {
+    return Rs(Os(c), ...m.flat());
+  }, ls = function(c, m, p, C, P) {
+    return $s(c, m, p, C, P);
+  }, hs = function(c) {
+    return c;
+  }, cs = function(c) {
+    return c.replace(/[\r\n]+/g, " ");
+  }, fs = function(c) {
+    return c.trim();
+  }, us = function(c) {
+    return c;
+  }, gs = function(c, m) {
+    return { result: c, comment: m };
+  }, u = e.peg$currPos | 0, ce = [{ line: 1, column: 1 }], Z = u, Ce = e.peg$maxFailExpected || [], w = e.peg$silentFails | 0, ve;
   if (e.startRule) {
-    if (!(e.startRule in i))
+    if (!(e.startRule in s))
       throw new Error(`Can't start parsing from rule "` + e.startRule + '".');
-    r = i[e.startRule];
+    r = s[e.startRule];
   }
-  function I(l, f) {
-    return { type: "literal", text: l, ignoreCase: f };
+  function D(c, m) {
+    return { type: "literal", text: c, ignoreCase: m };
   }
-  function W(l, f, g) {
-    return { type: "class", parts: l, inverted: f, ignoreCase: g };
+  function te(c, m, p) {
+    return { type: "class", parts: c, inverted: m, ignoreCase: p };
   }
-  function fi() {
+  function ds() {
     return { type: "end" };
   }
-  function z(l) {
-    return { type: "other", description: l };
+  function Q(c) {
+    return { type: "other", description: c };
   }
-  function tt(l) {
-    var f = ie[l], g;
-    if (f)
-      return f;
-    if (l >= ie.length)
-      g = ie.length - 1;
+  function ot(c) {
+    var m = ce[c], p;
+    if (m)
+      return m;
+    if (c >= ce.length)
+      p = ce.length - 1;
     else
-      for (g = l; !ie[--g]; )
+      for (p = c; !ce[--p]; )
         ;
-    for (f = ie[g], f = {
-      line: f.line,
-      column: f.column
-    }; g < l; )
-      c.charCodeAt(g) === 10 ? (f.line++, f.column = 1) : f.column++, g++;
-    return ie[l] = f, f;
+    for (m = ce[p], m = {
+      line: m.line,
+      column: m.column
+    }; p < c; )
+      h.charCodeAt(p) === 10 ? (m.line++, m.column = 1) : m.column++, p++;
+    return ce[c] = m, m;
   }
-  function it(l, f, g) {
-    var S = tt(l), y = tt(f), E = {
-      source: s,
+  function at(c, m, p) {
+    var C = ot(c), P = ot(m), N = {
+      source: i,
       start: {
-        offset: l,
-        line: S.line,
-        column: S.column
+        offset: c,
+        line: C.line,
+        column: C.column
       },
       end: {
-        offset: f,
-        line: y.line,
-        column: y.column
+        offset: m,
+        line: P.line,
+        column: P.column
       }
     };
-    return E;
+    return N;
   }
-  function b(l) {
-    u < U || (u > U && (U = u, me = []), me.push(l));
+  function A(c) {
+    u < Z || (u > Z && (Z = u, Ce = []), Ce.push(c));
   }
-  function gi(l, f, g) {
-    return new oe(
-      oe.buildMessage(l, f),
-      l,
-      f,
-      g
+  function ms(c, m, p) {
+    return new de(
+      de.buildMessage(c, m),
+      c,
+      m,
+      p
     );
   }
-  function st() {
-    var l, f, g;
-    return l = u, f = di(), g = _i(), l = ti(f, g), l;
+  function lt() {
+    var c, m, p;
+    return c = u, m = ps(), p = ws(), c = is(m, p), c;
   }
-  function di() {
-    var l, f, g;
-    for (l = u, f = [], g = rt(); g !== t; )
-      f.push(g), g = rt();
-    return g = H(), l = ii(f), l;
-  }
-  function rt() {
-    var l, f, g, S, y, E, J;
-    return w++, l = u, H(), c.charCodeAt(u) === 91 ? (f = o, u++) : (f = t, w === 0 && b(Pt)), f !== t ? (H(), g = mi(), g !== t ? (H(), c.charCodeAt(u) === 34 ? (S = n, u++) : (S = t, w === 0 && b(Ye)), S !== t ? (y = pi(), c.charCodeAt(u) === 34 ? (E = n, u++) : (E = t, w === 0 && b(Ye)), E !== t ? (H(), c.charCodeAt(u) === 93 ? (J = a, u++) : (J = t, w === 0 && b(Et)), J !== t ? l = si(g, y) : (u = l, l = t)) : (u = l, l = t)) : (u = l, l = t)) : (u = l, l = t)) : (u = l, l = t), w--, l === t && w === 0 && b(Mt), l;
-  }
-  function mi() {
-    var l, f, g;
-    if (w++, l = u, f = [], g = c.charAt(u), G.test(g) ? u++ : (g = t, w === 0 && b(Ce)), g !== t)
-      for (; g !== t; )
-        f.push(g), g = c.charAt(u), G.test(g) ? u++ : (g = t, w === 0 && b(Ce));
-    else
-      f = t;
-    return f !== t ? l = c.substring(l, u) : l = f, w--, l === t && (f = t, w === 0 && b(Tt)), l;
-  }
-  function pi() {
-    var l, f, g;
-    for (w++, l = u, f = [], g = c.charAt(u), j.test(g) ? u++ : (g = t, w === 0 && b(Ge)); g !== t; )
-      f.push(g), g = c.charAt(u), j.test(g) ? u++ : (g = t, w === 0 && b(Ge));
-    return l = c.substring(l, u), w--, f = t, w === 0 && b(kt), l;
-  }
-  function _i() {
-    var l, f, g;
-    return l = u, f = nt(), H(), g = Ai(), g === t && (g = null), H(), l = ri(f, g), l;
-  }
-  function nt() {
-    var l, f, g, S;
-    for (l = u, f = Me(), f === t && (f = null), g = [], S = ot(); S !== t; )
-      g.push(S), S = ot();
-    return l = ni(f, g), l;
-  }
-  function ot() {
-    var l, f, g, S, y, E, J, pe;
-    if (l = u, H(), vi(), H(), f = wi(), f !== t) {
-      for (g = bi(), g === t && (g = null), S = [], y = at(); y !== t; )
-        S.push(y), y = at();
-      for (y = H(), E = Me(), E === t && (E = null), J = [], pe = ht(); pe !== t; )
-        J.push(pe), pe = ht();
-      l = oi(f, g, S, E, J);
-    } else
-      u = l, l = t;
-    return l;
-  }
-  function vi() {
-    var l, f, g, S, y, E;
-    for (w++, l = u, f = [], g = c.charAt(u), ge.test(g) ? u++ : (g = t, w === 0 && b(de)); g !== t; )
-      f.push(g), g = c.charAt(u), ge.test(g) ? u++ : (g = t, w === 0 && b(de));
-    if (c.charCodeAt(u) === 46 ? (g = h, u++) : (g = t, w === 0 && b(Nt)), g !== t) {
-      for (S = H(), y = [], E = c.charAt(u), Ke.test(E) ? u++ : (E = t, w === 0 && b(Xe)); E !== t; )
-        y.push(E), E = c.charAt(u), Ke.test(E) ? u++ : (E = t, w === 0 && b(Xe));
-      f = [f, g, S, y], l = f;
-    } else
-      u = l, l = t;
-    return w--, l === t && (f = t, w === 0 && b(qt)), l;
-  }
-  function wi() {
-    var l, f, g, S, y, E;
-    if (w++, l = u, f = u, c.substr(u, 5) === d ? (g = d, u += 5) : (g = t, w === 0 && b(It)), g === t && (c.substr(u, 3) === m ? (g = m, u += 3) : (g = t, w === 0 && b($t)), g === t && (c.substr(u, 5) === p ? (g = p, u += 5) : (g = t, w === 0 && b(Rt)), g === t && (c.substr(u, 3) === _ ? (g = _, u += 3) : (g = t, w === 0 && b(Ft)), g === t))))
-      if (g = u, S = c.charAt(u), G.test(S) ? u++ : (S = t, w === 0 && b(Ce)), S !== t) {
-        if (y = [], E = c.charAt(u), ze.test(E) ? u++ : (E = t, w === 0 && b(Qe)), E !== t)
-          for (; E !== t; )
-            y.push(E), E = c.charAt(u), ze.test(E) ? u++ : (E = t, w === 0 && b(Qe));
-        else
-          y = t;
-        y !== t ? (S = [S, y], g = S) : (u = g, g = t);
-      } else
-        u = g, g = t;
-    return g !== t ? (S = c.charAt(u), Ct.test(S) ? u++ : (S = t, w === 0 && b(Lt)), S === t && (S = null), g = [g, S], f = g) : (u = f, f = t), f !== t ? l = c.substring(l, u) : l = f, w--, l === t && (f = t, w === 0 && b(Ot)), l;
-  }
-  function bi() {
-    var l, f, g;
-    for (w++, l = u, f = [], g = c.charAt(u), Be.test(g) ? u++ : (g = t, w === 0 && b(Ve)); g !== t; )
-      f.push(g), f.length >= 2 ? g = t : (g = c.charAt(u), Be.test(g) ? u++ : (g = t, w === 0 && b(Ve)));
-    return f.length < 1 ? (u = l, l = t) : l = f, w--, l === t && (f = t, w === 0 && b(Ht)), l;
-  }
-  function at() {
-    var l, f, g, S, y;
-    if (w++, l = u, H(), c.charCodeAt(u) === 36 ? (f = v, u++) : (f = t, w === 0 && b(Dt)), f !== t) {
-      if (g = u, S = [], y = c.charAt(u), ge.test(y) ? u++ : (y = t, w === 0 && b(de)), y !== t)
-        for (; y !== t; )
-          S.push(y), y = c.charAt(u), ge.test(y) ? u++ : (y = t, w === 0 && b(de));
-      else
-        S = t;
-      S !== t ? g = c.substring(g, u) : g = S, g !== t ? l = ai(g) : (u = l, l = t);
-    } else
-      u = l, l = t;
-    return w--, l === t && w === 0 && b(xt), l;
-  }
-  function Me() {
-    var l;
-    return l = Si(), l === t && (l = yi()), l;
-  }
-  function Si() {
-    var l, f, g, S, y;
-    if (w++, l = u, c.charCodeAt(u) === 123 ? (f = P, u++) : (f = t, w === 0 && b(zt)), f !== t) {
-      for (g = u, S = [], y = c.charAt(u), Ue.test(y) ? u++ : (y = t, w === 0 && b(Je)); y !== t; )
-        S.push(y), y = c.charAt(u), Ue.test(y) ? u++ : (y = t, w === 0 && b(Je));
-      g = c.substring(g, u), c.charCodeAt(u) === 125 ? (S = C, u++) : (S = t, w === 0 && b(Bt)), S !== t ? l = hi(g) : (u = l, l = t);
-    } else
-      u = l, l = t;
-    return w--, l === t && (f = t, w === 0 && b(Kt)), l;
-  }
-  function yi() {
-    var l, f, g, S, y;
-    if (w++, l = u, c.charCodeAt(u) === 59 ? (f = T, u++) : (f = t, w === 0 && b(Wt)), f !== t) {
-      for (g = u, S = [], y = c.charAt(u), We.test(y) ? u++ : (y = t, w === 0 && b(Ze)); y !== t; )
-        S.push(y), y = c.charAt(u), We.test(y) ? u++ : (y = t, w === 0 && b(Ze));
-      g = c.substring(g, u), l = li(g);
-    } else
-      u = l, l = t;
-    return w--, l === t && (f = t, w === 0 && b(Ut)), l;
+  function ps() {
+    var c, m, p;
+    for (c = u, m = [], p = ht(); p !== t; )
+      m.push(p), p = ht();
+    return p = B(), c = rs(m), c;
   }
   function ht() {
-    var l, f, g, S;
-    return w++, l = u, H(), c.charCodeAt(u) === 40 ? (f = k, u++) : (f = t, w === 0 && b(Yt)), f !== t ? (g = nt(), g !== t ? (H(), c.charCodeAt(u) === 41 ? (S = x, u++) : (S = t, w === 0 && b(Gt)), S !== t ? l = ci(g) : (u = l, l = t)) : (u = l, l = t)) : (u = l, l = t), w--, l === t && w === 0 && b(jt), l;
+    var c, m, p, C, P, N, ae;
+    return w++, c = u, B(), h.charCodeAt(u) === 91 ? (m = o, u++) : (m = t, w === 0 && A(pe)), m !== t ? (B(), p = vs(), p !== t ? (B(), h.charCodeAt(u) === 34 ? (C = n, u++) : (C = t, w === 0 && A(Je)), C !== t ? (P = _s(), h.charCodeAt(u) === 34 ? (N = n, u++) : (N = t, w === 0 && A(Je)), N !== t ? (B(), h.charCodeAt(u) === 93 ? (ae = a, u++) : (ae = t, w === 0 && A(kt)), ae !== t ? c = ns(p, P) : (u = c, c = t)) : (u = c, c = t)) : (u = c, c = t)) : (u = c, c = t)) : (u = c, c = t), w--, c === t && w === 0 && A(J), c;
   }
-  function Ai() {
-    var l, f, g;
-    return w++, l = u, c.substr(u, 3) === K ? (f = K, u += 3) : (f = t, w === 0 && b(Qt)), f === t && (c.substr(u, 3) === L ? (f = L, u += 3) : (f = t, w === 0 && b(Vt)), f === t && (c.substr(u, 7) === Y ? (f = Y, u += 7) : (f = t, w === 0 && b(Jt)), f === t && (c.charCodeAt(u) === 42 ? (f = te, u++) : (f = t, w === 0 && b(Zt))))), f !== t ? (H(), g = Me(), g === t && (g = null), l = ui(f, g)) : (u = l, l = t), w--, l === t && (f = t, w === 0 && b(Xt)), l;
+  function vs() {
+    var c, m, p;
+    if (w++, c = u, m = [], p = h.charAt(u), X.test(p) ? u++ : (p = t, w === 0 && A(Oe)), p !== t)
+      for (; p !== t; )
+        m.push(p), p = h.charAt(u), X.test(p) ? u++ : (p = t, w === 0 && A(Oe));
+    else
+      m = t;
+    return m !== t ? c = h.substring(c, u) : c = m, w--, c === t && (m = t, w === 0 && A(qt)), c;
   }
-  function H() {
-    var l, f;
-    for (w++, l = [], f = c.charAt(u), je.test(f) ? u++ : (f = t, w === 0 && b(et)); f !== t; )
-      l.push(f), f = c.charAt(u), je.test(f) ? u++ : (f = t, w === 0 && b(et));
-    return w--, f = t, w === 0 && b(ei), l;
+  function _s() {
+    var c, m, p;
+    for (w++, c = u, m = [], p = h.charAt(u), j.test(p) ? u++ : (p = t, w === 0 && A(Ze)); p !== t; )
+      m.push(p), p = h.charAt(u), j.test(p) ? u++ : (p = t, w === 0 && A(Ze));
+    return c = h.substring(c, u), w--, m = t, w === 0 && A(Nt), c;
   }
-  if (ae = r(), e.peg$library)
+  function ws() {
+    var c, m, p;
+    return c = u, m = ct(), B(), p = Ps(), p === t && (p = null), B(), c = os(m, p), c;
+  }
+  function ct() {
+    var c, m, p, C;
+    for (c = u, m = $e(), m === t && (m = null), p = [], C = ft(); C !== t; )
+      p.push(C), C = ft();
+    return c = as(m, p), c;
+  }
+  function ft() {
+    var c, m, p, C, P, N, ae, Pe;
+    if (c = u, B(), bs(), B(), m = Ss(), m !== t) {
+      for (p = ys(), p === t && (p = null), C = [], P = ut(); P !== t; )
+        C.push(P), P = ut();
+      for (P = B(), N = $e(), N === t && (N = null), ae = [], Pe = gt(); Pe !== t; )
+        ae.push(Pe), Pe = gt();
+      c = ls(m, p, C, N, ae);
+    } else
+      u = c, c = t;
+    return c;
+  }
+  function bs() {
+    var c, m, p, C, P, N;
+    for (w++, c = u, m = [], p = h.charAt(u), ie.test(p) ? u++ : (p = t, w === 0 && A(Ae)); p !== t; )
+      m.push(p), p = h.charAt(u), ie.test(p) ? u++ : (p = t, w === 0 && A(Ae));
+    if (h.charCodeAt(u) === 46 ? (p = l, u++) : (p = t, w === 0 && A(Ot)), p !== t) {
+      for (C = B(), P = [], N = h.charAt(u), me.test(N) ? u++ : (N = t, w === 0 && A(et)); N !== t; )
+        P.push(N), N = h.charAt(u), me.test(N) ? u++ : (N = t, w === 0 && A(et));
+      m = [m, p, C, P], c = m;
+    } else
+      u = c, c = t;
+    return w--, c === t && (m = t, w === 0 && A(It)), c;
+  }
+  function Ss() {
+    var c, m, p, C, P, N;
+    if (w++, c = u, m = u, h.substr(u, 5) === g ? (p = g, u += 5) : (p = t, w === 0 && A(Rt)), p === t && (h.substr(u, 3) === d ? (p = d, u += 3) : (p = t, w === 0 && A(Ft)), p === t && (h.substr(u, 5) === f ? (p = f, u += 5) : (p = t, w === 0 && A(Lt)), p === t && (h.substr(u, 3) === v ? (p = v, u += 3) : (p = t, w === 0 && A(Ht)), p === t))))
+      if (p = u, C = h.charAt(u), X.test(C) ? u++ : (C = t, w === 0 && A(Oe)), C !== t) {
+        if (P = [], N = h.charAt(u), S.test(N) ? u++ : (N = t, w === 0 && A(tt)), N !== t)
+          for (; N !== t; )
+            P.push(N), N = h.charAt(u), S.test(N) ? u++ : (N = t, w === 0 && A(tt));
+        else
+          P = t;
+        P !== t ? (C = [C, P], p = C) : (u = p, p = t);
+      } else
+        u = p, p = t;
+    return p !== t ? (C = h.charAt(u), M.test(C) ? u++ : (C = t, w === 0 && A(xt)), C === t && (C = null), p = [p, C], m = p) : (u = m, m = t), m !== t ? c = h.substring(c, u) : c = m, w--, c === t && (m = t, w === 0 && A($t)), c;
+  }
+  function ys() {
+    var c, m, p;
+    for (w++, c = u, m = [], p = h.charAt(u), q.test(p) ? u++ : (p = t, w === 0 && A(st)); p !== t; )
+      m.push(p), m.length >= 2 ? p = t : (p = h.charAt(u), q.test(p) ? u++ : (p = t, w === 0 && A(st)));
+    return m.length < 1 ? (u = c, c = t) : c = m, w--, c === t && (m = t, w === 0 && A(Dt)), c;
+  }
+  function ut() {
+    var c, m, p, C, P;
+    if (w++, c = u, B(), h.charCodeAt(u) === 36 ? (m = _, u++) : (m = t, w === 0 && A(Kt)), m !== t) {
+      if (p = u, C = [], P = h.charAt(u), ie.test(P) ? u++ : (P = t, w === 0 && A(Ae)), P !== t)
+        for (; P !== t; )
+          C.push(P), P = h.charAt(u), ie.test(P) ? u++ : (P = t, w === 0 && A(Ae));
+      else
+        C = t;
+      C !== t ? p = h.substring(p, u) : p = C, p !== t ? c = hs(p) : (u = c, c = t);
+    } else
+      u = c, c = t;
+    return w--, c === t && w === 0 && A(zt), c;
+  }
+  function $e() {
+    var c;
+    return c = As(), c === t && (c = Cs()), c;
+  }
+  function As() {
+    var c, m, p, C, P;
+    if (w++, c = u, h.charCodeAt(u) === 123 ? (m = b, u++) : (m = t, w === 0 && A(Bt)), m !== t) {
+      for (p = u, C = [], P = h.charAt(u), H.test(P) ? u++ : (P = t, w === 0 && A(it)); P !== t; )
+        C.push(P), P = h.charAt(u), H.test(P) ? u++ : (P = t, w === 0 && A(it));
+      p = h.substring(p, u), h.charCodeAt(u) === 125 ? (C = y, u++) : (C = t, w === 0 && A(jt)), C !== t ? c = cs(p) : (u = c, c = t);
+    } else
+      u = c, c = t;
+    return w--, c === t && (m = t, w === 0 && A(Ut)), c;
+  }
+  function Cs() {
+    var c, m, p, C, P;
+    if (w++, c = u, h.charCodeAt(u) === 59 ? (m = k, u++) : (m = t, w === 0 && A(Yt)), m !== t) {
+      for (p = u, C = [], P = h.charAt(u), W.test(P) ? u++ : (P = t, w === 0 && A(rt)); P !== t; )
+        C.push(P), P = h.charAt(u), W.test(P) ? u++ : (P = t, w === 0 && A(rt));
+      p = h.substring(p, u), c = fs(p);
+    } else
+      u = c, c = t;
+    return w--, c === t && (m = t, w === 0 && A(Wt)), c;
+  }
+  function gt() {
+    var c, m, p, C;
+    return w++, c = u, B(), h.charCodeAt(u) === 40 ? (m = I, u++) : (m = t, w === 0 && A(Xt)), m !== t ? (p = ct(), p !== t ? (B(), h.charCodeAt(u) === 41 ? (C = $, u++) : (C = t, w === 0 && A(Qt)), C !== t ? c = us(p) : (u = c, c = t)) : (u = c, c = t)) : (u = c, c = t), w--, c === t && w === 0 && A(Gt), c;
+  }
+  function Ps() {
+    var c, m, p;
+    return w++, c = u, h.substr(u, 3) === O ? (m = O, u += 3) : (m = t, w === 0 && A(Jt)), m === t && (h.substr(u, 3) === L ? (m = L, u += 3) : (m = t, w === 0 && A(Zt)), m === t && (h.substr(u, 7) === G ? (m = G, u += 7) : (m = t, w === 0 && A(es)), m === t && (h.charCodeAt(u) === 42 ? (m = se, u++) : (m = t, w === 0 && A(ts))))), m !== t ? (B(), p = $e(), p === t && (p = null), c = gs(m, p)) : (u = c, c = t), w--, c === t && (m = t, w === 0 && A(Vt)), c;
+  }
+  function B() {
+    var c, m;
+    for (w++, c = [], m = h.charAt(u), ee.test(m) ? u++ : (m = t, w === 0 && A(nt)); m !== t; )
+      c.push(m), m = h.charAt(u), ee.test(m) ? u++ : (m = t, w === 0 && A(nt));
+    return w--, m = t, w === 0 && A(ss), c;
+  }
+  if (ve = r(), e.peg$library)
     return (
       /** @type {any} */
       {
-        peg$result: ae,
+        peg$result: ve,
         peg$currPos: u,
         peg$FAILED: t,
-        peg$maxFailExpected: me,
-        peg$maxFailPos: U
+        peg$maxFailExpected: Ce,
+        peg$maxFailPos: Z
       }
     );
-  if (ae !== t && u === c.length)
-    return ae;
-  throw ae !== t && u < c.length && b(fi()), gi(
-    me,
-    U < c.length ? c.charAt(U) : null,
-    U < c.length ? it(U, U + 1) : it(U, U)
+  if (ve !== t && u === h.length)
+    return ve;
+  throw ve !== t && u < h.length && A(ds()), ms(
+    Ce,
+    Z < h.length ? h.charAt(Z) : null,
+    Z < h.length ? at(Z, Z + 1) : at(Z, Z)
   );
 }
 /**
@@ -539,66 +539,66 @@ function Fi(c, e) {
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-const we = 0xffffffffffffffffn;
-function Te(c, e) {
-  return (c << e | c >> 64n - e) & 0xffffffffffffffffn;
+const Te = 0xffffffffffffffffn;
+function Le(h, e) {
+  return (h << e | h >> 64n - e) & 0xffffffffffffffffn;
 }
-function ft(c, e) {
-  return c * e & we;
+function vt(h, e) {
+  return h * e & Te;
 }
-function Li(c) {
+function xs(h) {
   return function() {
-    let e = BigInt(c & we), t = BigInt(c >> 64n & we);
-    const s = ft(Te(ft(e, 5n), 7n), 9n);
-    return t ^= e, e = (Te(e, 24n) ^ t ^ t << 16n) & we, t = Te(t, 37n), c = t << 64n | e, s;
+    let e = BigInt(h & Te), t = BigInt(h >> 64n & Te);
+    const i = vt(Le(vt(e, 5n), 7n), 9n);
+    return t ^= e, e = (Le(e, 24n) ^ t ^ t << 16n) & Te, t = Le(t, 37n), h = t << 64n | e, i;
   };
 }
-const ye = Li(0xa187eb39cdcaed8f31c4b365b102e01en), Hi = Array.from({ length: 2 }, () => Array.from({ length: 6 }, () => Array.from({ length: 128 }, () => ye()))), xi = Array.from({ length: 8 }, () => ye()), Di = Array.from({ length: 16 }, () => ye()), ke = ye(), F = "w", D = "b", N = "p", Le = "n", be = "b", ue = "r", V = "q", O = "k", qe = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-class _e {
+const Ne = xs(0xa187eb39cdcaed8f31c4b365b102e01en), Ds = Array.from({ length: 2 }, () => Array.from({ length: 6 }, () => Array.from({ length: 128 }, () => Ne()))), zs = Array.from({ length: 8 }, () => Ne()), Ks = Array.from({ length: 16 }, () => Ne()), He = Ne(), U = "w", Y = "b", F = "p", We = "n", ke = "b", Se = "r", oe = "q", x = "k", xe = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+class Me {
   constructor(e, t) {
-    q(this, "color");
-    q(this, "from");
-    q(this, "to");
-    q(this, "piece");
-    q(this, "captured");
-    q(this, "promotion");
+    R(this, "color");
+    R(this, "from");
+    R(this, "to");
+    R(this, "piece");
+    R(this, "captured");
+    R(this, "promotion");
     /**
      * @deprecated This field is deprecated and will be removed in version 2.0.0.
      * Please use move descriptor functions instead: `isCapture`, `isPromotion`,
      * `isEnPassant`, `isKingsideCastle`, `isQueensideCastle`, `isCastle`, and
      * `isBigPawn`
      */
-    q(this, "flags");
-    q(this, "san");
-    q(this, "lan");
-    q(this, "before");
-    q(this, "after");
-    const { color: s, piece: i, from: r, to: o, flags: n, captured: a, promotion: h } = t, d = $(r), m = $(o);
-    this.color = s, this.piece = i, this.from = d, this.to = m, this.san = e._moveToSan(t, e._moves({ legal: !0 })), this.lan = d + m, this.before = e.fen(), e._makeMove(t), this.after = e.fen(), e._undoMove(), this.flags = "";
-    for (const p in M)
-      M[p] & n && (this.flags += Z[p]);
-    a && (this.captured = a), h && (this.promotion = h, this.lan += h);
+    R(this, "flags");
+    R(this, "san");
+    R(this, "lan");
+    R(this, "before");
+    R(this, "after");
+    const { color: i, piece: s, from: r, to: o, flags: n, captured: a, promotion: l } = t, g = z(r), d = z(o);
+    this.color = i, this.piece = s, this.from = g, this.to = d, this.san = e._moveToSan(t, e._moves({ legal: !0 })), this.lan = g + d, this.before = e.fen(), e._makeMove(t), this.after = e.fen(), e._undoMove(), this.flags = "";
+    for (const f in T)
+      T[f] & n && (this.flags += le[f]);
+    a && (this.captured = a), l && (this.promotion = l, this.lan += l);
   }
   isCapture() {
-    return this.flags.indexOf(Z.CAPTURE) > -1;
+    return this.flags.indexOf(le.CAPTURE) > -1;
   }
   isPromotion() {
-    return this.flags.indexOf(Z.PROMOTION) > -1;
+    return this.flags.indexOf(le.PROMOTION) > -1;
   }
   isEnPassant() {
-    return this.flags.indexOf(Z.EP_CAPTURE) > -1;
+    return this.flags.indexOf(le.EP_CAPTURE) > -1;
   }
   isKingsideCastle() {
-    return this.flags.indexOf(Z.KSIDE_CASTLE) > -1;
+    return this.flags.indexOf(le.KSIDE_CASTLE) > -1;
   }
   isQueensideCastle() {
-    return this.flags.indexOf(Z.QSIDE_CASTLE) > -1;
+    return this.flags.indexOf(le.QSIDE_CASTLE) > -1;
   }
   isBigPawn() {
-    return this.flags.indexOf(Z.BIG_PAWN) > -1;
+    return this.flags.indexOf(le.BIG_PAWN) > -1;
   }
 }
-const R = -1, Z = {
+const K = -1, le = {
   NORMAL: "n",
   CAPTURE: "c",
   BIG_PAWN: "b",
@@ -607,7 +607,7 @@ const R = -1, Z = {
   KSIDE_CASTLE: "k",
   QSIDE_CASTLE: "q",
   NULL_MOVE: "-"
-}, gt = [
+}, _t = [
   "a8",
   "b8",
   "c8",
@@ -672,7 +672,7 @@ const R = -1, Z = {
   "f1",
   "g1",
   "h1"
-], M = {
+], T = {
   NORMAL: 1,
   CAPTURE: 2,
   BIG_PAWN: 4,
@@ -681,7 +681,7 @@ const R = -1, Z = {
   KSIDE_CASTLE: 32,
   QSIDE_CASTLE: 64,
   NULL_MOVE: 128
-}, He = {
+}, Ye = {
   Event: "?",
   Site: "?",
   Date: "????.??.??",
@@ -689,7 +689,7 @@ const R = -1, Z = {
   White: "?",
   Black: "?",
   Result: "*"
-}, Ki = {
+}, Us = {
   WhiteTitle: null,
   BlackTitle: null,
   WhiteElo: null,
@@ -720,10 +720,10 @@ const R = -1, Z = {
   Annotator: null,
   Mode: null,
   PlyCount: null
-}, zi = {
-  ...He,
-  ...Ki
-}, A = {
+}, Bs = {
+  ...Ye,
+  ...Us
+}, E = {
   a8: 0,
   b8: 1,
   c8: 2,
@@ -788,16 +788,16 @@ const R = -1, Z = {
   f1: 117,
   g1: 118,
   h1: 119
-}, Ne = {
+}, De = {
   b: [16, 32, 17, 15],
   w: [-16, -32, -17, -15]
-}, dt = {
+}, wt = {
   n: [-18, -33, -31, -14, 18, 33, 31, 14],
   b: [-17, -15, 17, 15],
   r: [-16, 1, 16, -1],
   q: [-17, -16, -15, 1, 17, 16, 15, -1],
   k: [-17, -16, -15, 1, 17, 16, 15, -1]
-}, Bi = [
+}, js = [
   20,
   0,
   0,
@@ -1037,7 +1037,7 @@ const R = -1, Z = {
   0,
   0,
   20
-], Ui = [
+], Ws = [
   17,
   0,
   0,
@@ -1277,37 +1277,37 @@ const R = -1, Z = {
   0,
   0,
   -17
-], Wi = { p: 1, n: 2, b: 4, r: 8, q: 16, k: 32 }, ji = "pnbrqkPNBRQK", mt = [Le, be, ue, V], Yi = 7, Gi = 6, Xi = 1, Qi = 0, ve = {
-  [O]: M.KSIDE_CASTLE,
-  [V]: M.QSIDE_CASTLE
-}, X = {
+], Ys = { p: 1, n: 2, b: 4, r: 8, q: 16, k: 32 }, Gs = "pnbrqkPNBRQK", bt = [We, ke, Se, oe], Xs = 7, Qs = 6, Vs = 1, Js = 0, Ee = {
+  [x]: T.KSIDE_CASTLE,
+  [oe]: T.QSIDE_CASTLE
+}, re = {
   w: [
-    { square: A.a1, flag: M.QSIDE_CASTLE },
-    { square: A.h1, flag: M.KSIDE_CASTLE }
+    { square: E.a1, flag: T.QSIDE_CASTLE },
+    { square: E.h1, flag: T.KSIDE_CASTLE }
   ],
   b: [
-    { square: A.a8, flag: M.QSIDE_CASTLE },
-    { square: A.h8, flag: M.KSIDE_CASTLE }
+    { square: E.a8, flag: T.QSIDE_CASTLE },
+    { square: E.h8, flag: T.KSIDE_CASTLE }
   ]
-}, Vi = { b: Xi, w: Gi }, Oe = "--";
-function ee(c) {
-  return c >> 4;
+}, Zs = { b: Vs, w: Qs }, ze = "--";
+function he(h) {
+  return h >> 4;
 }
-function fe(c) {
-  return c & 15;
+function ye(h) {
+  return h & 15;
 }
-function At(c) {
-  return "0123456789".indexOf(c) !== -1;
+function Tt(h) {
+  return "0123456789".indexOf(h) !== -1;
 }
-function $(c) {
-  const e = fe(c), t = ee(c);
+function z(h) {
+  const e = ye(h), t = he(h);
   return "abcdefgh".substring(e, e + 1) + "87654321".substring(t, t + 1);
 }
-function ce(c) {
-  return c === F ? D : F;
+function be(h) {
+  return h === U ? Y : U;
 }
-function Ji(c) {
-  const e = c.split(/\s+/);
+function ei(h) {
+  const e = h.split(/\s+/);
   if (e.length !== 6)
     return {
       ok: !1,
@@ -1319,8 +1319,8 @@ function Ji(c) {
       ok: !1,
       error: "Invalid FEN: move number must be a positive integer"
     };
-  const s = parseInt(e[4], 10);
-  if (isNaN(s) || s < 0)
+  const i = parseInt(e[4], 10);
+  if (isNaN(i) || i < 0)
     return {
       ok: !1,
       error: "Invalid FEN: half move counter number must be a non-negative integer"
@@ -1331,24 +1331,24 @@ function Ji(c) {
     return { ok: !1, error: "Invalid FEN: castling availability is invalid" };
   if (!/^(w|b)$/.test(e[1]))
     return { ok: !1, error: "Invalid FEN: side-to-move is invalid" };
-  const i = e[0].split("/");
-  if (i.length !== 8)
+  const s = e[0].split("/");
+  if (s.length !== 8)
     return {
       ok: !1,
       error: "Invalid FEN: piece data does not contain 8 '/'-delimited rows"
     };
-  for (let o = 0; o < i.length; o++) {
+  for (let o = 0; o < s.length; o++) {
     let n = 0, a = !1;
-    for (let h = 0; h < i[o].length; h++)
-      if (At(i[o][h])) {
+    for (let l = 0; l < s[o].length; l++)
+      if (Tt(s[o][l])) {
         if (a)
           return {
             ok: !1,
             error: "Invalid FEN: piece data is invalid (consecutive number)"
           };
-        n += parseInt(i[o][h], 10), a = !0;
+        n += parseInt(s[o][l], 10), a = !0;
       } else {
-        if (!/^[prnbqkPRNBQK]$/.test(i[o][h]))
+        if (!/^[prnbqkPRNBQK]$/.test(s[o][l]))
           return {
             ok: !1,
             error: "Invalid FEN: piece data is invalid (invalid piece)"
@@ -1373,144 +1373,144 @@ function Ji(c) {
     if ((e[0].match(n) || []).length > 1)
       return { ok: !1, error: `Invalid FEN: too many ${o} kings` };
   }
-  return Array.from(i[0] + i[7]).some((o) => o.toUpperCase() === "P") ? {
+  return Array.from(s[0] + s[7]).some((o) => o.toUpperCase() === "P") ? {
     ok: !1,
     error: "Invalid FEN: some pawns are on the edge rows"
   } : { ok: !0 };
 }
-function Zi(c, e) {
-  const t = c.from, s = c.to, i = c.piece;
+function ti(h, e) {
+  const t = h.from, i = h.to, s = h.piece;
   let r = 0, o = 0, n = 0;
-  for (let a = 0, h = e.length; a < h; a++) {
-    const d = e[a].from, m = e[a].to, p = e[a].piece;
-    i === p && t !== d && s === m && (r++, ee(t) === ee(d) && o++, fe(t) === fe(d) && n++);
+  for (let a = 0, l = e.length; a < l; a++) {
+    const g = e[a].from, d = e[a].to, f = e[a].piece;
+    s === f && t !== g && i === d && (r++, he(t) === he(g) && o++, ye(t) === ye(g) && n++);
   }
-  return r > 0 ? o > 0 && n > 0 ? $(t) : n > 0 ? $(t).charAt(1) : $(t).charAt(0) : "";
+  return r > 0 ? o > 0 && n > 0 ? z(t) : n > 0 ? z(t).charAt(1) : z(t).charAt(0) : "";
 }
-function Q(c, e, t, s, i, r = void 0, o = M.NORMAL) {
-  const n = ee(s);
-  if (i === N && (n === Yi || n === Qi))
-    for (let a = 0; a < mt.length; a++) {
-      const h = mt[a];
-      c.push({
+function ne(h, e, t, i, s, r = void 0, o = T.NORMAL) {
+  const n = he(i);
+  if (s === F && (n === Xs || n === Js))
+    for (let a = 0; a < bt.length; a++) {
+      const l = bt[a];
+      h.push({
         color: e,
         from: t,
-        to: s,
-        piece: i,
+        to: i,
+        piece: s,
         captured: r,
-        promotion: h,
-        flags: o | M.PROMOTION
+        promotion: l,
+        flags: o | T.PROMOTION
       });
     }
   else
-    c.push({
+    h.push({
       color: e,
       from: t,
-      to: s,
-      piece: i,
+      to: i,
+      piece: s,
       captured: r,
       flags: o
     });
 }
-function pt(c) {
-  let e = c.charAt(0);
-  return e >= "a" && e <= "h" ? c.match(/[a-h]\d.*[a-h]\d/) ? void 0 : N : (e = e.toLowerCase(), e === "o" ? O : e);
+function St(h) {
+  let e = h.charAt(0);
+  return e >= "a" && e <= "h" ? h.match(/[a-h]\d.*[a-h]\d/) ? void 0 : F : (e = e.toLowerCase(), e === "o" ? x : e);
 }
-function Ie(c) {
-  return c.replace(/=/, "").replace(/[+#]?[?!]*$/, "");
+function Ke(h) {
+  return h.replace(/=/, "").replace(/[+#]?[?!]*$/, "");
 }
-class $e {
-  constructor(e = qe, { skipValidation: t = !1 } = {}) {
-    q(this, "_board", new Array(128));
-    q(this, "_turn", F);
-    q(this, "_header", {});
-    q(this, "_kings", { w: R, b: R });
-    q(this, "_epSquare", -1);
-    q(this, "_halfMoves", 0);
-    q(this, "_moveNumber", 0);
-    q(this, "_history", []);
-    q(this, "_comments", {});
-    q(this, "_castling", { w: 0, b: 0 });
-    q(this, "_hash", 0n);
+class Ue {
+  constructor(e = xe, { skipValidation: t = !1 } = {}) {
+    R(this, "_board", new Array(128));
+    R(this, "_turn", U);
+    R(this, "_header", {});
+    R(this, "_kings", { w: K, b: K });
+    R(this, "_epSquare", -1);
+    R(this, "_halfMoves", 0);
+    R(this, "_moveNumber", 0);
+    R(this, "_history", []);
+    R(this, "_comments", {});
+    R(this, "_castling", { w: 0, b: 0 });
+    R(this, "_hash", 0n);
     // tracks number of times a position has been seen for repetition checking
-    q(this, "_positionCount", /* @__PURE__ */ new Map());
+    R(this, "_positionCount", /* @__PURE__ */ new Map());
     this.load(e, { skipValidation: t });
   }
   clear({ preserveHeaders: e = !1 } = {}) {
-    this._board = new Array(128), this._kings = { w: R, b: R }, this._turn = F, this._castling = { w: 0, b: 0 }, this._epSquare = R, this._halfMoves = 0, this._moveNumber = 1, this._history = [], this._comments = {}, this._header = e ? this._header : { ...zi }, this._hash = this._computeHash(), this._positionCount = /* @__PURE__ */ new Map(), this._header.SetUp = null, this._header.FEN = null;
+    this._board = new Array(128), this._kings = { w: K, b: K }, this._turn = U, this._castling = { w: 0, b: 0 }, this._epSquare = K, this._halfMoves = 0, this._moveNumber = 1, this._history = [], this._comments = {}, this._header = e ? this._header : { ...Bs }, this._hash = this._computeHash(), this._positionCount = /* @__PURE__ */ new Map(), this._header.SetUp = null, this._header.FEN = null;
   }
-  load(e, { skipValidation: t = !1, preserveHeaders: s = !1 } = {}) {
-    let i = e.split(/\s+/);
-    if (i.length >= 2 && i.length < 6) {
+  load(e, { skipValidation: t = !1, preserveHeaders: i = !1 } = {}) {
+    let s = e.split(/\s+/);
+    if (s.length >= 2 && s.length < 6) {
       const n = ["-", "-", "0", "1"];
-      e = i.concat(n.slice(-(6 - i.length))).join(" ");
+      e = s.concat(n.slice(-(6 - s.length))).join(" ");
     }
-    if (i = e.split(/\s+/), !t) {
-      const { ok: n, error: a } = Ji(e);
+    if (s = e.split(/\s+/), !t) {
+      const { ok: n, error: a } = ei(e);
       if (!n)
         throw new Error(a);
     }
-    const r = i[0];
+    const r = s[0];
     let o = 0;
-    this.clear({ preserveHeaders: s });
+    this.clear({ preserveHeaders: i });
     for (let n = 0; n < r.length; n++) {
       const a = r.charAt(n);
       if (a === "/")
         o += 8;
-      else if (At(a))
+      else if (Tt(a))
         o += parseInt(a, 10);
       else {
-        const h = a < "a" ? F : D;
-        this._put({ type: a.toLowerCase(), color: h }, $(o)), o++;
+        const l = a < "a" ? U : Y;
+        this._put({ type: a.toLowerCase(), color: l }, z(o)), o++;
       }
     }
-    this._turn = i[1], i[2].indexOf("K") > -1 && (this._castling.w |= M.KSIDE_CASTLE), i[2].indexOf("Q") > -1 && (this._castling.w |= M.QSIDE_CASTLE), i[2].indexOf("k") > -1 && (this._castling.b |= M.KSIDE_CASTLE), i[2].indexOf("q") > -1 && (this._castling.b |= M.QSIDE_CASTLE), this._epSquare = i[3] === "-" ? R : A[i[3]], this._halfMoves = parseInt(i[4], 10), this._moveNumber = parseInt(i[5], 10), this._hash = this._computeHash(), this._updateSetup(e), this._incPositionCount();
+    this._turn = s[1], s[2].indexOf("K") > -1 && (this._castling.w |= T.KSIDE_CASTLE), s[2].indexOf("Q") > -1 && (this._castling.w |= T.QSIDE_CASTLE), s[2].indexOf("k") > -1 && (this._castling.b |= T.KSIDE_CASTLE), s[2].indexOf("q") > -1 && (this._castling.b |= T.QSIDE_CASTLE), this._epSquare = s[3] === "-" ? K : E[s[3]], this._halfMoves = parseInt(s[4], 10), this._moveNumber = parseInt(s[5], 10), this._hash = this._computeHash(), this._updateSetup(e), this._incPositionCount();
   }
   fen({ forceEnpassantSquare: e = !1 } = {}) {
     var o, n;
-    let t = 0, s = "";
-    for (let a = A.a8; a <= A.h1; a++) {
+    let t = 0, i = "";
+    for (let a = E.a8; a <= E.h1; a++) {
       if (this._board[a]) {
-        t > 0 && (s += t, t = 0);
-        const { color: h, type: d } = this._board[a];
-        s += h === F ? d.toUpperCase() : d.toLowerCase();
+        t > 0 && (i += t, t = 0);
+        const { color: l, type: g } = this._board[a];
+        i += l === U ? g.toUpperCase() : g.toLowerCase();
       } else
         t++;
-      a + 1 & 136 && (t > 0 && (s += t), a !== A.h1 && (s += "/"), t = 0, a += 8);
+      a + 1 & 136 && (t > 0 && (i += t), a !== E.h1 && (i += "/"), t = 0, a += 8);
     }
-    let i = "";
-    this._castling[F] & M.KSIDE_CASTLE && (i += "K"), this._castling[F] & M.QSIDE_CASTLE && (i += "Q"), this._castling[D] & M.KSIDE_CASTLE && (i += "k"), this._castling[D] & M.QSIDE_CASTLE && (i += "q"), i = i || "-";
+    let s = "";
+    this._castling[U] & T.KSIDE_CASTLE && (s += "K"), this._castling[U] & T.QSIDE_CASTLE && (s += "Q"), this._castling[Y] & T.KSIDE_CASTLE && (s += "k"), this._castling[Y] & T.QSIDE_CASTLE && (s += "q"), s = s || "-";
     let r = "-";
-    if (this._epSquare !== R)
+    if (this._epSquare !== K)
       if (e)
-        r = $(this._epSquare);
+        r = z(this._epSquare);
       else {
-        const a = this._epSquare + (this._turn === F ? 16 : -16), h = [a + 1, a - 1];
-        for (const d of h) {
-          if (d & 136)
+        const a = this._epSquare + (this._turn === U ? 16 : -16), l = [a + 1, a - 1];
+        for (const g of l) {
+          if (g & 136)
             continue;
-          const m = this._turn;
-          if (((o = this._board[d]) == null ? void 0 : o.color) === m && ((n = this._board[d]) == null ? void 0 : n.type) === N) {
+          const d = this._turn;
+          if (((o = this._board[g]) == null ? void 0 : o.color) === d && ((n = this._board[g]) == null ? void 0 : n.type) === F) {
             this._makeMove({
-              color: m,
-              from: d,
+              color: d,
+              from: g,
               to: this._epSquare,
-              piece: N,
-              captured: N,
-              flags: M.EP_CAPTURE
+              piece: F,
+              captured: F,
+              flags: T.EP_CAPTURE
             });
-            const p = !this._isKingAttacked(m);
-            if (this._undoMove(), p) {
-              r = $(this._epSquare);
+            const f = !this._isKingAttacked(d);
+            if (this._undoMove(), f) {
+              r = z(this._epSquare);
               break;
             }
           }
         }
       }
     return [
-      s,
-      this._turn,
       i,
+      this._turn,
+      s,
       r,
       this._halfMoves,
       this._moveNumber
@@ -1519,7 +1519,7 @@ class $e {
   _pieceKey(e) {
     if (!this._board[e])
       return 0n;
-    const { color: t, type: s } = this._board[e], i = {
+    const { color: t, type: i } = this._board[e], s = {
       w: 0,
       b: 1
     }[t], r = {
@@ -1529,26 +1529,26 @@ class $e {
       r: 3,
       q: 4,
       k: 5
-    }[s];
-    return Hi[i][r][e];
+    }[i];
+    return Ds[s][r][e];
   }
   _epKey() {
-    return this._epSquare === R ? 0n : xi[this._epSquare & 7];
+    return this._epSquare === K ? 0n : zs[this._epSquare & 7];
   }
   _castlingKey() {
     const e = this._castling.w >> 5 | this._castling.b >> 3;
-    return Di[e];
+    return Ks[e];
   }
   _computeHash() {
     let e = 0n;
-    for (let t = A.a8; t <= A.h1; t++) {
+    for (let t = E.a8; t <= E.h1; t++) {
       if (t & 136) {
         t += 7;
         continue;
       }
       this._board[t] && (e ^= this._pieceKey(t));
     }
-    return e ^= this._epKey(), e ^= this._castlingKey(), this._turn === "b" && (e ^= ke), e;
+    return e ^= this._epKey(), e ^= this._castlingKey(), this._turn === "b" && (e ^= He), e;
   }
   /*
    * Called when the initial board setup is changed with put() or remove().
@@ -1557,72 +1557,72 @@ class $e {
    * is only updated if history.length is zero, ie moves haven't been made.
    */
   _updateSetup(e) {
-    this._history.length > 0 || (e !== qe ? (this._header.SetUp = "1", this._header.FEN = e) : (this._header.SetUp = null, this._header.FEN = null));
+    this._history.length > 0 || (e !== xe ? (this._header.SetUp = "1", this._header.FEN = e) : (this._header.SetUp = null, this._header.FEN = null));
   }
   reset() {
-    this.load(qe);
+    this.load(xe);
   }
   get(e) {
-    return this._board[A[e]];
+    return this._board[E[e]];
   }
   findPiece(e) {
-    var s;
+    var i;
     const t = [];
-    for (let i = A.a8; i <= A.h1; i++) {
-      if (i & 136) {
-        i += 7;
+    for (let s = E.a8; s <= E.h1; s++) {
+      if (s & 136) {
+        s += 7;
         continue;
       }
-      !this._board[i] || ((s = this._board[i]) == null ? void 0 : s.color) !== e.color || this._board[i].color === e.color && this._board[i].type === e.type && t.push($(i));
+      !this._board[s] || ((i = this._board[s]) == null ? void 0 : i.color) !== e.color || this._board[s].color === e.color && this._board[s].type === e.type && t.push(z(s));
     }
     return t;
   }
-  put({ type: e, color: t }, s) {
-    return this._put({ type: e, color: t }, s) ? (this._updateCastlingRights(), this._updateEnPassantSquare(), this._updateSetup(this.fen()), !0) : !1;
+  put({ type: e, color: t }, i) {
+    return this._put({ type: e, color: t }, i) ? (this._updateCastlingRights(), this._updateEnPassantSquare(), this._updateSetup(this.fen()), !0) : !1;
   }
   _set(e, t) {
     this._hash ^= this._pieceKey(e), this._board[e] = t, this._hash ^= this._pieceKey(e);
   }
-  _put({ type: e, color: t }, s) {
-    if (ji.indexOf(e.toLowerCase()) === -1 || !(s in A))
+  _put({ type: e, color: t }, i) {
+    if (Gs.indexOf(e.toLowerCase()) === -1 || !(i in E))
       return !1;
-    const i = A[s];
-    if (e == O && !(this._kings[t] == R || this._kings[t] == i))
+    const s = E[i];
+    if (e == x && !(this._kings[t] == K || this._kings[t] == s))
       return !1;
-    const r = this._board[i];
-    return r && r.type === O && (this._kings[r.color] = R), this._set(i, { type: e, color: t }), e === O && (this._kings[t] = i), !0;
+    const r = this._board[s];
+    return r && r.type === x && (this._kings[r.color] = K), this._set(s, { type: e, color: t }), e === x && (this._kings[t] = s), !0;
   }
   _clear(e) {
     this._hash ^= this._pieceKey(e), delete this._board[e];
   }
   remove(e) {
     const t = this.get(e);
-    return this._clear(A[e]), t && t.type === O && (this._kings[t.color] = R), this._updateCastlingRights(), this._updateEnPassantSquare(), this._updateSetup(this.fen()), t;
+    return this._clear(E[e]), t && t.type === x && (this._kings[t.color] = K), this._updateCastlingRights(), this._updateEnPassantSquare(), this._updateSetup(this.fen()), t;
   }
   _updateCastlingRights() {
-    var s, i, r, o, n, a, h, d, m, p, _, v;
+    var i, s, r, o, n, a, l, g, d, f, v, _;
     this._hash ^= this._castlingKey();
-    const e = ((s = this._board[A.e1]) == null ? void 0 : s.type) === O && ((i = this._board[A.e1]) == null ? void 0 : i.color) === F, t = ((r = this._board[A.e8]) == null ? void 0 : r.type) === O && ((o = this._board[A.e8]) == null ? void 0 : o.color) === D;
-    (!e || ((n = this._board[A.a1]) == null ? void 0 : n.type) !== ue || ((a = this._board[A.a1]) == null ? void 0 : a.color) !== F) && (this._castling.w &= -65), (!e || ((h = this._board[A.h1]) == null ? void 0 : h.type) !== ue || ((d = this._board[A.h1]) == null ? void 0 : d.color) !== F) && (this._castling.w &= -33), (!t || ((m = this._board[A.a8]) == null ? void 0 : m.type) !== ue || ((p = this._board[A.a8]) == null ? void 0 : p.color) !== D) && (this._castling.b &= -65), (!t || ((_ = this._board[A.h8]) == null ? void 0 : _.type) !== ue || ((v = this._board[A.h8]) == null ? void 0 : v.color) !== D) && (this._castling.b &= -33), this._hash ^= this._castlingKey();
+    const e = ((i = this._board[E.e1]) == null ? void 0 : i.type) === x && ((s = this._board[E.e1]) == null ? void 0 : s.color) === U, t = ((r = this._board[E.e8]) == null ? void 0 : r.type) === x && ((o = this._board[E.e8]) == null ? void 0 : o.color) === Y;
+    (!e || ((n = this._board[E.a1]) == null ? void 0 : n.type) !== Se || ((a = this._board[E.a1]) == null ? void 0 : a.color) !== U) && (this._castling.w &= -65), (!e || ((l = this._board[E.h1]) == null ? void 0 : l.type) !== Se || ((g = this._board[E.h1]) == null ? void 0 : g.color) !== U) && (this._castling.w &= -33), (!t || ((d = this._board[E.a8]) == null ? void 0 : d.type) !== Se || ((f = this._board[E.a8]) == null ? void 0 : f.color) !== Y) && (this._castling.b &= -65), (!t || ((v = this._board[E.h8]) == null ? void 0 : v.type) !== Se || ((_ = this._board[E.h8]) == null ? void 0 : _.color) !== Y) && (this._castling.b &= -33), this._hash ^= this._castlingKey();
   }
   _updateEnPassantSquare() {
     var r, o;
-    if (this._epSquare === R)
+    if (this._epSquare === K)
       return;
-    const e = this._epSquare + (this._turn === F ? -16 : 16), t = this._epSquare + (this._turn === F ? 16 : -16), s = [t + 1, t - 1];
-    if (this._board[e] !== null || this._board[this._epSquare] !== null || ((r = this._board[t]) == null ? void 0 : r.color) !== ce(this._turn) || ((o = this._board[t]) == null ? void 0 : o.type) !== N) {
-      this._hash ^= this._epKey(), this._epSquare = R;
+    const e = this._epSquare + (this._turn === U ? -16 : 16), t = this._epSquare + (this._turn === U ? 16 : -16), i = [t + 1, t - 1];
+    if (this._board[e] !== null || this._board[this._epSquare] !== null || ((r = this._board[t]) == null ? void 0 : r.color) !== be(this._turn) || ((o = this._board[t]) == null ? void 0 : o.type) !== F) {
+      this._hash ^= this._epKey(), this._epSquare = K;
       return;
     }
-    const i = (n) => {
-      var a, h;
-      return !(n & 136) && ((a = this._board[n]) == null ? void 0 : a.color) === this._turn && ((h = this._board[n]) == null ? void 0 : h.type) === N;
+    const s = (n) => {
+      var a, l;
+      return !(n & 136) && ((a = this._board[n]) == null ? void 0 : a.color) === this._turn && ((l = this._board[n]) == null ? void 0 : l.type) === F;
     };
-    s.some(i) || (this._hash ^= this._epKey(), this._epSquare = R);
+    i.some(s) || (this._hash ^= this._epKey(), this._epSquare = K);
   }
-  _attacked(e, t, s) {
-    const i = [];
-    for (let r = A.a8; r <= A.h1; r++) {
+  _attacked(e, t, i) {
+    const s = [];
+    for (let r = E.a8; r <= E.h1; r++) {
       if (r & 136) {
         r += 7;
         continue;
@@ -1633,52 +1633,52 @@ class $e {
       if (n === 0)
         continue;
       const a = n + 119;
-      if (Bi[a] & Wi[o.type]) {
-        if (o.type === N) {
-          if (n > 0 && o.color === F || n <= 0 && o.color === D)
-            if (s)
-              i.push($(r));
+      if (js[a] & Ys[o.type]) {
+        if (o.type === F) {
+          if (n > 0 && o.color === U || n <= 0 && o.color === Y)
+            if (i)
+              s.push(z(r));
             else
               return !0;
           continue;
         }
         if (o.type === "n" || o.type === "k")
-          if (s) {
-            i.push($(r));
+          if (i) {
+            s.push(z(r));
             continue;
           } else
             return !0;
-        const h = Ui[a];
-        let d = r + h, m = !1;
-        for (; d !== t; ) {
-          if (this._board[d] != null) {
-            m = !0;
+        const l = Ws[a];
+        let g = r + l, d = !1;
+        for (; g !== t; ) {
+          if (this._board[g] != null) {
+            d = !0;
             break;
           }
-          d += h;
+          g += l;
         }
-        if (!m)
-          if (s) {
-            i.push($(r));
+        if (!d)
+          if (i) {
+            s.push(z(r));
             continue;
           } else
             return !0;
       }
     }
-    return s ? i : !1;
+    return i ? s : !1;
   }
   attackers(e, t) {
-    return t ? this._attacked(t, A[e], !0) : this._attacked(this._turn, A[e], !0);
+    return t ? this._attacked(t, E[e], !0) : this._attacked(this._turn, E[e], !0);
   }
   _isKingAttacked(e) {
     const t = this._kings[e];
-    return t === -1 ? !1 : this._attacked(ce(e), t);
+    return t === -1 ? !1 : this._attacked(be(e), t);
   }
   hash() {
     return this._hash.toString(16);
   }
   isAttacked(e, t) {
-    return this._attacked(t, A[e]);
+    return this._attacked(t, E[e]);
   }
   isCheck() {
     return this._isKingAttacked(this._turn);
@@ -1701,23 +1701,23 @@ class $e {
       k: 0,
       p: 0
     }, t = [];
-    let s = 0, i = 0;
-    for (let r = A.a8; r <= A.h1; r++) {
-      if (i = (i + 1) % 2, r & 136) {
+    let i = 0, s = 0;
+    for (let r = E.a8; r <= E.h1; r++) {
+      if (s = (s + 1) % 2, r & 136) {
         r += 7;
         continue;
       }
       const o = this._board[r];
-      o && (e[o.type] = o.type in e ? e[o.type] + 1 : 1, o.type === be && t.push(i), s++);
+      o && (e[o.type] = o.type in e ? e[o.type] + 1 : 1, o.type === ke && t.push(s), i++);
     }
-    if (s === 2)
+    if (i === 2)
       return !0;
     if (
       // k vs. kn .... or .... k vs. kb
-      s === 3 && (e[be] === 1 || e[Le] === 1)
+      i === 3 && (e[ke] === 1 || e[We] === 1)
     )
       return !0;
-    if (s === e[be] + 2) {
+    if (i === e[ke] + 2) {
       let r = 0;
       const o = t.length;
       for (let n = 0; n < o; n++)
@@ -1739,91 +1739,91 @@ class $e {
   isGameOver() {
     return this.isCheckmate() || this.isDraw();
   }
-  moves({ verbose: e = !1, square: t = void 0, piece: s = void 0 } = {}) {
-    const i = this._moves({ square: t, piece: s });
-    return e ? i.map((r) => new _e(this, r)) : i.map((r) => this._moveToSan(r, i));
+  moves({ verbose: e = !1, square: t = void 0, piece: i = void 0 } = {}) {
+    const s = this._moves({ square: t, piece: i });
+    return e ? s.map((r) => new Me(this, r)) : s.map((r) => this._moveToSan(r, s));
   }
-  _moves({ legal: e = !0, piece: t = void 0, square: s = void 0 } = {}) {
-    var _;
-    const i = s ? s.toLowerCase() : void 0, r = t == null ? void 0 : t.toLowerCase(), o = [], n = this._turn, a = ce(n);
-    let h = A.a8, d = A.h1, m = !1;
-    if (i)
-      if (i in A)
-        h = d = A[i], m = !0;
+  _moves({ legal: e = !0, piece: t = void 0, square: i = void 0 } = {}) {
+    var v;
+    const s = i ? i.toLowerCase() : void 0, r = t == null ? void 0 : t.toLowerCase(), o = [], n = this._turn, a = be(n);
+    let l = E.a8, g = E.h1, d = !1;
+    if (s)
+      if (s in E)
+        l = g = E[s], d = !0;
       else
         return [];
-    for (let v = h; v <= d; v++) {
-      if (v & 136) {
-        v += 7;
+    for (let _ = l; _ <= g; _++) {
+      if (_ & 136) {
+        _ += 7;
         continue;
       }
-      if (!this._board[v] || this._board[v].color === a)
+      if (!this._board[_] || this._board[_].color === a)
         continue;
-      const { type: P } = this._board[v];
-      let C;
-      if (P === N) {
-        if (r && r !== P)
+      const { type: b } = this._board[_];
+      let y;
+      if (b === F) {
+        if (r && r !== b)
           continue;
-        C = v + Ne[n][0], this._board[C] || (Q(o, n, v, C, N), C = v + Ne[n][1], Vi[n] === ee(v) && !this._board[C] && Q(o, n, v, C, N, void 0, M.BIG_PAWN));
-        for (let T = 2; T < 4; T++)
-          C = v + Ne[n][T], !(C & 136) && (((_ = this._board[C]) == null ? void 0 : _.color) === a ? Q(o, n, v, C, N, this._board[C].type, M.CAPTURE) : C === this._epSquare && Q(o, n, v, C, N, N, M.EP_CAPTURE));
+        y = _ + De[n][0], this._board[y] || (ne(o, n, _, y, F), y = _ + De[n][1], Zs[n] === he(_) && !this._board[y] && ne(o, n, _, y, F, void 0, T.BIG_PAWN));
+        for (let k = 2; k < 4; k++)
+          y = _ + De[n][k], !(y & 136) && (((v = this._board[y]) == null ? void 0 : v.color) === a ? ne(o, n, _, y, F, this._board[y].type, T.CAPTURE) : y === this._epSquare && ne(o, n, _, y, F, F, T.EP_CAPTURE));
       } else {
-        if (r && r !== P)
+        if (r && r !== b)
           continue;
-        for (let T = 0, k = dt[P].length; T < k; T++) {
-          const x = dt[P][T];
-          for (C = v; C += x, !(C & 136); ) {
-            if (!this._board[C])
-              Q(o, n, v, C, P);
+        for (let k = 0, I = wt[b].length; k < I; k++) {
+          const $ = wt[b][k];
+          for (y = _; y += $, !(y & 136); ) {
+            if (!this._board[y])
+              ne(o, n, _, y, b);
             else {
-              if (this._board[C].color === n)
+              if (this._board[y].color === n)
                 break;
-              Q(o, n, v, C, P, this._board[C].type, M.CAPTURE);
+              ne(o, n, _, y, b, this._board[y].type, T.CAPTURE);
               break;
             }
-            if (P === Le || P === O)
+            if (b === We || b === x)
               break;
           }
         }
       }
     }
-    if ((r === void 0 || r === O) && (!m || d === this._kings[n])) {
-      if (this._castling[n] & M.KSIDE_CASTLE) {
-        const v = this._kings[n], P = v + 2;
-        !this._board[v + 1] && !this._board[P] && !this._attacked(a, this._kings[n]) && !this._attacked(a, v + 1) && !this._attacked(a, P) && Q(o, n, this._kings[n], P, O, void 0, M.KSIDE_CASTLE);
+    if ((r === void 0 || r === x) && (!d || g === this._kings[n])) {
+      if (this._castling[n] & T.KSIDE_CASTLE) {
+        const _ = this._kings[n], b = _ + 2;
+        !this._board[_ + 1] && !this._board[b] && !this._attacked(a, this._kings[n]) && !this._attacked(a, _ + 1) && !this._attacked(a, b) && ne(o, n, this._kings[n], b, x, void 0, T.KSIDE_CASTLE);
       }
-      if (this._castling[n] & M.QSIDE_CASTLE) {
-        const v = this._kings[n], P = v - 2;
-        !this._board[v - 1] && !this._board[v - 2] && !this._board[v - 3] && !this._attacked(a, this._kings[n]) && !this._attacked(a, v - 1) && !this._attacked(a, P) && Q(o, n, this._kings[n], P, O, void 0, M.QSIDE_CASTLE);
+      if (this._castling[n] & T.QSIDE_CASTLE) {
+        const _ = this._kings[n], b = _ - 2;
+        !this._board[_ - 1] && !this._board[_ - 2] && !this._board[_ - 3] && !this._attacked(a, this._kings[n]) && !this._attacked(a, _ - 1) && !this._attacked(a, b) && ne(o, n, this._kings[n], b, x, void 0, T.QSIDE_CASTLE);
       }
     }
     if (!e || this._kings[n] === -1)
       return o;
-    const p = [];
-    for (let v = 0, P = o.length; v < P; v++)
-      this._makeMove(o[v]), this._isKingAttacked(n) || p.push(o[v]), this._undoMove();
-    return p;
+    const f = [];
+    for (let _ = 0, b = o.length; _ < b; _++)
+      this._makeMove(o[_]), this._isKingAttacked(n) || f.push(o[_]), this._undoMove();
+    return f;
   }
   move(e, { strict: t = !1 } = {}) {
-    let s = null;
+    let i = null;
     if (typeof e == "string")
-      s = this._moveFromSan(e, t);
+      i = this._moveFromSan(e, t);
     else if (e === null)
-      s = this._moveFromSan(Oe, t);
+      i = this._moveFromSan(ze, t);
     else if (typeof e == "object") {
       const r = this._moves();
       for (let o = 0, n = r.length; o < n; o++)
-        if (e.from === $(r[o].from) && e.to === $(r[o].to) && (!("promotion" in r[o]) || e.promotion === r[o].promotion)) {
-          s = r[o];
+        if (e.from === z(r[o].from) && e.to === z(r[o].to) && (!("promotion" in r[o]) || e.promotion === r[o].promotion)) {
+          i = r[o];
           break;
         }
     }
-    if (!s)
+    if (!i)
       throw typeof e == "string" ? new Error(`Invalid move: ${e}`) : new Error(`Invalid move: ${JSON.stringify(e)}`);
-    if (this.isCheck() && s.flags & M.NULL_MOVE)
+    if (this.isCheck() && i.flags & T.NULL_MOVE)
       throw new Error("Null move not allowed when in check");
-    const i = new _e(this, s);
-    return this._makeMove(s), this._incPositionCount(), i;
+    const s = new Me(this, i);
+    return this._makeMove(i), this._incPositionCount(), s;
   }
   _push(e) {
     this._history.push({
@@ -1840,48 +1840,48 @@ class $e {
     this._hash ^= this._pieceKey(e), this._board[t] = this._board[e], delete this._board[e], this._hash ^= this._pieceKey(t);
   }
   _makeMove(e) {
-    var i, r, o, n;
-    const t = this._turn, s = ce(t);
-    if (this._push(e), e.flags & M.NULL_MOVE) {
-      t === D && this._moveNumber++, this._halfMoves++, this._turn = s, this._epSquare = R;
+    var s, r, o, n;
+    const t = this._turn, i = be(t);
+    if (this._push(e), e.flags & T.NULL_MOVE) {
+      t === Y && this._moveNumber++, this._halfMoves++, this._turn = i, this._epSquare = K;
       return;
     }
-    if (this._hash ^= this._epKey(), this._hash ^= this._castlingKey(), e.captured && (this._hash ^= this._pieceKey(e.to)), this._movePiece(e.from, e.to), e.flags & M.EP_CAPTURE && (this._turn === D ? this._clear(e.to - 16) : this._clear(e.to + 16)), e.promotion && (this._clear(e.to), this._set(e.to, { type: e.promotion, color: t })), this._board[e.to].type === O) {
-      if (this._kings[t] = e.to, e.flags & M.KSIDE_CASTLE) {
-        const a = e.to - 1, h = e.to + 1;
-        this._movePiece(h, a);
-      } else if (e.flags & M.QSIDE_CASTLE) {
-        const a = e.to + 1, h = e.to - 2;
-        this._movePiece(h, a);
+    if (this._hash ^= this._epKey(), this._hash ^= this._castlingKey(), e.captured && (this._hash ^= this._pieceKey(e.to)), this._movePiece(e.from, e.to), e.flags & T.EP_CAPTURE && (this._turn === Y ? this._clear(e.to - 16) : this._clear(e.to + 16)), e.promotion && (this._clear(e.to), this._set(e.to, { type: e.promotion, color: t })), this._board[e.to].type === x) {
+      if (this._kings[t] = e.to, e.flags & T.KSIDE_CASTLE) {
+        const a = e.to - 1, l = e.to + 1;
+        this._movePiece(l, a);
+      } else if (e.flags & T.QSIDE_CASTLE) {
+        const a = e.to + 1, l = e.to - 2;
+        this._movePiece(l, a);
       }
       this._castling[t] = 0;
     }
     if (this._castling[t]) {
-      for (let a = 0, h = X[t].length; a < h; a++)
-        if (e.from === X[t][a].square && this._castling[t] & X[t][a].flag) {
-          this._castling[t] ^= X[t][a].flag;
+      for (let a = 0, l = re[t].length; a < l; a++)
+        if (e.from === re[t][a].square && this._castling[t] & re[t][a].flag) {
+          this._castling[t] ^= re[t][a].flag;
           break;
         }
     }
-    if (this._castling[s]) {
-      for (let a = 0, h = X[s].length; a < h; a++)
-        if (e.to === X[s][a].square && this._castling[s] & X[s][a].flag) {
-          this._castling[s] ^= X[s][a].flag;
+    if (this._castling[i]) {
+      for (let a = 0, l = re[i].length; a < l; a++)
+        if (e.to === re[i][a].square && this._castling[i] & re[i][a].flag) {
+          this._castling[i] ^= re[i][a].flag;
           break;
         }
     }
-    if (this._hash ^= this._castlingKey(), e.flags & M.BIG_PAWN) {
+    if (this._hash ^= this._castlingKey(), e.flags & T.BIG_PAWN) {
       let a;
-      t === D ? a = e.to - 16 : a = e.to + 16, !(e.to - 1 & 136) && ((i = this._board[e.to - 1]) == null ? void 0 : i.type) === N && ((r = this._board[e.to - 1]) == null ? void 0 : r.color) === s || !(e.to + 1 & 136) && ((o = this._board[e.to + 1]) == null ? void 0 : o.type) === N && ((n = this._board[e.to + 1]) == null ? void 0 : n.color) === s ? (this._epSquare = a, this._hash ^= this._epKey()) : this._epSquare = R;
+      t === Y ? a = e.to - 16 : a = e.to + 16, !(e.to - 1 & 136) && ((s = this._board[e.to - 1]) == null ? void 0 : s.type) === F && ((r = this._board[e.to - 1]) == null ? void 0 : r.color) === i || !(e.to + 1 & 136) && ((o = this._board[e.to + 1]) == null ? void 0 : o.type) === F && ((n = this._board[e.to + 1]) == null ? void 0 : n.color) === i ? (this._epSquare = a, this._hash ^= this._epKey()) : this._epSquare = K;
     } else
-      this._epSquare = R;
-    e.piece === N ? this._halfMoves = 0 : e.flags & (M.CAPTURE | M.EP_CAPTURE) ? this._halfMoves = 0 : this._halfMoves++, t === D && this._moveNumber++, this._turn = s, this._hash ^= ke;
+      this._epSquare = K;
+    e.piece === F ? this._halfMoves = 0 : e.flags & (T.CAPTURE | T.EP_CAPTURE) ? this._halfMoves = 0 : this._halfMoves++, t === Y && this._moveNumber++, this._turn = i, this._hash ^= He;
   }
   undo() {
     const e = this._hash, t = this._undoMove();
     if (t) {
-      const s = new _e(this, t);
-      return this._decPositionCount(e), s;
+      const i = new Me(this, t);
+      return this._decPositionCount(e), i;
     }
     return null;
   }
@@ -1891,36 +1891,36 @@ class $e {
       return null;
     this._hash ^= this._epKey(), this._hash ^= this._castlingKey();
     const t = e.move;
-    this._kings = e.kings, this._turn = e.turn, this._castling = e.castling, this._epSquare = e.epSquare, this._halfMoves = e.halfMoves, this._moveNumber = e.moveNumber, this._hash ^= this._epKey(), this._hash ^= this._castlingKey(), this._hash ^= ke;
-    const s = this._turn, i = ce(s);
-    if (t.flags & M.NULL_MOVE)
+    this._kings = e.kings, this._turn = e.turn, this._castling = e.castling, this._epSquare = e.epSquare, this._halfMoves = e.halfMoves, this._moveNumber = e.moveNumber, this._hash ^= this._epKey(), this._hash ^= this._castlingKey(), this._hash ^= He;
+    const i = this._turn, s = be(i);
+    if (t.flags & T.NULL_MOVE)
       return t;
-    if (this._movePiece(t.to, t.from), t.piece && (this._clear(t.from), this._set(t.from, { type: t.piece, color: s })), t.captured)
-      if (t.flags & M.EP_CAPTURE) {
+    if (this._movePiece(t.to, t.from), t.piece && (this._clear(t.from), this._set(t.from, { type: t.piece, color: i })), t.captured)
+      if (t.flags & T.EP_CAPTURE) {
         let r;
-        s === D ? r = t.to - 16 : r = t.to + 16, this._set(r, { type: N, color: i });
+        i === Y ? r = t.to - 16 : r = t.to + 16, this._set(r, { type: F, color: s });
       } else
-        this._set(t.to, { type: t.captured, color: i });
-    if (t.flags & (M.KSIDE_CASTLE | M.QSIDE_CASTLE)) {
+        this._set(t.to, { type: t.captured, color: s });
+    if (t.flags & (T.KSIDE_CASTLE | T.QSIDE_CASTLE)) {
       let r, o;
-      t.flags & M.KSIDE_CASTLE ? (r = t.to + 1, o = t.to - 1) : (r = t.to - 2, o = t.to + 1), this._movePiece(o, r);
+      t.flags & T.KSIDE_CASTLE ? (r = t.to + 1, o = t.to - 1) : (r = t.to - 2, o = t.to + 1), this._movePiece(o, r);
     }
     return t;
   }
   pgn({ newline: e = `
 `, maxWidth: t = 0 } = {}) {
-    const s = [];
-    let i = !1;
-    for (const p in this._header)
-      this._header[p] && s.push(`[${p} "${this._header[p]}"]` + e), i = !0;
-    i && this._history.length && s.push(e);
-    const r = (p) => {
-      const _ = this._comments[this.fen()];
-      if (typeof _ < "u") {
-        const v = p.length > 0 ? " " : "";
-        p = `${p}${v}{${_}}`;
+    const i = [];
+    let s = !1;
+    for (const f in this._header)
+      this._header[f] && i.push(`[${f} "${this._header[f]}"]` + e), s = !0;
+    s && this._history.length && i.push(e);
+    const r = (f) => {
+      const v = this._comments[this.fen()];
+      if (typeof v < "u") {
+        const _ = f.length > 0 ? " " : "";
+        f = `${f}${_}{${v}}`;
       }
-      return p;
+      return f;
     }, o = [];
     for (; this._history.length > 0; )
       o.push(this._undoMove());
@@ -1928,40 +1928,40 @@ class $e {
     let a = "";
     for (o.length === 0 && n.push(r("")); o.length > 0; ) {
       a = r(a);
-      const p = o.pop();
-      if (!p)
+      const f = o.pop();
+      if (!f)
         break;
-      if (!this._history.length && p.color === "b") {
-        const _ = `${this._moveNumber}. ...`;
-        a = a ? `${a} ${_}` : _;
-      } else p.color === "w" && (a.length && n.push(a), a = this._moveNumber + ".");
-      a = a + " " + this._moveToSan(p, this._moves({ legal: !0 })), this._makeMove(p);
+      if (!this._history.length && f.color === "b") {
+        const v = `${this._moveNumber}. ...`;
+        a = a ? `${a} ${v}` : v;
+      } else f.color === "w" && (a.length && n.push(a), a = this._moveNumber + ".");
+      a = a + " " + this._moveToSan(f, this._moves({ legal: !0 })), this._makeMove(f);
     }
     if (a.length && n.push(r(a)), n.push(this._header.Result || "*"), t === 0)
-      return s.join("") + n.join(" ");
-    const h = function() {
-      return s.length > 0 && s[s.length - 1] === " " ? (s.pop(), !0) : !1;
-    }, d = function(p, _) {
-      for (const v of _.split(" "))
-        if (v) {
-          if (p + v.length > t) {
-            for (; h(); )
-              p--;
-            s.push(e), p = 0;
+      return i.join("") + n.join(" ");
+    const l = function() {
+      return i.length > 0 && i[i.length - 1] === " " ? (i.pop(), !0) : !1;
+    }, g = function(f, v) {
+      for (const _ of v.split(" "))
+        if (_) {
+          if (f + _.length > t) {
+            for (; l(); )
+              f--;
+            i.push(e), f = 0;
           }
-          s.push(v), p += v.length, s.push(" "), p++;
+          i.push(_), f += _.length, i.push(" "), f++;
         }
-      return h() && p--, p;
+      return l() && f--, f;
     };
-    let m = 0;
-    for (let p = 0; p < n.length; p++) {
-      if (m + n[p].length > t && n[p].includes("{")) {
-        m = d(m, n[p]);
+    let d = 0;
+    for (let f = 0; f < n.length; f++) {
+      if (d + n[f].length > t && n[f].includes("{")) {
+        d = g(d, n[f]);
         continue;
       }
-      m + n[p].length > t && p !== 0 ? (s[s.length - 1] === " " && s.pop(), s.push(e), m = 0) : p !== 0 && (s.push(" "), m++), s.push(n[p]), m += n[p].length;
+      d + n[f].length > t && f !== 0 ? (i[i.length - 1] === " " && i.pop(), i.push(e), d = 0) : f !== 0 && (i.push(" "), d++), i.push(n[f]), d += n[f].length;
     }
-    return s.join("");
+    return i.join("");
   }
   /**
    * @deprecated Use `setHeader` and `getHeaders` instead. This method will return null header tags (which is not what you want)
@@ -1973,29 +1973,29 @@ class $e {
   }
   // TODO: value validation per spec
   setHeader(e, t) {
-    return this._header[e] = t ?? He[e] ?? null, this.getHeaders();
+    return this._header[e] = t ?? Ye[e] ?? null, this.getHeaders();
   }
   removeHeader(e) {
-    return e in this._header ? (this._header[e] = He[e] || null, !0) : !1;
+    return e in this._header ? (this._header[e] = Ye[e] || null, !0) : !1;
   }
   // return only non-null headers (omit placemarker nulls)
   getHeaders() {
     const e = {};
-    for (const [t, s] of Object.entries(this._header))
-      s !== null && (e[t] = s);
+    for (const [t, i] of Object.entries(this._header))
+      i !== null && (e[t] = i);
     return e;
   }
-  loadPgn(e, { strict: t = !1, newlineChar: s = `\r?
+  loadPgn(e, { strict: t = !1, newlineChar: i = `\r?
 ` } = {}) {
-    s !== `\r?
-` && (e = e.replace(new RegExp(s, "g"), `
+    i !== `\r?
+` && (e = e.replace(new RegExp(i, "g"), `
 `));
-    const i = Fi(e);
+    const s = Hs(e);
     this.reset();
-    const r = i.headers;
+    const r = s.headers;
     let o = "";
-    for (const h in r)
-      h.toLowerCase() === "fen" && (o = r[h]), this.header(h, r[h]);
+    for (const l in r)
+      l.toLowerCase() === "fen" && (o = r[l]), this.header(l, r[l]);
     if (!t)
       o && this.load(o, { preserveHeaders: !0 });
     else if (r.SetUp === "1") {
@@ -2003,17 +2003,17 @@ class $e {
         throw new Error("Invalid PGN: FEN tag must be supplied with SetUp tag");
       this.load(r.FEN, { preserveHeaders: !0 });
     }
-    let n = i.root;
+    let n = s.root;
     for (; n; ) {
       if (n.move) {
-        const h = this._moveFromSan(n.move, t);
-        if (h == null)
+        const l = this._moveFromSan(n.move, t);
+        if (l == null)
           throw new Error(`Invalid move in PGN: ${n.move}`);
-        this._makeMove(h), this._incPositionCount();
+        this._makeMove(l), this._incPositionCount();
       }
       n.comment !== void 0 && (this._comments[this.fen()] = n.comment), n = n.variations[0];
     }
-    const a = i.result;
+    const a = s.result;
     a && Object.keys(this._header).length && this._header.Result !== a && this.setHeader("Result", a);
   }
   /*
@@ -2028,64 +2028,64 @@ class $e {
    * 4. ... Ne7 is technically the valid SAN
    */
   _moveToSan(e, t) {
-    let s = "";
-    if (e.flags & M.KSIDE_CASTLE)
-      s = "O-O";
-    else if (e.flags & M.QSIDE_CASTLE)
-      s = "O-O-O";
+    let i = "";
+    if (e.flags & T.KSIDE_CASTLE)
+      i = "O-O";
+    else if (e.flags & T.QSIDE_CASTLE)
+      i = "O-O-O";
     else {
-      if (e.flags & M.NULL_MOVE)
-        return Oe;
-      if (e.piece !== N) {
-        const i = Zi(e, t);
-        s += e.piece.toUpperCase() + i;
+      if (e.flags & T.NULL_MOVE)
+        return ze;
+      if (e.piece !== F) {
+        const s = ti(e, t);
+        i += e.piece.toUpperCase() + s;
       }
-      e.flags & (M.CAPTURE | M.EP_CAPTURE) && (e.piece === N && (s += $(e.from)[0]), s += "x"), s += $(e.to), e.promotion && (s += "=" + e.promotion.toUpperCase());
+      e.flags & (T.CAPTURE | T.EP_CAPTURE) && (e.piece === F && (i += z(e.from)[0]), i += "x"), i += z(e.to), e.promotion && (i += "=" + e.promotion.toUpperCase());
     }
-    return this._makeMove(e), this.isCheck() && (this.isCheckmate() ? s += "#" : s += "+"), this._undoMove(), s;
+    return this._makeMove(e), this.isCheck() && (this.isCheckmate() ? i += "#" : i += "+"), this._undoMove(), i;
   }
   // convert a move from Standard Algebraic Notation (SAN) to 0x88 coordinates
   _moveFromSan(e, t = !1) {
-    let s = Ie(e);
-    if (t || (s === "0-0" ? s = "O-O" : s === "0-0-0" && (s = "O-O-O")), s == Oe)
+    let i = Ke(e);
+    if (t || (i === "0-0" ? i = "O-O" : i === "0-0-0" && (i = "O-O-O")), i == ze)
       return {
         color: this._turn,
         from: 0,
         to: 0,
         piece: "k",
-        flags: M.NULL_MOVE
+        flags: T.NULL_MOVE
       };
-    let i = pt(s), r = this._moves({ legal: !0, piece: i });
-    for (let p = 0, _ = r.length; p < _; p++)
-      if (s === Ie(this._moveToSan(r[p], r)))
-        return r[p];
+    let s = St(i), r = this._moves({ legal: !0, piece: s });
+    for (let f = 0, v = r.length; f < v; f++)
+      if (i === Ke(this._moveToSan(r[f], r)))
+        return r[f];
     if (t)
       return null;
-    let o, n, a, h, d, m = !1;
-    if (n = s.match(/([pnbrqkPNBRQK])?([a-h][1-8])x?-?([a-h][1-8])([qrbnQRBN])?/), n ? (o = n[1], a = n[2], h = n[3], d = n[4], a.length == 1 && (m = !0)) : (n = s.match(/([pnbrqkPNBRQK])?([a-h]?[1-8]?)x?-?([a-h][1-8])([qrbnQRBN])?/), n && (o = n[1], a = n[2], h = n[3], d = n[4], a.length == 1 && (m = !0))), i = pt(s), r = this._moves({
+    let o, n, a, l, g, d = !1;
+    if (n = i.match(/([pnbrqkPNBRQK])?([a-h][1-8])x?-?([a-h][1-8])([qrbnQRBN])?/), n ? (o = n[1], a = n[2], l = n[3], g = n[4], a.length == 1 && (d = !0)) : (n = i.match(/([pnbrqkPNBRQK])?([a-h]?[1-8]?)x?-?([a-h][1-8])([qrbnQRBN])?/), n && (o = n[1], a = n[2], l = n[3], g = n[4], a.length == 1 && (d = !0))), s = St(i), r = this._moves({
       legal: !0,
-      piece: o || i
-    }), !h)
+      piece: o || s
+    }), !l)
       return null;
-    for (let p = 0, _ = r.length; p < _; p++)
+    for (let f = 0, v = r.length; f < v; f++)
       if (a) {
-        if ((!o || o.toLowerCase() == r[p].piece) && A[a] == r[p].from && A[h] == r[p].to && (!d || d.toLowerCase() == r[p].promotion))
-          return r[p];
-        if (m) {
-          const v = $(r[p].from);
-          if ((!o || o.toLowerCase() == r[p].piece) && A[h] == r[p].to && (a == v[0] || a == v[1]) && (!d || d.toLowerCase() == r[p].promotion))
-            return r[p];
+        if ((!o || o.toLowerCase() == r[f].piece) && E[a] == r[f].from && E[l] == r[f].to && (!g || g.toLowerCase() == r[f].promotion))
+          return r[f];
+        if (d) {
+          const _ = z(r[f].from);
+          if ((!o || o.toLowerCase() == r[f].piece) && E[l] == r[f].to && (a == _[0] || a == _[1]) && (!g || g.toLowerCase() == r[f].promotion))
+            return r[f];
         }
-      } else if (s === Ie(this._moveToSan(r[p], r)).replace("x", ""))
-        return r[p];
+      } else if (i === Ke(this._moveToSan(r[f], r)).replace("x", ""))
+        return r[f];
     return null;
   }
   ascii() {
     let e = `   +------------------------+
 `;
-    for (let t = A.a8; t <= A.h1; t++) {
-      if (fe(t) === 0 && (e += " " + "87654321"[ee(t)] + " |"), this._board[t]) {
-        const s = this._board[t].type, r = this._board[t].color === F ? s.toUpperCase() : s.toLowerCase();
+    for (let t = E.a8; t <= E.h1; t++) {
+      if (ye(t) === 0 && (e += " " + "87654321"[he(t)] + " |"), this._board[t]) {
+        const i = this._board[t].type, r = this._board[t].color === U ? i.toUpperCase() : i.toLowerCase();
         e += " " + r + " ";
       } else
         e += " . ";
@@ -2097,11 +2097,11 @@ class $e {
   }
   perft(e) {
     const t = this._moves({ legal: !1 });
-    let s = 0;
-    const i = this._turn;
+    let i = 0;
+    const s = this._turn;
     for (let r = 0, o = t.length; r < o; r++)
-      this._makeMove(t[r]), this._isKingAttacked(i) || (e - 1 > 0 ? s += this.perft(e - 1) : s++), this._undoMove();
-    return s;
+      this._makeMove(t[r]), this._isKingAttacked(s) || (e - 1 > 0 ? i += this.perft(e - 1) : i++), this._undoMove();
+    return i;
   }
   setTurn(e) {
     return this._turn == e ? !1 : (this.move("--"), !0);
@@ -2112,32 +2112,32 @@ class $e {
   board() {
     const e = [];
     let t = [];
-    for (let s = A.a8; s <= A.h1; s++)
-      this._board[s] == null ? t.push(null) : t.push({
-        square: $(s),
-        type: this._board[s].type,
-        color: this._board[s].color
-      }), s + 1 & 136 && (e.push(t), t = [], s += 8);
+    for (let i = E.a8; i <= E.h1; i++)
+      this._board[i] == null ? t.push(null) : t.push({
+        square: z(i),
+        type: this._board[i].type,
+        color: this._board[i].color
+      }), i + 1 & 136 && (e.push(t), t = [], i += 8);
     return e;
   }
   squareColor(e) {
-    if (e in A) {
-      const t = A[e];
-      return (ee(t) + fe(t)) % 2 === 0 ? "light" : "dark";
+    if (e in E) {
+      const t = E[e];
+      return (he(t) + ye(t)) % 2 === 0 ? "light" : "dark";
     }
     return null;
   }
   history({ verbose: e = !1 } = {}) {
-    const t = [], s = [];
+    const t = [], i = [];
     for (; this._history.length > 0; )
       t.push(this._undoMove());
     for (; ; ) {
-      const i = t.pop();
-      if (!i)
+      const s = t.pop();
+      if (!s)
         break;
-      e ? s.push(new _e(this, i)) : s.push(this._moveToSan(i, this._moves())), this._makeMove(i);
+      e ? i.push(new Me(this, s)) : i.push(this._moveToSan(s, this._moves())), this._makeMove(s);
     }
-    return s;
+    return i;
   }
   /*
    * Keeps track of position occurrence counts for the purpose of repetition
@@ -2154,16 +2154,16 @@ class $e {
     t === 1 ? this._positionCount.delete(e) : this._positionCount.set(e, t - 1);
   }
   _pruneComments() {
-    const e = [], t = {}, s = (i) => {
-      i in this._comments && (t[i] = this._comments[i]);
+    const e = [], t = {}, i = (s) => {
+      s in this._comments && (t[s] = this._comments[s]);
     };
     for (; this._history.length > 0; )
       e.push(this._undoMove());
-    for (s(this.fen()); ; ) {
-      const i = e.pop();
-      if (!i)
+    for (i(this.fen()); ; ) {
+      const s = e.pop();
+      if (!s)
         break;
-      this._makeMove(i), s(this.fen());
+      this._makeMove(s), i(this.fen());
     }
     this._comments = t;
   }
@@ -2199,23 +2199,23 @@ class $e {
     });
   }
   setCastlingRights(e, t) {
-    for (const i of [O, V])
-      t[i] !== void 0 && (t[i] ? this._castling[e] |= ve[i] : this._castling[e] &= ~ve[i]);
+    for (const s of [x, oe])
+      t[s] !== void 0 && (t[s] ? this._castling[e] |= Ee[s] : this._castling[e] &= ~Ee[s]);
     this._updateCastlingRights();
-    const s = this.getCastlingRights(e);
-    return (t[O] === void 0 || t[O] === s[O]) && (t[V] === void 0 || t[V] === s[V]);
+    const i = this.getCastlingRights(e);
+    return (t[x] === void 0 || t[x] === i[x]) && (t[oe] === void 0 || t[oe] === i[oe]);
   }
   getCastlingRights(e) {
     return {
-      [O]: (this._castling[e] & ve[O]) !== 0,
-      [V]: (this._castling[e] & ve[V]) !== 0
+      [x]: (this._castling[e] & Ee[x]) !== 0,
+      [oe]: (this._castling[e] & Ee[oe]) !== 0
     };
   }
   moveNumber() {
     return this._moveNumber;
   }
 }
-const es = /%cal\s+([^%\s]+)/g, ts = /%csl\s+([^%\s]+)/g, _t = /%(?:cal|csl)\s+[^%\s]+/, is = /^[a-h][1-8]$/, Re = {
+const si = /%cal\s+([^%\s]+)/g, ii = /%csl\s+([^%\s]+)/g, yt = /%(?:cal|csl)\s+[^%\s]+/, ri = /^[a-h][1-8]$/, Be = {
   R: "#ff0000",
   // Red
   G: "#00ff00",
@@ -2225,46 +2225,46 @@ const es = /%cal\s+([^%\s]+)/g, ts = /%csl\s+([^%\s]+)/g, _t = /%(?:cal|csl)\s+[
   B: "#0000ff"
   // Blue
 };
-class B {
+class V {
   /**
    * Check if a comment contains visual annotations
    */
   static hasVisualAnnotations(e) {
-    return _t.test(e);
+    return yt.test(e);
   }
   /**
    * Parse visual annotations from a PGN comment
    */
   static parseComment(e) {
     let t = e.startsWith("{") && e.endsWith("}") ? e.substring(1, e.length - 1) : e;
-    const s = [], i = [], r = [...t.matchAll(es)];
+    const i = [], s = [], r = [...t.matchAll(si)];
     for (const a of r) {
-      const h = a[1].split(",");
-      for (const d of h) {
-        const m = d.trim();
-        if (m.length >= 5) {
-          const p = m[0], _ = m.slice(1, 3), v = m.slice(3, 5);
-          B.isValidSquare(_) && B.isValidSquare(v) && s.push({
-            from: _,
-            to: v,
-            color: B.colorToHex(p)
+      const l = a[1].split(",");
+      for (const g of l) {
+        const d = g.trim();
+        if (d.length >= 5) {
+          const f = d[0], v = d.slice(1, 3), _ = d.slice(3, 5);
+          V.isValidSquare(v) && V.isValidSquare(_) && i.push({
+            from: v,
+            to: _,
+            color: V.colorToHex(f)
           });
         }
       }
       t = t.replace(a[0], " ");
     }
-    const o = [...t.matchAll(ts)];
+    const o = [...t.matchAll(ii)];
     for (const a of o) {
-      const h = a[1].split(",");
-      for (const d of h) {
-        const m = d.trim();
-        if (m.length >= 3) {
-          const p = m[0], _ = m.slice(1, 3);
-          B.isValidSquare(_) && i.push({
-            square: _,
+      const l = a[1].split(",");
+      for (const g of l) {
+        const d = g.trim();
+        if (d.length >= 3) {
+          const f = d[0], v = d.slice(1, 3);
+          V.isValidSquare(v) && s.push({
+            square: v,
             type: "circle",
             // Cast to avoid type issues
-            color: B.colorToHex(p)
+            color: V.colorToHex(f)
           });
         }
       }
@@ -2272,8 +2272,8 @@ class B {
     }
     let n = t.replace(/\s+/g, " ").trim();
     return {
-      arrows: s,
-      highlights: i,
+      arrows: i,
+      highlights: s,
       textComment: n || ""
     };
   }
@@ -2290,35 +2290,35 @@ class B {
    * Remove visual annotations from a comment, keeping only text
    */
   static stripAnnotations(e) {
-    return e.replace(new RegExp(_t.source, "g"), "").replace(/\s+/g, " ").trim();
+    return e.replace(new RegExp(yt.source, "g"), "").replace(/\s+/g, " ").trim();
   }
   /**
    * Create annotation string from arrows and circles
    */
   static fromDrawingObjects(e, t) {
-    const s = [];
+    const i = [];
     if (e.length > 0) {
-      const i = e.map((r) => `${B.hexToColor(r.color)}${r.from}${r.to}`).join(",");
-      s.push(`%cal ${i}`);
+      const s = e.map((r) => `${V.hexToColor(r.color)}${r.from}${r.to}`).join(",");
+      i.push(`%cal ${s}`);
     }
     if (t.length > 0) {
-      const i = t.map((r) => `${B.hexToColor(r.color)}${r.square}`).join(",");
-      s.push(`%csl ${i}`);
+      const s = t.map((r) => `${V.hexToColor(r.color)}${r.square}`).join(",");
+      i.push(`%csl ${s}`);
     }
-    return s.join(" ");
+    return i.join(" ");
   }
   /**
    * Convert color code to hex color
    */
   static colorToHex(e) {
-    return Re[e] || Re.R;
+    return Be[e] || Be.R;
   }
   /**
    * Convert hex color to color code
    */
   static hexToColor(e) {
-    for (const [t, s] of Object.entries(Re))
-      if (s === e)
+    for (const [t, i] of Object.entries(Be))
+      if (i === e)
         return t;
     return "R";
   }
@@ -2326,10 +2326,10 @@ class B {
    * Check if a string is a valid chess square notation
    */
   static isValidSquare(e) {
-    return is.test(e);
+    return ri.test(e);
   }
 }
-class De {
+class Ve {
   constructor(e) {
     this.rulesAdapter = e, this.metadata = {
       Event: "Casual Game",
@@ -2350,17 +2350,17 @@ class De {
   /**
    * Add a move to the game
    */
-  addMove(e, t, s, i, r) {
+  addMove(e, t, i, s, r) {
     const o = this.moves.findIndex((n) => n.moveNumber === e);
     if (o >= 0) {
       const n = this.moves[o];
-      t && (n.white = t), s && (n.black = s), i && (n.whiteComment = i), r && (n.blackComment = r), n.whiteAnnotations || (n.whiteAnnotations = { arrows: [], circles: [], textComment: "" }), n.blackAnnotations || (n.blackAnnotations = { arrows: [], circles: [], textComment: "" });
+      t && (n.white = t), i && (n.black = i), s && (n.whiteComment = s), r && (n.blackComment = r), n.whiteAnnotations || (n.whiteAnnotations = { arrows: [], circles: [], textComment: "" }), n.blackAnnotations || (n.blackAnnotations = { arrows: [], circles: [], textComment: "" });
     } else
       this.moves.push({
         moveNumber: e,
         white: t,
-        black: s,
-        whiteComment: i,
+        black: i,
+        whiteComment: s,
         blackComment: r,
         whiteAnnotations: { arrows: [], circles: [], textComment: "" },
         blackAnnotations: { arrows: [], circles: [], textComment: "" }
@@ -2386,22 +2386,22 @@ class De {
       } else {
         const t = e.history({ verbose: !0 });
         this.moves = [];
-        for (let s = 0; s < t.length; s++) {
-          const i = t[s], r = Math.floor(s / 2) + 1;
-          if (s % 2 === 0)
-            this.addMove(r, i.san);
+        for (let i = 0; i < t.length; i++) {
+          const s = t[i], r = Math.floor(i / 2) + 1;
+          if (i % 2 === 0)
+            this.addMove(r, s.san);
           else {
             const n = this.moves.find((a) => a.moveNumber === r);
-            n ? n.black = i.san : this.addMove(r, void 0, i.san);
+            n ? n.black = s.san : this.addMove(r, void 0, s.san);
           }
         }
       }
     } catch (t) {
       console.warn("Failed to import proper PGN notation, using fallback:", t);
-      const s = e.history();
+      const i = e.history();
       this.moves = [];
-      for (let i = 0; i < s.length; i += 2) {
-        const r = Math.floor(i / 2) + 1, o = s[i], n = s[i + 1];
+      for (let s = 0; s < i.length; s += 2) {
+        const r = Math.floor(s / 2) + 1, o = i[s], n = i[s + 1];
         this.addMove(r, o, n);
       }
     }
@@ -2413,15 +2413,15 @@ class De {
   parsePgnMoves(e) {
     this.moves = [];
     let t = e.replace(/\{[^}]*\}/g, "").replace(/\([^)]*\)/g, "");
-    const s = /\s*(1-0|0-1|1\/2-1\/2|\*)\s*$/, i = t.match(s);
-    i && (this.setResult(i[1]), t = t.replace(s, ""));
+    const i = /\s*(1-0|0-1|1\/2-1\/2|\*)\s*$/, s = t.match(i);
+    s && (this.setResult(s[1]), t = t.replace(i, ""));
     const r = /(\d+)\.\s*([^\s]+)(?:\s+([^\s]+))?/g;
     let o;
     for (; (o = r.exec(t)) !== null; ) {
-      const n = parseInt(o[1]), a = o[2], h = o[3];
+      const n = parseInt(o[1]), a = o[2], l = o[3];
       if (a && !["1-0", "0-1", "1/2-1/2", "*"].includes(a)) {
-        const d = h && !["1-0", "0-1", "1/2-1/2", "*"].includes(h) ? h : void 0;
-        this.addMove(n, a, d);
+        const g = l && !["1-0", "0-1", "1/2-1/2", "*"].includes(l) ? l : void 0;
+        this.addMove(n, a, g);
       }
     }
   }
@@ -2443,14 +2443,14 @@ class De {
     }
     if (this.moves.length === 0 && !e)
       return this.result;
-    let s = 0;
-    const i = 80;
+    let i = 0;
+    const s = 80;
     for (const r of this.moves) {
       let o = `${r.moveNumber}.`;
-      r.white && (o += ` ${r.white}`, r.whiteComment && (o += ` {${r.whiteComment}}`)), r.black && (o += ` ${r.black}`, r.blackComment && (o += ` {${r.blackComment}}`)), s + o.length + 1 > i && (t += `
-`, s = 0), s > 0 && (t += " ", s++), t += o, s += o.length;
+      r.white && (o += ` ${r.white}`, r.whiteComment && (o += ` {${r.whiteComment}}`)), r.black && (o += ` ${r.black}`, r.blackComment && (o += ` {${r.blackComment}}`)), i + o.length + 1 > s && (t += `
+`, i = 0), i > 0 && (t += " ", i++), t += o, i += o.length;
     }
-    return this.result !== "*" && (s > 0 && this.moves.length > 0 && (t += " "), t += this.result), t.trim();
+    return this.result !== "*" && (i > 0 && this.moves.length > 0 && (t += " "), t += this.result), t.trim();
   }
   /**
    * Clear all moves and reset
@@ -2474,29 +2474,29 @@ class De {
    * Create a PGN from a simple move list
    */
   static fromMoveList(e, t) {
-    const s = new De();
-    s.setMetadata(t || {});
-    for (let i = 0; i < e.length; i += 2) {
-      const r = Math.floor(i / 2) + 1, o = e[i], n = e[i + 1];
-      s.addMove(r, o, n);
+    const i = new Ve();
+    i.setMetadata(t || {});
+    for (let s = 0; s < e.length; s += 2) {
+      const r = Math.floor(s / 2) + 1, o = e[s], n = e[s + 1];
+      i.addMove(r, o, n);
     }
-    return s.toPgn();
+    return i.toPgn();
   }
   /**
    * Download PGN as file (browser only)
    */
   downloadPgn(e = "game.pgn") {
     if (typeof window < "u" && window.document) {
-      const t = new Blob([this.toPgnWithAnnotations()], { type: "application/x-chess-pgn" }), s = URL.createObjectURL(t), i = document.createElement("a");
-      i.href = s, i.download = e, document.body.appendChild(i), i.click(), document.body.removeChild(i), URL.revokeObjectURL(s);
+      const t = new Blob([this.toPgnWithAnnotations()], { type: "application/x-chess-pgn" }), i = URL.createObjectURL(t), s = document.createElement("a");
+      s.href = i, s.download = e, document.body.appendChild(s), s.click(), document.body.removeChild(s), URL.revokeObjectURL(i);
     }
   }
   /**
    * Add visual annotations to a move
    */
-  addMoveAnnotations(e, t, s) {
-    const i = this.moves.findIndex((r) => r.moveNumber === e);
-    i >= 0 && (t ? this.moves[i].whiteAnnotations = s : this.moves[i].blackAnnotations = s);
+  addMoveAnnotations(e, t, i) {
+    const s = this.moves.findIndex((r) => r.moveNumber === e);
+    s >= 0 && (t ? this.moves[s].whiteAnnotations = i : this.moves[s].blackAnnotations = i);
   }
   /**
    * Parse a PGN string with comments containing visual annotations
@@ -2504,13 +2504,13 @@ class De {
   loadPgnWithAnnotations(e) {
     const t = e.split(`
 `);
-    let s = !1, i = "";
+    let i = !1, s = "";
     for (const r of t)
       if (r.startsWith("[")) {
         const o = r.match(/\[(\w+)\s+\"([^\"]*)\"\]/);
         o && (this.metadata[o[1]] = o[2]);
-      } else r.trim() && !r.startsWith("[") && (s = !0, i += r + " ");
-    s && this.parseMovesWithAnnotations(i);
+      } else r.trim() && !r.startsWith("[") && (i = !0, s += r + " ");
+    i && this.parseMovesWithAnnotations(s);
   }
   /**
    * Parse moves string with embedded annotations
@@ -2518,10 +2518,10 @@ class De {
   parseMovesWithAnnotations(e) {
     this.moves = [];
     const t = /(\d+)\.\s*([^\s{]+)(?:\s*(\{[^}]+\}))?(?:\s+([^\s{]+)(?:\s*(\{[^}]+\}))?)?/g;
-    let s;
-    for (; (s = t.exec(e)) !== null; ) {
-      const i = parseInt(s[1]), r = s[2], o = s[3], n = s[4], a = s[5], h = {
-        moveNumber: i,
+    let i;
+    for (; (i = t.exec(e)) !== null; ) {
+      const s = parseInt(i[1]), r = i[2], o = i[3], n = i[4], a = i[5], l = {
+        moveNumber: s,
         white: r,
         black: n,
         whiteAnnotations: { arrows: [], circles: [], textComment: "" },
@@ -2530,22 +2530,22 @@ class De {
         // Initialize
       };
       if (o) {
-        const d = B.parseComment(o);
-        h.whiteComment = o, h.whiteAnnotations = {
-          arrows: d.arrows,
-          circles: d.highlights,
-          textComment: d.textComment
+        const g = V.parseComment(o);
+        l.whiteComment = o, l.whiteAnnotations = {
+          arrows: g.arrows,
+          circles: g.highlights,
+          textComment: g.textComment
         };
       }
       if (n && a) {
-        const d = B.parseComment(a);
-        h.blackComment = a, h.blackAnnotations = {
-          arrows: d.arrows,
-          circles: d.highlights,
-          textComment: d.textComment
+        const g = V.parseComment(a);
+        l.blackComment = a, l.blackAnnotations = {
+          arrows: g.arrows,
+          circles: g.highlights,
+          textComment: g.textComment
         };
       }
-      this.moves.push(h);
+      this.moves.push(l);
     }
   }
   /**
@@ -2562,19 +2562,19 @@ class De {
 `);
     e += `
 `;
-    let s = 0;
-    const i = 80;
+    let i = 0;
+    const s = 80;
     for (const r of this.moves) {
       let o = `${r.moveNumber}.`;
       if (r.white) {
         o += ` ${r.white}`;
         let n = "";
         if (r.whiteAnnotations) {
-          const a = B.fromDrawingObjects(
+          const a = V.fromDrawingObjects(
             r.whiteAnnotations.arrows || [],
             r.whiteAnnotations.circles || []
-          ), h = r.whiteAnnotations.textComment || "";
-          n = [a, h].filter(Boolean).join(" ").trim();
+          ), l = r.whiteAnnotations.textComment || "";
+          n = [a, l].filter(Boolean).join(" ").trim();
         } else r.whiteComment && (n = r.whiteComment);
         n && (o += ` {${n}}`);
       }
@@ -2582,26 +2582,26 @@ class De {
         o += ` ${r.black}`;
         let n = "";
         if (r.blackAnnotations) {
-          const a = B.fromDrawingObjects(
+          const a = V.fromDrawingObjects(
             r.blackAnnotations.arrows || [],
             r.blackAnnotations.circles || []
-          ), h = r.blackAnnotations.textComment || "";
-          n = [a, h].filter(Boolean).join(" ").trim();
+          ), l = r.blackAnnotations.textComment || "";
+          n = [a, l].filter(Boolean).join(" ").trim();
         } else r.blackComment && (n = r.blackComment);
         n && (o += ` {${n}}`);
       }
-      s + o.length + 1 > i && (e += `
-`, s = 0), s > 0 && (e += " ", s++), e += o, s += o.length;
+      i + o.length + 1 > s && (e += `
+`, i = 0), i > 0 && (e += " ", i++), e += o, i += o.length;
     }
-    return this.result !== "*" && (s > 0 && (e += " "), e += this.result), e.trim();
+    return this.result !== "*" && (i > 0 && (e += " "), e += this.result), e.trim();
   }
   /**
    * Get annotations for a specific move
    */
   getMoveAnnotations(e, t) {
-    const s = this.moves.find((i) => i.moveNumber === e);
-    if (s)
-      return t ? s.whiteAnnotations : s.blackAnnotations;
+    const i = this.moves.find((s) => s.moveNumber === e);
+    if (i)
+      return t ? i.whiteAnnotations : i.blackAnnotations;
   }
   /**
    * Get all moves with their annotations
@@ -2610,16 +2610,16 @@ class De {
     return [...this.moves];
   }
 }
-class Ae {
+class Ie {
   getFenParts(e) {
-    const s = (e ?? this.chess.fen()).trim().split(/\s+/);
-    return s.length < 6 ? s.concat(new Array(6 - s.length).fill("")) : s;
+    const i = (e ?? this.chess.fen()).trim().split(/\s+/);
+    return i.length < 6 ? i.concat(new Array(6 - i.length).fill("")) : i;
   }
   getChessInstance() {
     return this.chess;
   }
   constructor(e) {
-    this.chess = new $e(e), this.pgnNotation = new De();
+    this.chess = new Ue(e), this.pgnNotation = new Ve();
   }
   /**
    * Obtenir la position actuelle au format FEN
@@ -2657,13 +2657,13 @@ class Ae {
    * Obtenir tous les coups légaux depuis une case
    */
   movesFrom(e) {
-    return this.chess.moves({ square: e, verbose: !0 }).map((s) => ({
-      from: s.from,
-      to: s.to,
-      promotion: s.promotion === "k" ? void 0 : s.promotion,
-      piece: s.piece,
-      captured: s.captured,
-      flags: s.flags
+    return this.chess.moves({ square: e, verbose: !0 }).map((i) => ({
+      from: i.from,
+      to: i.to,
+      promotion: i.promotion === "k" ? void 0 : i.promotion,
+      piece: i.piece,
+      captured: i.captured,
+      flags: i.flags
     }));
   }
   /**
@@ -2682,12 +2682,12 @@ class Ae {
   /**
    * Vérifier si un coup est légal
    */
-  isLegalMove(e, t, s) {
+  isLegalMove(e, t, i) {
     try {
-      return new $e(this.chess.fen()).move({
+      return new Ue(this.chess.fen()).move({
         from: e,
         to: t,
-        promotion: s
+        promotion: i
       }) !== null;
     } catch {
       return !1;
@@ -2767,7 +2767,7 @@ class Ae {
    */
   getAttackedSquares() {
     const e = this.chess.turn();
-    return gt.filter((t) => this.chess.isAttacked(t, e)).map(
+    return _t.filter((t) => this.chess.isAttacked(t, e)).map(
       (t) => t
     );
   }
@@ -2781,17 +2781,17 @@ class Ae {
   isSquareAttacked(e, t) {
     if (typeof e != "string")
       throw new Error(`Invalid square: ${e}`);
-    const s = e.toLowerCase();
-    if (!gt.includes(s))
+    const i = e.toLowerCase();
+    if (!_t.includes(i))
       throw new Error(`Invalid square: ${e}`);
-    let i;
+    let s;
     if (t === void 0)
-      i = this.chess.turn();
+      s = this.chess.turn();
     else if (t === "w" || t === "b")
-      i = t;
+      s = t;
     else
       throw new Error(`Invalid color: ${t}`);
-    return this.chess.isAttacked(s, i);
+    return this.chess.isAttacked(i, s);
   }
   /**
    * Obtenir les cases du roi en échec (pour le surlignage)
@@ -2805,10 +2805,10 @@ class Ae {
    * Obtenir la position du roi d'une couleur
    */
   getKingSquare(e) {
-    const t = ["a", "b", "c", "d", "e", "f", "g", "h"], s = ["1", "2", "3", "4", "5", "6", "7", "8"];
-    for (const i of t)
-      for (const r of s) {
-        const o = `${i}${r}`, n = this.chess.get(o);
+    const t = ["a", "b", "c", "d", "e", "f", "g", "h"], i = ["1", "2", "3", "4", "5", "6", "7", "8"];
+    for (const s of t)
+      for (const r of i) {
+        const o = `${s}${r}`, n = this.chess.get(o);
         if (n && n.type === "k" && n.color === e)
           return o;
       }
@@ -2818,8 +2818,8 @@ class Ae {
    * Vérifier si le roque est possible
    */
   canCastle(e, t) {
-    const s = t || this.chess.turn(), i = this.chess.getCastlingRights(s);
-    return e === "k" ? i.k : i.q;
+    const i = t || this.chess.turn(), s = this.chess.getCastlingRights(i);
+    return e === "k" ? s.k : s.q;
   }
   /**
    * Obtenir le nombre de coups depuis le début
@@ -2831,21 +2831,21 @@ class Ae {
    * Obtenir le nombre de demi-coups depuis la dernière prise ou mouvement de pion
    */
   halfMoves() {
-    const t = this.getFenParts()[4] ?? "0", s = Number.parseInt(t, 10);
-    return Number.isNaN(s) ? 0 : s;
+    const t = this.getFenParts()[4] ?? "0", i = Number.parseInt(t, 10);
+    return Number.isNaN(i) ? 0 : i;
   }
   /**
    * Créer une copie de l'état actuel
    */
   clone() {
-    return new Ae(this.chess.fen());
+    return new Ie(this.chess.fen());
   }
   /**
    * Valider un FEN
    */
   static isValidFEN(e) {
     try {
-      return new $e().load(e), !0;
+      return new Ue().load(e), !0;
     } catch {
       return !1;
     }
@@ -2911,38 +2911,38 @@ class Ae {
     return this.chess.history();
   }
 }
-const re = {
+const ue = {
   color: "rgba(34, 197, 94, 0.6)",
   width: 2,
   opacity: 0.8
-}, vt = {
+}, At = {
   default: "#ffeb3b",
   shiftKey: "#22c55e",
   ctrlKey: "#ef4444",
   altKey: "#f59e0b"
-}, ss = ["shiftKey", "ctrlKey", "altKey"], rs = {
+}, ni = ["shiftKey", "ctrlKey", "altKey"], oi = {
   green: "rgba(34, 197, 94, 0.6)",
   red: "rgba(239, 68, 68, 0.6)",
   blue: "rgba(59, 130, 246, 0.6)",
   yellow: "rgba(245, 158, 11, 0.6)",
   orange: "rgba(249, 115, 22, 0.6)",
   purple: "rgba(168, 85, 247, 0.6)"
-}, ne = [
+}, ge = [
   "green",
   "red",
   "blue",
   "yellow",
   "orange",
   "purple"
-], ns = {
+], ai = {
   shiftKey: "green",
   ctrlKey: "red",
   altKey: "yellow"
-}, os = 0.3, as = {
+}, li = 0.3, hi = {
   selected: 0.5,
   lastMove: 0.6
-}, wt = "rgba(255, 255, 0, 0.5)";
-class hs {
+}, Ct = "rgba(255, 255, 0, 0.5)";
+class ci {
   constructor(e) {
     this.state = {
       arrows: [],
@@ -2961,12 +2961,12 @@ class hs {
     this.showSquareNames = e;
   }
   // Arrow management
-  addArrow(e, t, s = re.color, i = re.width, r = re.opacity) {
+  addArrow(e, t, i = ue.color, s = ue.width, r = ue.opacity) {
     const o = typeof e == "object" ? this.normalizeArrow(e) : this.normalizeArrow({
       from: e,
       to: t,
-      color: s,
-      width: i,
+      color: i,
+      width: s,
       opacity: r
     }), n = this.findArrowIndex(o.from, o.to);
     if (n >= 0) {
@@ -2979,24 +2979,24 @@ class hs {
     this.state.arrows.push(o);
   }
   normalizeArrow(e) {
-    const t = e.color ?? re.color, s = e.width ?? re.width, i = e.opacity ?? re.opacity, r = e.knightMove ?? this.isKnightMove(e.from, e.to);
+    const t = e.color ?? ue.color, i = e.width ?? ue.width, s = e.opacity ?? ue.opacity, r = e.knightMove ?? this.isKnightMove(e.from, e.to);
     return {
       from: e.from,
       to: e.to,
       color: t,
-      width: s,
-      opacity: i,
+      width: i,
+      opacity: s,
       knightMove: r
     };
   }
   findArrowIndex(e, t) {
     return this.state.arrows.findIndex(
-      (s) => s.from === e && s.to === t
+      (i) => i.from === e && i.to === t
     );
   }
   removeArrow(e, t) {
-    const s = this.findArrowIndex(e, t);
-    s >= 0 && this.state.arrows.splice(s, 1);
+    const i = this.findArrowIndex(e, t);
+    i >= 0 && this.state.arrows.splice(i, 1);
   }
   clearArrows() {
     this.state.arrows = [];
@@ -3005,24 +3005,24 @@ class hs {
     return this.state.arrows.map((e) => ({ ...e }));
   }
   // Highlight management
-  addHighlight(e, t = "green", s) {
-    const i = s ?? this.getDefaultHighlightOpacity(t), r = this.findHighlightIndex(e);
+  addHighlight(e, t = "green", i) {
+    const s = i ?? this.getDefaultHighlightOpacity(t), r = this.findHighlightIndex(e);
     if (r >= 0) {
       this.state.highlights[r] = {
         ...this.state.highlights[r],
         type: t,
-        opacity: i
+        opacity: s
       };
       return;
     }
     this.state.highlights.push({
       square: e,
       type: t,
-      opacity: i
+      opacity: s
     });
   }
   getDefaultHighlightOpacity(e) {
-    return as[e] ?? os;
+    return hi[e] ?? li;
   }
   findHighlightIndex(e) {
     return this.state.highlights.findIndex((t) => t.square === e);
@@ -3040,10 +3040,10 @@ class hs {
    * @returns An object with x and y coordinates
    */
   getSquareCoordinates(e) {
-    const t = e[0].toLowerCase(), s = parseInt(e[1], 10);
-    let i = t.charCodeAt(0) - 97, r = 8 - s;
-    return this.orientation === "black" && (i = 7 - i, r = 7 - r), {
-      x: i * this.squareSize,
+    const t = e[0].toLowerCase(), i = parseInt(e[1], 10);
+    let s = t.charCodeAt(0) - 97, r = 8 - i;
+    return this.orientation === "black" && (s = 7 - s, r = 7 - r), {
+      x: s * this.squareSize,
       y: r * this.squareSize
     };
   }
@@ -3057,18 +3057,18 @@ class hs {
    * Get the center point of a square in pixels
    */
   getSquareCenter(e) {
-    const { x: t, y: s } = this.getSquareCoordinates(e), i = this.squareSize / 2;
+    const { x: t, y: i } = this.getSquareCoordinates(e), s = this.squareSize / 2;
     return {
-      x: t + i,
-      y: s + i
+      x: t + s,
+      y: i + s
     };
   }
   getHighlights() {
     return this.state.highlights.map((e) => ({ ...e }));
   }
   // Premove management
-  setPremove(e, t, s) {
-    this.state.premove = { from: e, to: t, promotion: s };
+  setPremove(e, t, i) {
+    this.state.premove = { from: e, to: t, promotion: i };
   }
   clearPremove() {
     this.state.premove = void 0;
@@ -3078,40 +3078,40 @@ class hs {
   }
   // Coordinate utilities
   squareToCoords(e) {
-    const t = e.charCodeAt(0) - 97, s = parseInt(e[1]) - 1;
-    return this.orientation === "white" ? [t * this.squareSize, (7 - s) * this.squareSize] : [(7 - t) * this.squareSize, s * this.squareSize];
+    const t = e.charCodeAt(0) - 97, i = parseInt(e[1]) - 1;
+    return this.orientation === "white" ? [t * this.squareSize, (7 - i) * this.squareSize] : [(7 - t) * this.squareSize, i * this.squareSize];
   }
   coordsToSquare(e, t) {
-    const s = Math.floor(e / this.squareSize), i = Math.floor(t / this.squareSize);
+    const i = Math.floor(e / this.squareSize), s = Math.floor(t / this.squareSize);
     let r, o;
-    this.orientation === "white" ? (r = s, o = 7 - i) : (r = 7 - s, o = i);
+    this.orientation === "white" ? (r = i, o = 7 - s) : (r = 7 - i, o = s);
     const n = String.fromCharCode(97 + r), a = (o + 1).toString();
     return `${n}${a}`;
   }
   // Knight move detection
   isKnightMove(e, t) {
-    const s = e.charCodeAt(0) - 97, i = parseInt(e[1]) - 1, r = t.charCodeAt(0) - 97, o = parseInt(t[1]) - 1, n = Math.abs(r - s), a = Math.abs(o - i);
+    const i = e.charCodeAt(0) - 97, s = parseInt(e[1]) - 1, r = t.charCodeAt(0) - 97, o = parseInt(t[1]) - 1, n = Math.abs(r - i), a = Math.abs(o - s);
     return n === 1 && a === 2 || n === 2 && a === 1;
   }
   // Square names rendering
-  renderSquareNames(e, t, s = 1) {
-    const i = this.canvas.getContext("2d");
-    if (!i) return;
-    i.save(), i.scale(s, s);
-    const r = this.squareSize / s, o = this.canvas.height / s, n = Math.max(10, r * 0.18), a = r * 0.12, h = r * 0.12;
-    i.font = `500 ${n}px 'Segoe UI', Arial, sans-serif`;
-    const d = "rgba(240, 217, 181, 0.7)", m = "rgba(181, 136, 99, 0.7)", p = e === "white" ? 0 : 7, _ = e === "white" ? 0 : 7;
-    i.textAlign = "left", i.textBaseline = "alphabetic";
-    for (let v = 0; v < 8; v++) {
-      const P = e === "white" ? v : 7 - v, C = String.fromCharCode(97 + P), T = v * r + a, k = o - a, x = (P + p) % 2 === 0;
-      i.fillStyle = x ? d : m, i.fillText(C, T, k);
+  renderSquareNames(e, t, i = 1) {
+    const s = this.canvas.getContext("2d");
+    if (!s) return;
+    s.save(), s.scale(i, i);
+    const r = this.squareSize / i, o = this.canvas.height / i, n = Math.max(10, r * 0.18), a = r * 0.12, l = r * 0.12;
+    s.font = `500 ${n}px 'Segoe UI', Arial, sans-serif`;
+    const g = "rgba(240, 217, 181, 0.7)", d = "rgba(181, 136, 99, 0.7)", f = e === "white" ? 0 : 7, v = e === "white" ? 0 : 7;
+    s.textAlign = "left", s.textBaseline = "alphabetic";
+    for (let _ = 0; _ < 8; _++) {
+      const b = e === "white" ? _ : 7 - _, y = String.fromCharCode(97 + b), k = _ * r + a, I = o - a, $ = (b + f) % 2 === 0;
+      s.fillStyle = $ ? g : d, s.fillText(y, k, I);
     }
-    i.textBaseline = "middle";
-    for (let v = 0; v < 8; v++) {
-      const P = e === "white" ? v : 7 - v, C = (P + 1).toString(), T = h, k = o - (v + 0.5) * r, x = (_ + P) % 2 === 0;
-      i.fillStyle = x ? d : m, i.fillText(C, T, k);
+    s.textBaseline = "middle";
+    for (let _ = 0; _ < 8; _++) {
+      const b = e === "white" ? _ : 7 - _, y = (b + 1).toString(), k = l, I = o - (_ + 0.5) * r, $ = (v + b) % 2 === 0;
+      s.fillStyle = $ ? g : d, s.fillText(y, k, I);
     }
-    i.restore();
+    s.restore();
   }
   drawArrows(e) {
     e.save();
@@ -3123,36 +3123,36 @@ class hs {
     t.knightMove ? this.drawKnightArrow(e, t) : this.drawStraightArrow(e, t);
   }
   applyArrowStyle(e, t) {
-    const s = t.width;
-    return e.globalAlpha = t.opacity, e.strokeStyle = t.color, e.fillStyle = t.color, e.lineWidth = s, e.lineCap = "round", e.lineJoin = "round", s;
+    const i = t.width;
+    return e.globalAlpha = t.opacity, e.strokeStyle = t.color, e.fillStyle = t.color, e.lineWidth = i, e.lineCap = "round", e.lineJoin = "round", i;
   }
   drawStraightArrow(e, t) {
-    const [s, i] = this.squareToCoords(t.from), [r, o] = this.squareToCoords(t.to), n = s + this.squareSize / 2, a = i + this.squareSize / 2, h = r + this.squareSize / 2, d = o + this.squareSize / 2, m = h - n, p = d - a, _ = Math.atan2(p, m), v = this.squareSize * 0.25, P = n + Math.cos(_) * v, C = a + Math.sin(_) * v, T = h - Math.cos(_) * v, k = d - Math.sin(_) * v, x = this.applyArrowStyle(e, t);
-    e.beginPath(), e.moveTo(P, C), e.lineTo(T, k), e.stroke();
-    const K = x * 3, L = Math.PI / 6;
-    e.beginPath(), e.moveTo(T, k), e.lineTo(
-      T - K * Math.cos(_ - L),
-      k - K * Math.sin(_ - L)
+    const [i, s] = this.squareToCoords(t.from), [r, o] = this.squareToCoords(t.to), n = i + this.squareSize / 2, a = s + this.squareSize / 2, l = r + this.squareSize / 2, g = o + this.squareSize / 2, d = l - n, f = g - a, v = Math.atan2(f, d), _ = this.squareSize * 0.25, b = n + Math.cos(v) * _, y = a + Math.sin(v) * _, k = l - Math.cos(v) * _, I = g - Math.sin(v) * _, $ = this.applyArrowStyle(e, t);
+    e.beginPath(), e.moveTo(b, y), e.lineTo(k, I), e.stroke();
+    const O = $ * 3, L = Math.PI / 6;
+    e.beginPath(), e.moveTo(k, I), e.lineTo(
+      k - O * Math.cos(v - L),
+      I - O * Math.sin(v - L)
     ), e.lineTo(
-      T - K * Math.cos(_ + L),
-      k - K * Math.sin(_ + L)
+      k - O * Math.cos(v + L),
+      I - O * Math.sin(v + L)
     ), e.closePath(), e.fill();
   }
   drawKnightArrow(e, t) {
-    const [s, i] = this.squareToCoords(t.from), [r, o] = this.squareToCoords(t.to), n = s + this.squareSize / 2, a = i + this.squareSize / 2, h = r + this.squareSize / 2, d = o + this.squareSize / 2, m = h - n, p = d - a, _ = Math.abs(m), v = Math.abs(p);
-    let P, C;
-    _ > v ? (P = h, C = a) : (P = n, C = d);
-    const T = this.applyArrowStyle(e, t), k = this.squareSize * 0.2;
-    let x = n, K = a, L = h, Y = d;
-    _ > v ? (x += m > 0 ? k : -k, L += m > 0 ? -k : k) : (K += p > 0 ? k : -k, Y += p > 0 ? -k : k), e.beginPath(), e.moveTo(x, K), e.lineTo(P, C), e.lineTo(L, Y), e.stroke();
-    const te = T * 3, G = Math.PI / 6;
+    const [i, s] = this.squareToCoords(t.from), [r, o] = this.squareToCoords(t.to), n = i + this.squareSize / 2, a = s + this.squareSize / 2, l = r + this.squareSize / 2, g = o + this.squareSize / 2, d = l - n, f = g - a, v = Math.abs(d), _ = Math.abs(f);
+    let b, y;
+    v > _ ? (b = l, y = a) : (b = n, y = g);
+    const k = this.applyArrowStyle(e, t), I = this.squareSize * 0.2;
+    let $ = n, O = a, L = l, G = g;
+    v > _ ? ($ += d > 0 ? I : -I, L += d > 0 ? -I : I) : (O += f > 0 ? I : -I, G += f > 0 ? -I : I), e.beginPath(), e.moveTo($, O), e.lineTo(b, y), e.lineTo(L, G), e.stroke();
+    const se = k * 3, X = Math.PI / 6;
     let j;
-    _ > v ? j = p > 0 ? Math.PI / 2 : -Math.PI / 2 : j = m > 0 ? 0 : Math.PI, e.beginPath(), e.moveTo(L, Y), e.lineTo(
-      L - te * Math.cos(j - G),
-      Y - te * Math.sin(j - G)
+    v > _ ? j = f > 0 ? Math.PI / 2 : -Math.PI / 2 : j = d > 0 ? 0 : Math.PI, e.beginPath(), e.moveTo(L, G), e.lineTo(
+      L - se * Math.cos(j - X),
+      G - se * Math.sin(j - X)
     ), e.lineTo(
-      L - te * Math.cos(j + G),
-      Y - te * Math.sin(j + G)
+      L - se * Math.cos(j + X),
+      G - se * Math.sin(j + X)
     ), e.closePath(), e.fill();
   }
   // Highlight rendering
@@ -3163,39 +3163,39 @@ class hs {
     e.restore();
   }
   drawHighlight(e, t) {
-    const [s, i] = this.squareToCoords(t.square), r = this.resolveHighlightColor(t), o = t.opacity ?? 0.6;
+    const [i, s] = this.squareToCoords(t.square), r = this.resolveHighlightColor(t), o = t.opacity ?? 0.6;
     e.globalAlpha = o, e.fillStyle = r;
-    const n = s + this.squareSize / 2, a = i + this.squareSize / 2, h = this.squareSize * 0.15;
-    e.beginPath(), e.arc(n, a, h, 0, 2 * Math.PI), e.fill(), e.globalAlpha = o * 1.5, e.strokeStyle = r, e.lineWidth = 3, e.stroke();
+    const n = i + this.squareSize / 2, a = s + this.squareSize / 2, l = this.squareSize * 0.15;
+    e.beginPath(), e.arc(n, a, l, 0, 2 * Math.PI), e.fill(), e.globalAlpha = o * 1.5, e.strokeStyle = r, e.lineWidth = 3, e.stroke();
   }
   resolveHighlightColor(e) {
     if (e.type === "circle")
-      return e.color ?? wt;
+      return e.color ?? Ct;
     const t = e.type;
-    return rs[t] ?? e.color ?? wt;
+    return oi[t] ?? e.color ?? Ct;
   }
   isInHighlightSequence(e) {
-    return ne.includes(e);
+    return ge.includes(e);
   }
   getNextHighlightType(e) {
     if (!this.isInHighlightSequence(e))
       return null;
-    const s = (ne.indexOf(e) + 1) % ne.length;
-    return s === 0 ? null : ne[s];
+    const i = (ge.indexOf(e) + 1) % ge.length;
+    return i === 0 ? null : ge[i];
   }
   getActiveModifier(e) {
-    for (const t of ss)
+    for (const t of ni)
       if (e[t])
         return t;
     return null;
   }
   resolveArrowColor(e) {
     const t = this.getActiveModifier(e);
-    return t ? vt[t] : vt.default;
+    return t ? At[t] : At.default;
   }
   resolveHighlightTypeFromModifiers(e) {
     const t = this.getActiveModifier(e);
-    return t ? ns[t] : ne[0];
+    return t ? ai[t] : ge[0];
   }
   withContext(e) {
     const t = this.canvas.getContext("2d");
@@ -3205,10 +3205,10 @@ class hs {
   drawPremove(e) {
     if (!this.state.premove) return;
     e.save();
-    const [t, s] = this.squareToCoords(this.state.premove.from), [i, r] = this.squareToCoords(this.state.premove.to);
+    const [t, i] = this.squareToCoords(this.state.premove.from), [s, r] = this.squareToCoords(this.state.premove.to);
     e.globalAlpha = 0.7, e.strokeStyle = "#ff9800", e.lineWidth = 3, e.setLineDash && e.setLineDash([8, 4]), e.lineCap = "round";
-    const o = t + this.squareSize / 2, n = s + this.squareSize / 2, a = i + this.squareSize / 2, h = r + this.squareSize / 2;
-    e.beginPath(), e.moveTo(o, n), e.lineTo(a, h), e.stroke(), e.setLineDash && e.setLineDash([]), e.fillStyle = "rgba(255, 152, 0, 0.3)", e.fillRect(t, s, this.squareSize, this.squareSize), e.fillRect(i, r, this.squareSize, this.squareSize), e.restore();
+    const o = t + this.squareSize / 2, n = i + this.squareSize / 2, a = s + this.squareSize / 2, l = r + this.squareSize / 2;
+    e.beginPath(), e.moveTo(o, n), e.lineTo(a, l), e.stroke(), e.setLineDash && e.setLineDash([]), e.fillStyle = "rgba(255, 152, 0, 0.3)", e.fillRect(t, i, this.squareSize, this.squareSize), e.fillRect(s, r, this.squareSize, this.squareSize), e.restore();
   }
   // Methods to get the complete state
   getDrawingState() {
@@ -3223,42 +3223,42 @@ class hs {
   }
   // Utilities for interactions
   getSquareFromMousePosition(e, t) {
-    const s = this.canvas.getBoundingClientRect(), i = (e - s.left) * (this.canvas.width / s.width), r = (t - s.top) * (this.canvas.height / s.height);
-    return i < 0 || r < 0 || i >= this.canvas.width || r >= this.canvas.height ? null : this.coordsToSquare(i, r);
+    const i = this.canvas.getBoundingClientRect(), s = (e - i.left) * (this.canvas.width / i.width), r = (t - i.top) * (this.canvas.height / i.height);
+    return s < 0 || r < 0 || s >= this.canvas.width || r >= this.canvas.height ? null : this.coordsToSquare(s, r);
   }
   // Cycle highlight colors on right-click
   cycleHighlight(e) {
     const t = this.findHighlightIndex(e);
     if (t >= 0) {
-      const s = this.state.highlights[t], i = this.getNextHighlightType(s.type);
-      if (!i) {
+      const i = this.state.highlights[t], s = this.getNextHighlightType(i.type);
+      if (!s) {
         this.removeHighlight(e);
         return;
       }
-      this.state.highlights[t].type = i;
+      this.state.highlights[t].type = s;
       return;
     }
-    this.addHighlight(e, ne[0]);
+    this.addHighlight(e, ge[0]);
   }
   // Complete rendering of all elements
   draw(e) {
     this.drawHighlights(e), this.drawPremove(e), this.drawArrows(e), this.showSquareNames && this._drawSquareNames(e);
   }
   // Check if a point is near an arrow (for deletion)
-  getArrowAt(e, t, s = 10) {
-    const i = this.canvas.getBoundingClientRect(), r = e - i.left, o = t - i.top;
+  getArrowAt(e, t, i = 10) {
+    const s = this.canvas.getBoundingClientRect(), r = e - s.left, o = t - s.top;
     for (const n of this.state.arrows)
-      if (this.isPointNearArrow(r, o, n, s))
+      if (this.isPointNearArrow(r, o, n, i))
         return { ...n };
     return null;
   }
-  isPointNearArrow(e, t, s, i) {
-    const [r, o] = this.squareToCoords(s.from), [n, a] = this.squareToCoords(s.to), h = r + this.squareSize / 2, d = o + this.squareSize / 2, m = n + this.squareSize / 2, p = a + this.squareSize / 2, _ = Math.sqrt(
-      Math.pow(m - h, 2) + Math.pow(p - d, 2)
+  isPointNearArrow(e, t, i, s) {
+    const [r, o] = this.squareToCoords(i.from), [n, a] = this.squareToCoords(i.to), l = r + this.squareSize / 2, g = o + this.squareSize / 2, d = n + this.squareSize / 2, f = a + this.squareSize / 2, v = Math.sqrt(
+      Math.pow(d - l, 2) + Math.pow(f - g, 2)
     );
-    return _ === 0 ? !1 : Math.abs(
-      ((p - d) * e - (m - h) * t + m * d - p * h) / _
-    ) <= i;
+    return v === 0 ? !1 : Math.abs(
+      ((f - g) * e - (d - l) * t + d * g - f * l) / v
+    ) <= s;
   }
   // Export/Import for persistence
   exportState() {
@@ -3273,12 +3273,12 @@ class hs {
     }
   }
   // Interaction methods for NeoChessBoard
-  handleMouseDown(e, t, s, i) {
+  handleMouseDown(e, t, i, s) {
     return !1;
   }
-  handleRightMouseDown(e, t, s = !1, i = !1, r = !1) {
+  handleRightMouseDown(e, t, i = !1, s = !1, r = !1) {
     const o = this.coordsToSquare(e, t);
-    return this.currentAction = { type: "drawing_arrow", startSquare: o, shiftKey: s, ctrlKey: i, altKey: r }, !0;
+    return this.currentAction = { type: "drawing_arrow", startSquare: o, shiftKey: i, ctrlKey: s, altKey: r }, !0;
   }
   handleMouseMove(e, t) {
     return !1;
@@ -3289,20 +3289,20 @@ class hs {
   handleRightMouseUp(e, t) {
     if (this.currentAction.type !== "drawing_arrow")
       return this.cancelCurrentAction(), !1;
-    const s = this.currentAction, i = this.coordsToSquare(e, t);
-    if (i === s.startSquare)
+    const i = this.currentAction, s = this.coordsToSquare(e, t);
+    if (s === i.startSquare)
       return this.cancelCurrentAction(), !1;
-    const r = this.resolveArrowColor(s);
+    const r = this.resolveArrowColor(i);
     return this.state.arrows.find(
-      (n) => n.from === s.startSquare && n.to === i && n.color === r
-    ) ? this.removeArrow(s.startSquare, i) : this.addArrow(s.startSquare, i, r), this.cancelCurrentAction(), !0;
+      (n) => n.from === i.startSquare && n.to === s && n.color === r
+    ) ? this.removeArrow(i.startSquare, s) : this.addArrow(i.startSquare, s, r), this.cancelCurrentAction(), !0;
   }
-  handleHighlightClick(e, t = !1, s = !1, i = !1) {
-    if (!t && !s && !i) {
+  handleHighlightClick(e, t = !1, i = !1, s = !1) {
+    if (!t && !i && !s) {
       this.cycleHighlight(e);
       return;
     }
-    const r = { shiftKey: t, ctrlKey: s, altKey: i }, o = this.resolveHighlightTypeFromModifiers(r);
+    const r = { shiftKey: t, ctrlKey: i, altKey: s }, o = this.resolveHighlightTypeFromModifiers(r);
     if (this.state.highlights.findIndex(
       (a) => a.square === e && a.type === o
     ) >= 0) {
@@ -3330,18 +3330,18 @@ class hs {
   _drawSquareNames(e) {
     e.save(), e.font = `${Math.floor(this.squareSize * 0.18)}px ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto`, e.fillStyle = "rgba(0,0,0,0.35)";
     for (let t = 0; t < 8; t++)
-      for (let s = 0; s < 8; s++) {
-        const i = this.coordsToSquare(s * this.squareSize, t * this.squareSize), [r, o] = this.squareToCoords(i);
+      for (let i = 0; i < 8; i++) {
+        const s = this.coordsToSquare(i * this.squareSize, t * this.squareSize), [r, o] = this.squareToCoords(s);
         if (t === (this.orientation === "white" ? 7 : 0)) {
-          const n = this.orientation === "white" ? Se[s] : Se[7 - s];
+          const n = this.orientation === "white" ? qe[i] : qe[7 - i];
           e.textAlign = this.orientation === "white" ? "left" : "right", e.textBaseline = "bottom", e.fillText(
             n,
             r + (this.orientation === "white" ? this.squareSize * 0.06 : this.squareSize - this.squareSize * 0.06),
             o + this.squareSize - this.squareSize * 0.06
           );
         }
-        if (s === (this.orientation === "white" ? 0 : 7)) {
-          const n = xe[7 - t];
+        if (i === (this.orientation === "white" ? 0 : 7)) {
+          const n = Qe[7 - t];
           e.textAlign = this.orientation === "white" ? "left" : "right", e.textBaseline = this.orientation === "white" ? "top" : "bottom", e.fillText(
             n,
             r + (this.orientation === "white" ? this.squareSize * 0.06 : this.squareSize - this.squareSize * 0.06),
@@ -3371,16 +3371,16 @@ class hs {
     this.state.arrows = [], this.state.highlights = [], this.state.premove = void 0;
   }
 }
-class ls {
+class fi {
   /**
    * Creates an instance of NeoChessBoard.
    * @param root The HTMLElement to which the board will be appended.
    * @param options Optional configuration options for the board.
    */
   constructor(e, t = {}) {
-    this.bus = new Pi(), this.sizePx = 480, this.square = 60, this.dpr = 1, this.customPieceSprites = {}, this._pieceSetToken = 0, this.moveSound = null, this.moveSounds = {}, this._lastMove = null, this._premove = null, this._selected = null, this._legalCached = null, this._dragging = null, this._hoverSq = null, this._arrows = [], this._customHighlights = null, this._raf = 0, this._drawingArrow = null, this.root = e;
-    const s = t.theme ?? "classic";
-    this.theme = ut(s), this.orientation = t.orientation || "white", this.interactive = t.interactive !== !1, this.showCoords = t.showCoordinates || !1, this.highlightLegal = t.highlightLegal !== !1, this.animationMs = t.animationMs || 300, this.allowPremoves = t.allowPremoves !== !1, this.showArrows = t.showArrows !== !1, this.showHighlights = t.showHighlights !== !1, this.rightClickHighlights = t.rightClickHighlights !== !1, this.soundEnabled = t.soundEnabled !== !1, this.showSquareNames = t.showSquareNames || !1, this.autoFlip = t.autoFlip ?? !1, this.soundUrl = t.soundUrl, this.soundUrls = t.soundUrls, this._initializeSound(), this.rules = t.rulesAdapter || new Ae(), t.fen && this.rules.setFEN(t.fen), this.state = le(this.rules.getFEN()), this._syncOrientationFromTurn(!0), this._buildDOM(), this._attachEvents(), this.resize(), t.pieceSet && this.setPieceSet(t.pieceSet);
+    this.bus = new Ts(), this.sizePx = 480, this.square = 60, this.dpr = 1, this.customPieceSprites = {}, this._pieceSetToken = 0, this.moveSound = null, this.moveSounds = {}, this._lastMove = null, this._premove = null, this._selected = null, this._legalCached = null, this._dragging = null, this._hoverSq = null, this._arrows = [], this._customHighlights = null, this._raf = 0, this._drawingArrow = null, this.root = e;
+    const i = t.theme ?? "classic";
+    this.theme = pt(i), this.orientation = t.orientation || "white", this.interactive = t.interactive !== !1, this.showCoords = t.showCoordinates || !1, this.highlightLegal = t.highlightLegal !== !1, this.animationMs = t.animationMs || 300, this.allowPremoves = t.allowPremoves !== !1, this.showArrows = t.showArrows !== !1, this.showHighlights = t.showHighlights !== !1, this.rightClickHighlights = t.rightClickHighlights !== !1, this.soundEnabled = t.soundEnabled !== !1, this.showSquareNames = t.showSquareNames || !1, this.autoFlip = t.autoFlip ?? !1, this.soundUrl = t.soundUrl, this.soundUrls = t.soundUrls, this._initializeSound(), this.rules = t.rulesAdapter || new Ie(), t.fen && this.rules.setFEN(t.fen), this.state = we(this.rules.getFEN()), this._syncOrientationFromTurn(!0), this._buildDOM(), this._attachEvents(), this.resize(), t.pieceSet && this.setPieceSet(t.pieceSet);
   }
   // Public API methods
   /**
@@ -3425,7 +3425,7 @@ class ls {
    * @param theme Theme name or object to apply.
    */
   applyTheme(e) {
-    this.theme = ut(e), this._rasterize(), this.renderAll();
+    this.theme = pt(e), this._rasterize(), this.renderAll();
   }
   /**
    * Applies a custom piece set, allowing users to provide their own sprites.
@@ -3442,18 +3442,18 @@ class ls {
     if (e === this._pieceSetRaw)
       return;
     this._pieceSetRaw = e;
-    const t = ++this._pieceSetToken, s = e.defaultScale ?? 1, i = {}, r = Object.entries(e.pieces);
+    const t = ++this._pieceSetToken, i = e.defaultScale ?? 1, s = {}, r = Object.entries(e.pieces);
     await Promise.all(
       r.map(async ([o, n]) => {
         if (n)
           try {
-            const a = await this._resolvePieceSprite(n, s);
-            a && (i[o] = a);
+            const a = await this._resolvePieceSprite(n, i);
+            a && (s[o] = a);
           } catch (a) {
             console.warn(`[NeoChessBoard] Failed to load sprite for piece "${o}".`, a);
           }
       })
-    ), t === this._pieceSetToken && (this.customPieceSprites = i, this.renderAll());
+    ), t === this._pieceSetToken && (this.customPieceSprites = s, this.renderAll());
   }
   /**
    * Sets the board position using a FEN string.
@@ -3461,10 +3461,10 @@ class ls {
    * @param immediate If true, the board updates instantly without animation.
    */
   setFEN(e, t = !1) {
-    const s = this.state, i = this.state.turn;
-    this.rules.setFEN(e), this.state = le(this.rules.getFEN()), this._syncOrientationFromTurn(!1), this._lastMove = null;
+    const i = this.state, s = this.state.turn;
+    this.rules.setFEN(e), this.state = we(this.rules.getFEN()), this._syncOrientationFromTurn(!1), this._lastMove = null;
     const r = this.state.turn;
-    i !== r && this._executePremoveIfValid(), this._premove = null, t ? (this._clearAnim(), this.renderAll()) : this._animateTo(this.state, s), this.bus.emit("update", { fen: this.getPosition() });
+    s !== r && this._executePremoveIfValid(), this._premove = null, t ? (this._clearAnim(), this.renderAll()) : this._animateTo(this.state, i), this.bus.emit("update", { fen: this.getPosition() });
   }
   // ---- DOM & render ----
   _buildDOM() {
@@ -3478,7 +3478,7 @@ class ls {
         height: "100%",
         aspectRatio: "606 / 606"
       }), this.root.appendChild(t);
-    this.ctxB = this.cBoard.getContext("2d"), this.ctxP = this.cPieces.getContext("2d"), this.ctxO = this.cOverlay.getContext("2d"), this.drawingManager = new hs(this.cOverlay), this.drawingManager.setOrientation(this.orientation), this.drawingManager.setShowSquareNames(this.showSquareNames), this._rasterize();
+    this.ctxB = this.cBoard.getContext("2d"), this.ctxP = this.cPieces.getContext("2d"), this.ctxO = this.cOverlay.getContext("2d"), this.drawingManager = new ci(this.cOverlay), this.drawingManager.setOrientation(this.orientation), this.drawingManager.setShowSquareNames(this.showSquareNames), this._rasterize();
     const e = new ResizeObserver(() => this.resize());
     if (e.observe(this.root), this._ro = e, typeof document < "u") {
       const t = document.createElement("style");
@@ -3490,17 +3490,17 @@ class ls {
    * This method is typically called when the board's container changes size.
    */
   resize() {
-    const e = this.root.getBoundingClientRect(), t = Math.min(e.width, e.height) || 480, s = globalThis.devicePixelRatio || 1;
-    for (const i of [this.cBoard, this.cPieces, this.cOverlay])
-      i.width = Math.round(t * s), i.height = Math.round(t * s);
-    this.sizePx = t, this.square = t * s / 8, this.dpr = s, this.drawingManager && this.drawingManager.updateDimensions(), this.renderAll();
+    const e = this.root.getBoundingClientRect(), t = Math.min(e.width, e.height) || 480, i = globalThis.devicePixelRatio || 1;
+    for (const s of [this.cBoard, this.cPieces, this.cOverlay])
+      s.width = Math.round(t * i), s.height = Math.round(t * i);
+    this.sizePx = t, this.square = t * i / 8, this.dpr = i, this.drawingManager && this.drawingManager.updateDimensions(), this.renderAll();
   }
   /**
    * Initializes or re-initializes the sprite sheet for pieces based on the current theme.
    * This is called when the theme changes or on initial setup.
    */
   _rasterize() {
-    this.sprites = new qi(128, this.theme);
+    this.sprites = new Is(128, this.theme);
   }
   /**
    * Renders all layers of the chess board (board, pieces, overlay).
@@ -3516,38 +3516,38 @@ class ls {
    * @returns An object with x and y pixel coordinates.
    */
   _sqToXY(e) {
-    const { f: t, r: s } = lt(e), i = this.orientation === "white" ? t : 7 - t, r = this.orientation === "white" ? 7 - s : s;
-    return { x: i * this.square, y: r * this.square };
+    const { f: t, r: i } = dt(e), s = this.orientation === "white" ? t : 7 - t, r = this.orientation === "white" ? 7 - i : i;
+    return { x: s * this.square, y: r * this.square };
   }
   /**
    * Draws the chess board squares onto the board canvas.
    * Uses the current theme's light and dark square colors.
    */
   _drawBoard() {
-    const e = this.ctxB, t = this.square, s = this.cBoard.width, i = this.cBoard.height, { light: r, dark: o, boardBorder: n } = this.theme;
-    e.clearRect(0, 0, s, i), e.fillStyle = n, e.fillRect(0, 0, s, i);
+    const e = this.ctxB, t = this.square, i = this.cBoard.width, s = this.cBoard.height, { light: r, dark: o, boardBorder: n } = this.theme;
+    e.clearRect(0, 0, i, s), e.fillStyle = n, e.fillRect(0, 0, i, s);
     for (let a = 0; a < 8; a++)
-      for (let h = 0; h < 8; h++) {
-        const d = (this.orientation === "white" ? h : 7 - h) * t, m = (this.orientation === "white" ? 7 - a : a) * t;
-        e.fillStyle = (a + h) % 2 === 0 ? r : o, e.fillRect(d, m, t, t);
+      for (let l = 0; l < 8; l++) {
+        const g = (this.orientation === "white" ? l : 7 - l) * t, d = (this.orientation === "white" ? 7 - a : a) * t;
+        e.fillStyle = (a + l) % 2 === 0 ? r : o, e.fillRect(g, d, t, t);
       }
   }
   async _resolvePieceSprite(e, t) {
-    const s = typeof e == "object" && e !== null && "image" in e ? e : { image: e };
-    let i = null;
-    return typeof s.image == "string" ? i = await this._loadImage(s.image) : s.image && (i = s.image), i ? {
-      image: i,
-      scale: s.scale ?? t ?? 1,
-      offsetX: s.offsetX ?? 0,
-      offsetY: s.offsetY ?? 0
+    const i = typeof e == "object" && e !== null && "image" in e ? e : { image: e };
+    let s = null;
+    return typeof i.image == "string" ? s = await this._loadImage(i.image) : i.image && (s = i.image), s ? {
+      image: s,
+      scale: i.scale ?? t ?? 1,
+      offsetX: i.offsetX ?? 0,
+      offsetY: i.offsetY ?? 0
     } : null;
   }
   _loadImage(e) {
-    return new Promise((t, s) => {
+    return new Promise((t, i) => {
       var o;
-      const i = ((o = this.root) == null ? void 0 : o.ownerDocument) ?? (typeof document < "u" ? document : null), r = typeof Image < "u" ? new Image() : i ? i.createElement("img") : null;
+      const s = ((o = this.root) == null ? void 0 : o.ownerDocument) ?? (typeof document < "u" ? document : null), r = typeof Image < "u" ? new Image() : s ? s.createElement("img") : null;
       if (!r) {
-        s(new Error("Image loading is not supported in the current environment."));
+        i(new Error("Image loading is not supported in the current environment."));
         return;
       }
       e.startsWith("data:") || (r.crossOrigin = "anonymous");
@@ -3555,7 +3555,7 @@ class ls {
         r.decoding = "async";
       } catch {
       }
-      r.onload = () => t(r), r.onerror = (n) => s(n instanceof Error ? n : new Error(String(n))), r.src = e;
+      r.onload = () => t(r), r.onerror = (n) => i(n instanceof Error ? n : new Error(String(n))), r.src = e;
     });
   }
   /**
@@ -3565,32 +3565,32 @@ class ls {
    * @param y The y-coordinate for the top-left corner of the piece.
    * @param scale Optional scale factor for the piece (default is 1).
    */
-  _drawPieceSprite(e, t, s, i = 1) {
+  _drawPieceSprite(e, t, i, s = 1) {
     const r = this.customPieceSprites[e];
     if (r) {
-      const P = i * (r.scale ?? 1), C = this.square * P, T = t + (this.square - C) / 2 + r.offsetX * this.square, k = s + (this.square - C) / 2 + r.offsetY * this.square;
-      this.ctxP.drawImage(r.image, T, k, C, C);
+      const b = s * (r.scale ?? 1), y = this.square * b, k = t + (this.square - y) / 2 + r.offsetX * this.square, I = i + (this.square - y) / 2 + r.offsetY * this.square;
+      this.ctxP.drawImage(r.image, k, I, y, y);
       return;
     }
-    const o = { k: 0, q: 1, r: 2, b: 3, n: 4, p: 5 }, n = se(e), a = o[e.toLowerCase()], h = 128, d = a * h, m = n ? h : 0, p = this.square * i, _ = t + (this.square - p) / 2, v = s + (this.square - p) / 2;
-    this.ctxP.drawImage(this.sprites.getSheet(), d, m, h, h, _, v, p, p);
+    const o = { k: 0, q: 1, r: 2, b: 3, n: 4, p: 5 }, n = fe(e), a = o[e.toLowerCase()], l = 128, g = a * l, d = n ? l : 0, f = this.square * s, v = t + (this.square - f) / 2, _ = i + (this.square - f) / 2;
+    this.ctxP.drawImage(this.sprites.getSheet(), g, d, l, l, v, _, f, f);
   }
   /**
    * Draws all pieces onto the pieces canvas, handling dragging pieces separately.
    */
   _drawPieces() {
     var r;
-    const e = this.ctxP, t = this.cPieces.width, s = this.cPieces.height;
-    e.clearRect(0, 0, t, s);
-    const i = (r = this._dragging) == null ? void 0 : r.from;
+    const e = this.ctxP, t = this.cPieces.width, i = this.cPieces.height;
+    e.clearRect(0, 0, t, i);
+    const s = (r = this._dragging) == null ? void 0 : r.from;
     for (let o = 0; o < 8; o++)
       for (let n = 0; n < 8; n++) {
         const a = this.state.board[o][n];
         if (!a) continue;
-        const h = he(n, o);
-        if (i === h) continue;
-        const { x: d, y: m } = this._sqToXY(h);
-        this._drawPieceSprite(a, d, m, 1);
+        const l = _e(n, o);
+        if (s === l) continue;
+        const { x: g, y: d } = this._sqToXY(l);
+        this._drawPieceSprite(a, g, d, 1);
       }
     if (this._dragging) {
       const { piece: o, x: n, y: a } = this._dragging;
@@ -3603,27 +3603,27 @@ class ls {
    */
   _drawOverlay() {
     var r;
-    const e = this.ctxO, t = this.cOverlay.width, s = this.cOverlay.height;
-    e.clearRect(0, 0, t, s);
-    const i = this.square;
+    const e = this.ctxO, t = this.cOverlay.width, i = this.cOverlay.height;
+    e.clearRect(0, 0, t, i);
+    const s = this.square;
     if (this._lastMove) {
-      const { from: o, to: n } = this._lastMove, a = this._sqToXY(o), h = this._sqToXY(n);
-      e.fillStyle = this.theme.lastMove, e.fillRect(a.x, a.y, i, i), e.fillRect(h.x, h.y, i, i);
+      const { from: o, to: n } = this._lastMove, a = this._sqToXY(o), l = this._sqToXY(n);
+      e.fillStyle = this.theme.lastMove, e.fillRect(a.x, a.y, s, s), e.fillRect(l.x, l.y, s, s);
     }
     if ((r = this._customHighlights) != null && r.squares) {
       e.fillStyle = this.theme.moveTo;
       for (const o of this._customHighlights.squares) {
         const n = this._sqToXY(o);
-        e.fillRect(n.x, n.y, i, i);
+        e.fillRect(n.x, n.y, s, s);
       }
     }
     if (this._selected) {
       const o = this._sqToXY(this._selected);
-      if (e.fillStyle = this.theme.moveFrom, e.fillRect(o.x, o.y, i, i), this.highlightLegal && this._legalCached) {
+      if (e.fillStyle = this.theme.moveFrom, e.fillRect(o.x, o.y, s, s), this.highlightLegal && this._legalCached) {
         e.fillStyle = this.theme.dot;
         for (const n of this._legalCached) {
           const a = this._sqToXY(n.to);
-          e.beginPath(), e.arc(a.x + i / 2, a.y + i / 2, i * 0.12, 0, Math.PI * 2), e.fill();
+          e.beginPath(), e.arc(a.x + s / 2, a.y + s / 2, s * 0.12, 0, Math.PI * 2), e.fill();
         }
       }
     }
@@ -3631,11 +3631,11 @@ class ls {
       this._drawArrow(o.from, o.to, o.color || this.theme.arrow);
     if (this._premove) {
       const o = this._sqToXY(this._premove.from), n = this._sqToXY(this._premove.to);
-      e.fillStyle = this.theme.premove, e.fillRect(o.x, o.y, i, i), e.fillRect(n.x, n.y, i, i);
+      e.fillStyle = this.theme.premove, e.fillRect(o.x, o.y, s, s), e.fillRect(n.x, n.y, s, s);
     }
     if (this._hoverSq && this._dragging) {
       const o = this._sqToXY(this._hoverSq);
-      e.fillStyle = this.theme.moveTo, e.fillRect(o.x, o.y, i, i);
+      e.fillStyle = this.theme.moveTo, e.fillRect(o.x, o.y, s, s);
     }
     this.drawingManager && (this.showArrows && this.drawingManager.renderArrows(), this.showHighlights && this.drawingManager.renderHighlights(), this.allowPremoves && this.drawingManager.renderPremove(), this.showSquareNames && this.drawingManager.renderSquareNames(this.orientation, this.square, this.dpr));
   }
@@ -3645,9 +3645,9 @@ class ls {
    * @param to The ending square of the arrow.
    * @param color The color of the arrow.
    */
-  _drawArrow(e, t, s) {
-    const i = this.square, r = this._sqToXY(e), o = this._sqToXY(t);
-    this._drawArrowBetween(r.x + i / 2, r.y + i / 2, o.x + i / 2, o.y + i / 2, s);
+  _drawArrow(e, t, i) {
+    const s = this.square, r = this._sqToXY(e), o = this._sqToXY(t);
+    this._drawArrowBetween(r.x + s / 2, r.y + s / 2, o.x + s / 2, o.y + s / 2, i);
   }
   /**
    * Draws an arrow between two pixel coordinates on the overlay canvas.
@@ -3658,15 +3658,15 @@ class ls {
    * @param toY Ending y-coordinate.
    * @param color The color of the arrow.
    */
-  _drawArrowBetween(e, t, s, i, r) {
-    const o = s - e, n = i - t, a = Math.hypot(o, n);
+  _drawArrowBetween(e, t, i, s, r) {
+    const o = i - e, n = s - t, a = Math.hypot(o, n);
     if (a < 1) return;
-    const h = o / a, d = n / a, m = Math.min(16 * this.dpr, a * 0.25), p = Math.max(6 * this.dpr, this.square * 0.08), _ = this.ctxO;
-    _.save(), _.lineCap = "round", _.lineJoin = "round", _.strokeStyle = r, _.fillStyle = r, _.globalAlpha = 0.95, _.beginPath(), _.moveTo(e, t), _.lineTo(s - h * m, i - d * m), _.lineWidth = p, _.stroke(), _.beginPath(), _.moveTo(s, i), _.lineTo(s - h * m - d * m * 0.5, i - d * m + h * m * 0.5), _.lineTo(s - h * m + d * m * 0.5, i - d * m - h * m * 0.5), _.closePath(), _.fill(), _.restore();
+    const l = o / a, g = n / a, d = Math.min(16 * this.dpr, a * 0.25), f = Math.max(6 * this.dpr, this.square * 0.08), v = this.ctxO;
+    v.save(), v.lineCap = "round", v.lineJoin = "round", v.strokeStyle = r, v.fillStyle = r, v.globalAlpha = 0.95, v.beginPath(), v.moveTo(e, t), v.lineTo(i - l * d, s - g * d), v.lineWidth = f, v.stroke(), v.beginPath(), v.moveTo(i, s), v.lineTo(i - l * d - g * d * 0.5, s - g * d + l * d * 0.5), v.lineTo(i - l * d + g * d * 0.5, s - g * d - l * d * 0.5), v.closePath(), v.fill(), v.restore();
   }
   _setSelection(e, t) {
-    const s = se(t) ? "w" : "b";
-    this._selected = e, s === this.state.turn ? this._legalCached = this.rules.movesFrom(e) : this.allowPremoves ? this._legalCached = [] : this._legalCached = null;
+    const i = fe(t) ? "w" : "b";
+    this._selected = e, i === this.state.turn ? this._legalCached = this.rules.movesFrom(e) : this.allowPremoves ? this._legalCached = [] : this._legalCached = null;
   }
   _handleClickMove(e) {
     const t = this._selected;
@@ -3674,27 +3674,27 @@ class ls {
       t === e && this.renderAll();
       return;
     }
-    const s = this._pieceAt(t);
-    if (!s) {
+    const i = this._pieceAt(t);
+    if (!i) {
       this._selected = null, this._legalCached = null, this.renderAll();
       return;
     }
-    const i = this._pieceAt(e);
-    if (i && se(i) === se(s)) {
-      this._setSelection(e, i), this.renderAll();
+    const s = this._pieceAt(e);
+    if (s && fe(s) === fe(i)) {
+      this._setSelection(e, s), this.renderAll();
       return;
     }
-    this._attemptMove(t, e, s);
+    this._attemptMove(t, e, i);
   }
-  _attemptMove(e, t, s) {
-    const i = se(s) ? "w" : "b";
+  _attemptMove(e, t, i) {
+    const s = fe(i) ? "w" : "b";
     if (e === t)
       return this.renderAll(), !0;
-    if (i !== this.state.turn)
+    if (s !== this.state.turn)
       return this.allowPremoves ? (this.drawingManager && this.drawingManager.setPremove(e, t), this._premove = { from: e, to: t }, this._selected = null, this._legalCached = null, this._hoverSq = null, this.renderAll(), !0) : !1;
     const r = this.rules.move({ from: e, to: t });
     if (r && r.ok) {
-      const o = this.rules.getFEN(), n = this.state, a = le(o);
+      const o = this.rules.getFEN(), n = this.state, a = we(o);
       return this.state = a, this._syncOrientationFromTurn(!1), this._selected = null, this._legalCached = null, this._hoverSq = null, this._lastMove = { from: e, to: t }, this.drawingManager && this.drawingManager.clearArrows(), this._playMoveSound(), this._animateTo(a, n), this.bus.emit("move", { from: e, to: t, fen: o }), setTimeout(() => {
         this._executePremoveIfValid();
       }, this.animationMs + 50), !0;
@@ -3704,7 +3704,7 @@ class ls {
   // ---- interaction ----
   _attachEvents() {
     let e = !1;
-    const t = () => this._dragging ? (this._dragging = null, this._selected = null, this._legalCached = null, this._hoverSq = null, this.renderAll(), !0) : !1, s = (a) => {
+    const t = () => this._dragging ? (this._dragging = null, this._selected = null, this._legalCached = null, this._hoverSq = null, this.renderAll(), !0) : !1, i = (a) => {
       if (!this.interactive) {
         a.button === 2 && (a.preventDefault(), t() && (e = !0));
         return;
@@ -3715,26 +3715,26 @@ class ls {
           return;
         }
         e = !1;
-        const _ = this._evt(a);
-        _ && this.drawingManager && this.drawingManager.handleRightMouseDown(_.x, _.y, a.shiftKey, a.ctrlKey, a.altKey) && this.renderAll();
+        const v = this._evt(a);
+        v && this.drawingManager && this.drawingManager.handleRightMouseDown(v.x, v.y, a.shiftKey, a.ctrlKey, a.altKey) && this.renderAll();
         return;
       }
       if (a.button !== 0) return;
-      const h = this._evt(a);
-      if (!h) return;
-      const d = this._xyToSquare(h.x, h.y), m = this._pieceAt(d);
-      !m || (se(m) ? "w" : "b") !== this.state.turn && !this.allowPremoves || (this._setSelection(d, m), this._dragging = { from: d, piece: m, x: h.x, y: h.y }, this._hoverSq = d, this.renderAll());
-    }, i = (a) => {
-      const h = this._evt(a);
-      if (!h) {
+      const l = this._evt(a);
+      if (!l) return;
+      const g = this._xyToSquare(l.x, l.y), d = this._pieceAt(g);
+      !d || (fe(d) ? "w" : "b") !== this.state.turn && !this.allowPremoves || (this._setSelection(g, d), this._dragging = { from: g, piece: d, x: l.x, y: l.y }, this._hoverSq = g, this.renderAll());
+    }, s = (a) => {
+      const l = this._evt(a);
+      if (!l) {
         this.interactive && (this.cOverlay.style.cursor = "default");
         return;
       }
-      if (this.drawingManager && this.drawingManager.handleMouseMove(h.x, h.y) && this.renderAll(), this._dragging)
-        this._dragging.x = h.x, this._dragging.y = h.y, this._hoverSq = this._xyToSquare(h.x, h.y), this._drawPieces(), this._drawOverlay();
+      if (this.drawingManager && this.drawingManager.handleMouseMove(l.x, l.y) && this.renderAll(), this._dragging)
+        this._dragging.x = l.x, this._dragging.y = l.y, this._hoverSq = this._xyToSquare(l.x, l.y), this._drawPieces(), this._drawOverlay();
       else if (this.interactive) {
-        const d = this._xyToSquare(h.x, h.y), m = this._pieceAt(d);
-        this.cOverlay.style.cursor = m ? "pointer" : "default";
+        const g = this._xyToSquare(l.x, l.y), d = this._pieceAt(g);
+        this.cOverlay.style.cursor = d ? "pointer" : "default";
       }
     }, r = (a) => {
       if (a.button === 2) {
@@ -3747,63 +3747,63 @@ class ls {
           return;
         }
       }
-      const h = this._evt(a);
+      const l = this._evt(a);
       if (a.button === 2) {
-        let _ = !1;
-        if (this.drawingManager && h && (_ = this.drawingManager.handleRightMouseUp(h.x, h.y)), !_ && h) {
+        let v = !1;
+        if (this.drawingManager && l && (v = this.drawingManager.handleRightMouseUp(l.x, l.y)), !v && l) {
           if (this.drawingManager && this.drawingManager.getPremove())
-            this.drawingManager.clearPremove(), this._premove = null, console.log("Premove cancelled by right-click"), _ = !0;
+            this.drawingManager.clearPremove(), this._premove = null, console.log("Premove cancelled by right-click"), v = !0;
           else if (this.rightClickHighlights) {
-            const v = this._xyToSquare(h.x, h.y);
-            this.drawingManager && this.drawingManager.handleHighlightClick(v, a.shiftKey, a.ctrlKey, a.altKey);
+            const _ = this._xyToSquare(l.x, l.y);
+            this.drawingManager && this.drawingManager.handleHighlightClick(_, a.shiftKey, a.ctrlKey, a.altKey);
           }
         }
         this.renderAll();
         return;
       }
-      if (this.drawingManager && this.drawingManager.handleMouseUp((h == null ? void 0 : h.x) || 0, (h == null ? void 0 : h.y) || 0)) {
+      if (this.drawingManager && this.drawingManager.handleMouseUp((l == null ? void 0 : l.x) || 0, (l == null ? void 0 : l.y) || 0)) {
         this.renderAll();
         return;
       }
       if (!this._dragging) {
-        if (this.interactive && a.button === 0 && h) {
-          const _ = this._xyToSquare(h.x, h.y);
-          this._handleClickMove(_);
+        if (this.interactive && a.button === 0 && l) {
+          const v = this._xyToSquare(l.x, l.y);
+          this._handleClickMove(v);
         }
         return;
       }
-      const d = h ? this._xyToSquare(h.x, h.y) : null, m = this._dragging.from, p = this._dragging.piece;
-      if (this._dragging = null, this._hoverSq = null, !d) {
+      const g = l ? this._xyToSquare(l.x, l.y) : null, d = this._dragging.from, f = this._dragging.piece;
+      if (this._dragging = null, this._hoverSq = null, !g) {
         this._selected = null, this._legalCached = null, this.renderAll();
         return;
       }
-      if (d === m) {
+      if (g === d) {
         this.renderAll();
         return;
       }
-      this._attemptMove(m, d, p);
+      this._attemptMove(d, g, f);
     }, o = (a) => {
       a.key === "Escape" && (this._selected = null, this._legalCached = null, this._dragging = null, this._hoverSq = null, this.drawingManager && this.drawingManager.cancelCurrentAction(), this.renderAll());
     }, n = (a) => {
       this.rightClickHighlights && a.preventDefault();
     };
-    this.cOverlay.addEventListener("pointerdown", s), this.cOverlay.addEventListener("contextmenu", n), this._onPointerDown = s, this._onContextMenu = n, globalThis.addEventListener("pointermove", i), this._onPointerMove = i, globalThis.addEventListener("pointerup", r), this._onPointerUp = r, globalThis.addEventListener("keydown", o), this._onKeyDown = o;
+    this.cOverlay.addEventListener("pointerdown", i), this.cOverlay.addEventListener("contextmenu", n), this._onPointerDown = i, this._onContextMenu = n, globalThis.addEventListener("pointermove", s), this._onPointerMove = s, globalThis.addEventListener("pointerup", r), this._onPointerUp = r, globalThis.addEventListener("keydown", o), this._onKeyDown = o;
   }
   _removeEvents() {
     var e;
     this.cOverlay.removeEventListener("pointerdown", this._onPointerDown), this.cOverlay.removeEventListener("contextmenu", this._onContextMenu), globalThis.removeEventListener("pointermove", this._onPointerMove), globalThis.removeEventListener("pointerup", this._onPointerUp), globalThis.removeEventListener("keydown", this._onKeyDown), (e = this._ro) == null || e.disconnect();
   }
   _evt(e) {
-    const t = this.cOverlay.getBoundingClientRect(), s = (e.clientX - t.left) * (this.cOverlay.width / t.width), i = (e.clientY - t.top) * (this.cOverlay.height / t.height);
-    return s < 0 || i < 0 || s > this.cOverlay.width || i > this.cOverlay.height ? null : { x: s, y: i };
+    const t = this.cOverlay.getBoundingClientRect(), i = (e.clientX - t.left) * (this.cOverlay.width / t.width), s = (e.clientY - t.top) * (this.cOverlay.height / t.height);
+    return i < 0 || s < 0 || i > this.cOverlay.width || s > this.cOverlay.height ? null : { x: i, y: s };
   }
   _xyToSquare(e, t) {
-    const s = Pe(Math.floor(e / this.square), 0, 7), i = Pe(Math.floor(t / this.square), 0, 7), r = this.orientation === "white" ? s : 7 - s, o = this.orientation === "white" ? 7 - i : i;
-    return he(r, o);
+    const i = Re(Math.floor(e / this.square), 0, 7), s = Re(Math.floor(t / this.square), 0, 7), r = this.orientation === "white" ? i : 7 - i, o = this.orientation === "white" ? 7 - s : s;
+    return _e(r, o);
   }
   _pieceAt(e) {
-    const { f: t, r: s } = lt(e);
-    return this.state.board[s][t];
+    const { f: t, r: i } = dt(e);
+    return this.state.board[i][t];
   }
   // ---- animation ----
   /**
@@ -3819,30 +3819,30 @@ class ls {
    */
   _animateTo(e, t) {
     this._clearAnim();
-    const s = performance.now(), i = this.animationMs, r = /* @__PURE__ */ new Map();
+    const i = performance.now(), s = this.animationMs, r = /* @__PURE__ */ new Map();
     for (let n = 0; n < 8; n++)
       for (let a = 0; a < 8; a++) {
-        const h = t.board[n][a], d = e.board[n][a];
-        if (h && (!d || h !== d)) {
-          const m = this.findPiece(e.board, h, n, a, t.board);
-          m && r.set(he(a, n), he(m.f, m.r));
+        const l = t.board[n][a], g = e.board[n][a];
+        if (l && (!g || l !== g)) {
+          const d = this.findPiece(e.board, l, n, a, t.board);
+          d && r.set(_e(a, n), _e(d.f, d.r));
         }
       }
     const o = () => {
-      var d;
-      const n = Pe((performance.now() - s) / i, 0, 1), a = Ei(n);
+      var g;
+      const n = Re((performance.now() - i) / s, 0, 1), a = ks(n);
       this.ctxP.clearRect(0, 0, this.cPieces.width, this.cPieces.height);
-      for (let m = 0; m < 8; m++)
-        for (let p = 0; p < 8; p++) {
-          const _ = e.board[m][p];
-          if (!_) continue;
-          const v = he(p, m), P = (d = [...r.entries()].find(([C, T]) => T === v)) == null ? void 0 : d[0];
-          if (P) {
-            const { x: C, y: T } = this._sqToXY(P), { x: k, y: x } = this._sqToXY(v), K = ct(C, k, a), L = ct(T, x, a);
-            this._drawPieceSprite(_, K, L, 1);
+      for (let d = 0; d < 8; d++)
+        for (let f = 0; f < 8; f++) {
+          const v = e.board[d][f];
+          if (!v) continue;
+          const _ = _e(f, d), b = (g = [...r.entries()].find(([y, k]) => k === _)) == null ? void 0 : g[0];
+          if (b) {
+            const { x: y, y: k } = this._sqToXY(b), { x: I, y: $ } = this._sqToXY(_), O = mt(y, I, a), L = mt(k, $, a);
+            this._drawPieceSprite(v, O, L, 1);
           } else {
-            const { x: C, y: T } = this._sqToXY(v);
-            this._drawPieceSprite(_, C, T, 1);
+            const { x: y, y: k } = this._sqToXY(_);
+            this._drawPieceSprite(v, y, k, 1);
           }
         }
       this._drawOverlay(), n < 1 ? this._raf = requestAnimationFrame(o) : (this._raf = 0, this.renderAll());
@@ -3859,7 +3859,7 @@ class ls {
    * @param start The starting board state.
    * @returns The new row and file of the piece, or null if not found.
    */
-  findPiece(e, t, s, i, r) {
+  findPiece(e, t, i, s, r) {
     for (let o = 0; o < 8; o++)
       for (let n = 0; n < 8; n++)
         if (e[o][n] === t && r[o][n] !== t) return { r: o, f: n };
@@ -3884,10 +3884,10 @@ class ls {
   _initializeSound() {
     var r, o;
     if (this.moveSound = null, this.moveSounds = {}, !this.soundEnabled || typeof Audio > "u") return;
-    const e = this.soundUrl, t = (r = this.soundUrls) == null ? void 0 : r.white, s = (o = this.soundUrls) == null ? void 0 : o.black;
-    if (!e && !t && !s)
+    const e = this.soundUrl, t = (r = this.soundUrls) == null ? void 0 : r.white, i = (o = this.soundUrls) == null ? void 0 : o.black;
+    if (!e && !t && !i)
       return;
-    const i = (n) => {
+    const s = (n) => {
       try {
         const a = new Audio(n);
         return a.volume = 0.3, a.preload = "auto", a.addEventListener("error", () => {
@@ -3898,15 +3898,15 @@ class ls {
       }
     };
     if (t) {
-      const n = i(t);
+      const n = s(t);
       n && (this.moveSounds.white = n);
     }
-    if (s) {
-      const n = i(s);
+    if (i) {
+      const n = s(i);
       n && (this.moveSounds.black = n);
     }
     if (e) {
-      const n = i(e);
+      const n = s(e);
       n && (this.moveSound = n);
     }
   }
@@ -3919,11 +3919,11 @@ class ls {
     const e = this.state.turn === "w" ? "black" : "white", t = this.moveSounds[e] ?? this.moveSound;
     if (t)
       try {
-        t.currentTime = 0, t.play().catch((s) => {
-          console.debug("Sound not played:", s.message);
+        t.currentTime = 0, t.play().catch((i) => {
+          console.debug("Sound not played:", i.message);
         });
-      } catch (s) {
-        console.debug("Error playing sound:", s);
+      } catch (i) {
+        console.debug("Error playing sound:", i);
       }
   }
   /**
@@ -4023,8 +4023,8 @@ class ls {
     });
     t && t.ok ? setTimeout(() => {
       var o, n;
-      const s = this.rules.getFEN(), i = le(s), r = this.state;
-      this.state = i, this._syncOrientationFromTurn(!1), this._lastMove = { from: e.from, to: e.to }, (o = this.drawingManager) == null || o.clearPremove(), (n = this.drawingManager) == null || n.clearArrows(), this._premove = null, this._animateTo(i, r), this.bus.emit("move", { from: e.from, to: e.to, fen: s });
+      const i = this.rules.getFEN(), s = we(i), r = this.state;
+      this.state = s, this._syncOrientationFromTurn(!1), this._lastMove = { from: e.from, to: e.to }, (o = this.drawingManager) == null || o.clearPremove(), (n = this.drawingManager) == null || n.clearArrows(), this._premove = null, this._animateTo(s, r), this.bus.emit("move", { from: e.from, to: e.to, fen: i });
     }, 150) : (this.drawingManager.clearPremove(), this._premove = null, this.renderAll());
   }
   // ---- New feature methods ----
@@ -4109,8 +4109,8 @@ class ls {
   loadPgnWithAnnotations(e) {
     try {
       if (this.rules.loadPgn ? this.rules.loadPgn(e) : !1) {
-        const s = this.rules.getPgnNotation ? this.rules.getPgnNotation() : null;
-        return s && (s.loadPgnWithAnnotations(e), this.displayAnnotationsFromPgn(s)), this.state = le(this.rules.getFEN()), this._syncOrientationFromTurn(!1), this.renderAll(), !0;
+        const i = this.rules.getPgnNotation ? this.rules.getPgnNotation() : null;
+        return i && (i.loadPgnWithAnnotations(e), this.displayAnnotationsFromPgn(i)), this.state = we(this.rules.getFEN()), this._syncOrientationFromTurn(!1), this.renderAll(), !0;
       }
       return !1;
     } catch (t) {
@@ -4125,14 +4125,14 @@ class ls {
     this.drawingManager.clearArrows(), this.drawingManager.clearHighlights();
     const t = e.getMovesWithAnnotations();
     if (t.length === 0) return;
-    const s = t[t.length - 1];
-    (s.white ? 1 : 0) + (s.black ? 1 : 0);
-    const i = t.reduce(
+    const i = t[t.length - 1];
+    (i.white ? 1 : 0) + (i.black ? 1 : 0);
+    const s = t.reduce(
       (o, n) => o + (n.white ? 1 : 0) + (n.black ? 1 : 0),
       0
     );
     let r = null;
-    if (i % 2 === 0 && s.blackAnnotations ? r = s.blackAnnotations : i % 2 === 1 && s.whiteAnnotations && (r = s.whiteAnnotations), r) {
+    if (s % 2 === 0 && i.blackAnnotations ? r = i.blackAnnotations : s % 2 === 1 && i.whiteAnnotations && (r = i.whiteAnnotations), r) {
       if (r.arrows)
         for (const o of r.arrows)
           this.drawingManager.addArrowFromObject(o);
@@ -4144,15 +4144,15 @@ class ls {
   /**
    * Add visual annotations to the current move and save them in the PGN
    */
-  addAnnotationsToCurrentMove(e = [], t = [], s = "") {
+  addAnnotationsToCurrentMove(e = [], t = [], i = "") {
     if (!this.drawingManager) return;
-    const i = this.rules.getPgnNotation ? this.rules.getPgnNotation() : null;
-    if (i) {
+    const s = this.rules.getPgnNotation ? this.rules.getPgnNotation() : null;
+    if (s) {
       const o = (this.rules.history ? this.rules.history() : []).length, n = Math.floor(o / 2) + 1, a = o % 2 === 0;
-      i.addMoveAnnotations(n, a, {
+      s.addMoveAnnotations(n, a, {
         arrows: e,
         circles: t,
-        textComment: s
+        textComment: i
       });
     }
     for (const r of e)
@@ -4169,7 +4169,7 @@ class ls {
     return e && typeof e.toPgnWithAnnotations == "function" ? e.toPgnWithAnnotations() : this.rules.toPgn ? this.rules.toPgn() : "";
   }
 }
-class cs {
+class ui {
   constructor(e) {
     this.adapter = e, this.moves = [], this.headers = {
       Event: "Casual Game",
@@ -4195,14 +4195,14 @@ class cs {
     this.headers.Result = e;
   }
   getPGN() {
-    var s;
-    if ((s = this.adapter) != null && s.getPGN)
+    var i;
+    if ((i = this.adapter) != null && i.getPGN)
       return this.adapter.getPGN();
-    const e = Object.entries(this.headers).map(([i, r]) => `[${i} "${r}"]`).join(`
+    const e = Object.entries(this.headers).map(([s, r]) => `[${s} "${r}"]`).join(`
 `);
     let t = "";
-    for (let i = 0; i < this.moves.length; i += 2) {
-      const r = i / 2 + 1, o = this.fmt(this.moves[i]), n = this.moves[i + 1] ? this.fmt(this.moves[i + 1]) : "";
+    for (let s = 0; s < this.moves.length; s += 2) {
+      const r = s / 2 + 1, o = this.fmt(this.moves[s]), n = this.moves[s + 1] ? this.fmt(this.moves[s + 1]) : "";
       t += `${r}. ${o}${n ? " " + n : ""} `;
     }
     return e + `
@@ -4214,15 +4214,15 @@ class cs {
     return new Blob([e], { type: "application/x-chess-pgn" });
   }
   suggestFilename() {
-    const e = (s) => s.replace(/[^a-z0-9_\-]+/gi, "_"), t = (this.headers.Date || (/* @__PURE__ */ new Date()).toISOString().slice(0, 10)).replace(/\./g, "-");
+    const e = (i) => i.replace(/[^a-z0-9_\-]+/gi, "_"), t = (this.headers.Date || (/* @__PURE__ */ new Date()).toISOString().slice(0, 10)).replace(/\./g, "-");
     return `${e(this.headers.White || "White")}_vs_${e(this.headers.Black || "Black")}_${t}.pgn`;
   }
   download(e = this.suggestFilename()) {
     if (typeof document > "u")
       return;
-    const t = URL.createObjectURL(this.toBlob()), s = document.createElement("a");
-    s.href = t, s.download = e, document.body.appendChild(s), s.click(), setTimeout(() => {
-      document.body.removeChild(s), URL.revokeObjectURL(t);
+    const t = URL.createObjectURL(this.toBlob()), i = document.createElement("a");
+    i.href = t, i.download = e, document.body.appendChild(i), i.click(), setTimeout(() => {
+      document.body.removeChild(i), URL.revokeObjectURL(t);
     }, 0);
   }
   fmt(e) {
@@ -4230,22 +4230,37 @@ class cs {
     return `${e.from}${e.captured ? "x" : ""}${e.to}${t}`;
   }
 }
-function Fe(c) {
+const Ge = [];
+let Xe;
+function gi(h) {
+  if (Xe) {
+    h(Xe);
+    return;
+  }
+  Ge.push(h);
+}
+function di(h) {
+  for (Xe = h; Ge.length > 0; ) {
+    const e = Ge.shift();
+    e == null || e(h);
+  }
+}
+function je(h) {
   return {
-    from: c.from,
-    to: c.to,
-    promotion: c.promotion,
-    captured: c.captured ?? void 0,
-    san: c.san
+    from: h.from,
+    to: h.to,
+    promotion: h.promotion,
+    captured: h.captured ?? void 0,
+    san: h.san
   };
 }
-function bt() {
-  const c = document.getElementById("oracle-board");
-  if (!c) {
+function mi() {
+  const h = document.getElementById("oracle-board");
+  if (!h) {
     console.warn("[oracle-board] Missing container #oracle-board.");
     return;
   }
-  const e = new Ae(), t = new ls(c, {
+  const e = new Ie(), t = new fi(h, {
     rulesAdapter: e,
     interactive: !0,
     highlightLegal: !0,
@@ -4255,54 +4270,275 @@ function bt() {
     allowPremoves: !1,
     animationMs: 200,
     soundEnabled: !1
-  }), s = new cs(e), i = e, r = () => {
-    if (typeof i.getHistory == "function")
-      return i.getHistory();
-    if (typeof i.history == "function")
+  }), i = new ui(e), s = e, r = () => {
+    if (typeof s.getHistory == "function")
+      return s.getHistory();
+    if (typeof s.history == "function")
       try {
-        return i.history({ verbose: !0 }) ?? [];
-      } catch (m) {
-        console.warn("[oracle-board] Unable to access verbose history.", m);
+        return s.history({ verbose: !0 }) ?? [];
+      } catch (d) {
+        console.warn("[oracle-board] Unable to access verbose history.", d);
       }
     return [];
   }, o = () => {
-    s.reset(), r().forEach((m) => s.push(Fe(m)));
+    i.reset(), r().forEach((d) => i.push(je(d)));
   };
   let n, a;
-  const h = () => {
-    a == null || a({ fen: e.getFEN(), pgn: s.getPGN() });
+  const l = () => {
+    a == null || a({ fen: e.getFEN(), pgn: i.getPGN() });
   };
-  t.on("move", (m) => {
-    const { from: p, to: _, fen: v } = m, P = r(), C = P[P.length - 1];
-    C ? (s.push(Fe(C)), n == null || n({ from: p, to: _, fen: v, san: C.san })) : (s.push(Fe({ from: p, to: _ })), n == null || n({ from: p, to: _, fen: v })), h();
-  }), t.on("update", () => h());
-  const d = {
-    loadPgn(m) {
-      if (typeof m != "string" || m.trim().length === 0)
+  t.on("move", (d) => {
+    const { from: f, to: v, fen: _ } = d, b = r(), y = b[b.length - 1];
+    y ? (i.push(je(y)), n == null || n({ from: f, to: v, fen: _, san: y.san })) : (i.push(je({ from: f, to: v })), n == null || n({ from: f, to: v, fen: _ })), l();
+  }), t.on("update", () => l());
+  const g = {
+    loadPgn(d) {
+      if (typeof d != "string" || d.trim().length === 0)
         return !1;
-      const p = t.loadPgnWithAnnotations(m);
-      return p && (o(), h()), p;
+      const f = t.loadPgnWithAnnotations(d);
+      return f && (o(), l()), f;
     },
     reset() {
-      typeof e.reset == "function" ? e.reset() : e.setFEN("start"), s.reset(), t.setFEN(e.getFEN(), !0), h();
+      typeof e.reset == "function" ? e.reset() : e.setFEN("start"), i.reset(), t.setFEN(e.getFEN(), !0), l();
     },
     getFen() {
       return e.getFEN();
     },
     getPgn() {
-      return s.getPGN();
+      return i.getPGN();
     },
-    onMove(m) {
-      n = m;
+    onMove(d) {
+      n = d;
     },
-    onUpdate(m) {
-      a = m, h();
+    onUpdate(d) {
+      a = d, l();
     }
   };
-  window.oracleBoard = d, document.dispatchEvent(
+  window.oracleBoard = g, document.dispatchEvent(
     new CustomEvent("oracle-board:ready", {
-      detail: d
+      detail: g
     })
-  ), h();
+  ), di(g), l();
 }
-document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", bt, { once: !0 }) : bt();
+function pi() {
+  var me;
+  const h = document.querySelector("[data-app-root]");
+  if (!h)
+    return;
+  const e = document.getElementById("pgn"), t = h.querySelector("[data-load-pgn]"), i = h.querySelector("[data-reset-board]"), s = h.querySelectorAll("[data-mode-input]"), r = h.querySelectorAll("[data-mode-panel]"), o = h.querySelector("[data-game-new]"), n = h.querySelector("[data-game-resign]"), a = h.querySelector("[data-game-status]"), l = h.querySelector("[data-game-level]"), g = (S) => S && S.trim().length > 0 ? S.trim() : "";
+  let d = h.dataset.activeMode === "play" ? "play" : "analyze", f, v = !1;
+  const _ = {
+    newGame: g(h.dataset.gameNewEndpoint),
+    move: g(h.dataset.gameMoveEndpoint),
+    resign: g(h.dataset.gameResignEndpoint)
+  }, b = {
+    inProgress: !1,
+    awaitingResponse: !1,
+    lastStablePgn: "",
+    selectedLevel: ((me = l == null ? void 0 : l.value) == null ? void 0 : me.trim()) ?? ""
+  }, y = (S) => {
+    v = !0;
+    try {
+      S();
+    } finally {
+      v = !1;
+    }
+  }, k = (S) => {
+    e && (e.value = S);
+  }, I = () => {
+    r.forEach((S) => {
+      const M = S.dataset.modePanel ?? "analyze";
+      S.toggleAttribute("hidden", M !== d);
+    }), e && (d === "play" ? e.setAttribute("readonly", "true") : e.removeAttribute("readonly"));
+  }, $ = () => {
+    const S = d === "play";
+    o && (o.disabled = !S || b.awaitingResponse), n && (n.disabled = !S || !b.inProgress || b.awaitingResponse);
+  }, O = (S, M = "info") => {
+    if (!a)
+      return;
+    if (!S) {
+      a.textContent = "", a.hidden = !0, a.classList.remove("alert-info", "alert-danger", "alert-success");
+      return;
+    }
+    a.hidden = !1, a.textContent = S, a.classList.remove("alert-info", "alert-danger", "alert-success");
+    const q = M === "error" ? "alert-danger" : M === "success" ? "alert-success" : "alert-info";
+    a.classList.add(q);
+  }, L = () => {
+    if (!f || !e)
+      return;
+    const S = e.value.trim();
+    y(() => {
+      S.length > 0 && f.loadPgn(S) || f.reset();
+    });
+    const M = f.getPgn();
+    k(M), b.lastStablePgn = M;
+  }, G = (S) => {
+    if (!f)
+      return;
+    const M = (S ?? b.lastStablePgn).trim();
+    y(() => {
+      M.length > 0 && f.loadPgn(M) || f.reset();
+    });
+    const q = f.getPgn();
+    k(q);
+  }, se = (S, M) => {
+    if (!f)
+      return;
+    const q = typeof S == "string" ? S.trim() : "";
+    y(() => {
+      q.length > 0 && f.loadPgn(q) || f.reset();
+    });
+    const H = f.getPgn();
+    b.lastStablePgn = H, k(H);
+    const W = !!(M != null && M.finished);
+    let ee;
+    typeof (M == null ? void 0 : M.status) == "string" ? ee = M.status : typeof (M == null ? void 0 : M.message) == "string" ? ee = M.message : W && (ee = "Partie terminée."), O(ee ?? "Coup joué.", W ? "success" : "info"), W && (b.inProgress = !1), $();
+  }, X = async (S, M) => {
+    if (!S)
+      throw new Error("Endpoint de partie indisponible.");
+    const q = await fetch(S, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "same-origin",
+      body: JSON.stringify(M)
+    });
+    if (!q.ok)
+      throw new Error(`Erreur serveur (${q.status}) lors de l'échange avec l'ordinateur.`);
+    return (q.headers.get("content-type") ?? "").includes("application/json") ? q.json() : {};
+  }, j = () => {
+    const S = b.selectedLevel.trim();
+    return S.length > 0 ? S : void 0;
+  }, ie = (S, M = {}) => {
+    const { force: q = !1 } = M;
+    if (!(!q && d === S)) {
+      if (d = S, I(), $(), d === "analyze") {
+        O(), f && L();
+        return;
+      }
+      if (b.inProgress = !1, b.awaitingResponse = !1, f) {
+        y(() => f.reset());
+        const H = f.getPgn();
+        b.lastStablePgn = H, k(H);
+      } else
+        k(""), b.lastStablePgn = "";
+      O("Choisissez un niveau puis démarrez une partie.", "info"), $();
+    }
+  };
+  s.forEach((S) => {
+    S.addEventListener("change", () => {
+      S.checked && ie(S.value === "play" ? "play" : "analyze");
+    });
+  }), t == null || t.addEventListener("click", () => {
+    d === "analyze" && (L(), e == null || e.focus());
+  }), i == null || i.addEventListener("click", () => {
+    if (d !== "analyze" || !f)
+      return;
+    y(() => f.reset());
+    const S = f.getPgn();
+    k(S), e == null || e.focus();
+  }), l == null || l.addEventListener("change", () => {
+    var S;
+    b.selectedLevel = ((S = l.value) == null ? void 0 : S.trim()) ?? "";
+  }), o == null || o.addEventListener("click", async () => {
+    if (d !== "play" && ie("play"), !f || b.awaitingResponse) {
+      f || O("Plateau en cours de chargement…", "info");
+      return;
+    }
+    b.awaitingResponse = !0, $(), O("Initialisation de la partie…", "info");
+    try {
+      const S = {}, M = j();
+      M && (S.level = M);
+      const q = await X(_.newGame, S);
+      y(() => {
+        f.reset(), typeof (q == null ? void 0 : q.pgn) == "string" && q.pgn.trim().length > 0 && f.loadPgn(q.pgn);
+      });
+      const H = f.getPgn();
+      b.lastStablePgn = H, b.inProgress = !0, k(H);
+      const W = typeof (q == null ? void 0 : q.status) == "string" ? q.status : "La partie a démarré.";
+      O(W, "info");
+    } catch (S) {
+      console.error("[oracle-board] Unable to start game:", S);
+      const M = S instanceof Error ? S.message : "Impossible de démarrer la partie.";
+      O(M, "error");
+    } finally {
+      b.awaitingResponse = !1, $();
+    }
+  }), n == null || n.addEventListener("click", async () => {
+    if (!(d !== "play" || !f || !b.inProgress || b.awaitingResponse)) {
+      b.awaitingResponse = !0, $(), O("Abandon en cours…", "info");
+      try {
+        const S = { pgn: b.lastStablePgn }, M = j();
+        M && (S.level = M);
+        const q = await X(_.resign, S);
+        typeof (q == null ? void 0 : q.pgn) == "string" && y(() => {
+          q.pgn.trim().length > 0 ? f.loadPgn(q.pgn) : f.reset();
+        });
+        const H = f.getPgn();
+        k(H), b.lastStablePgn = H, b.inProgress = !1;
+        const W = typeof (q == null ? void 0 : q.status) == "string" ? q.status : "Vous avez abandonné la partie.";
+        O(W, "success");
+      } catch (S) {
+        console.error("[oracle-board] Unable to resign game:", S);
+        const M = S instanceof Error ? S.message : "Impossible d'abandonner la partie.";
+        O(M, "error"), b.inProgress = !1;
+      } finally {
+        b.awaitingResponse = !1, $();
+      }
+    }
+  }), gi((S) => {
+    if (f = S, d === "analyze")
+      L();
+    else if (f) {
+      y(() => f.reset());
+      const M = f.getPgn();
+      b.lastStablePgn = M, k(M), O("Choisissez un niveau puis démarrez une partie.", "info");
+    }
+    f == null || f.onMove((M) => {
+      if (!f || v)
+        return;
+      if (d === "analyze") {
+        k(f.getPgn());
+        return;
+      }
+      if (!b.inProgress) {
+        O("Lancez une nouvelle partie pour jouer.", "error"), G();
+        return;
+      }
+      if (b.awaitingResponse) {
+        G();
+        return;
+      }
+      const q = b.lastStablePgn, H = f.getPgn(), W = {
+        move: M.san ?? "",
+        from: M.from,
+        to: M.to,
+        fen: M.fen,
+        pgn: H
+      }, ee = j();
+      ee && (W.level = ee), b.awaitingResponse = !0, $(), O("Coup envoyé, attente de la réponse…", "info"), X(_.move, W).then((J) => {
+        const pe = J && typeof J.pgn == "string" ? J.pgn : H;
+        se(pe, J);
+      }).catch((J) => {
+        console.error("[oracle-board] Unable to send move:", J);
+        const pe = J instanceof Error ? J.message : "Impossible d'envoyer le coup.";
+        O(pe, "error"), G(q);
+      }).finally(() => {
+        b.awaitingResponse = !1, $();
+      });
+    }), f == null || f.onUpdate(({ pgn: M }) => {
+      if (!v) {
+        if (d === "analyze") {
+          if (!e || document.activeElement === e)
+            return;
+          k(M);
+          return;
+        }
+        b.awaitingResponse || (b.lastStablePgn = M), k(M);
+      }
+    });
+  }), ie(d, { force: !0 });
+}
+function Pt() {
+  pi(), mi();
+}
+document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", Pt, { once: !0 }) : Pt();

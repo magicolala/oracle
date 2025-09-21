@@ -72,14 +72,17 @@ def build_level_options(config: OracleConfig) -> list[dict[str, str]]:
     return options
 
 
-@app.get("/", response_class=HTMLResponse)
+@app.get("/", response_class=HTMLResponse, name="index")
 async def index(request: Request) -> HTMLResponse:
     config = get_oracle_config()
+    requested_mode = request.query_params.get("mode", "analyze").strip().lower()
+    active_mode = requested_mode if requested_mode in {"analyze", "play"} else "analyze"
     context = {
         "request": request,
         "levels": build_level_options(config),
         "selected_level": "",
         "pgn": "",
+        "active_mode": active_mode,
     }
     return templates.TemplateResponse(request, "index.html", context)
 
@@ -144,6 +147,7 @@ async def analyze(
         "pgn": normalized_pgn,
         "levels": level_options,
         "selected_level": selected_level_raw,
+        "active_mode": "analyze",
     }
 
     selected_level_value: int | None = None
