@@ -11,7 +11,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
 from oracle.domain import OracleConfig
-from oracle.service.prediction import create_prediction_service
+from oracle.service.prediction import build_predict_next_moves_use_case
 
 if TYPE_CHECKING:
     from oracle.application.ports import PredictNextMovesUseCase
@@ -23,17 +23,7 @@ templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
 
 
 def get_oracle_config() -> OracleConfig:
-    stockfish_path = os.getenv("STOCKFISH_PATH")
-    if not stockfish_path:
-        raise HTTPException(status_code=500, detail="STOCKFISH_PATH environment variable not set")
-    huggingface_token = os.getenv("HUGGINGFACEHUB_API_TOKEN")
-    model_id = os.getenv("HUGGINGFACE_MODEL_ID")
-    config_kwargs: dict[str, str | None] = {}
-    if model_id:
-        config_kwargs["huggingface_model"] = model_id
-    if huggingface_token:
-        config_kwargs["huggingface_token"] = huggingface_token
-    return OracleConfig(stockfish_path=stockfish_path, **config_kwargs)
+    return OracleConfig()
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -44,7 +34,24 @@ async def index(request: Request) -> HTMLResponse:
 def get_prediction_service(
     config: OracleConfig = Depends(get_oracle_config),  # noqa: B008
 ) -> PredictNextMovesUseCase:
-    return create_prediction_service(config)
+    stockfish_path = os.getenv("STOCKFISH_PATH")
+    if not stockfish_path or not stockfish_path.strip():
+        raise HTTPException(status_code=500, detail="STOCKFISH_PATH environment variable not set")
+
+    model_id = os.getenv("HUGGINGFACE_MODEL_ID")
+    resolved_model = model_id.strip() if model_id and model_id.strip() else config.huggingface_model
+
+    token = os.getenv("HUGGINGFACEHUB_API_TOKEN")
+    resolved_token = (
+        token.strip() if token and token.strip() else config.huggingface_token
+    )
+
+    return build_predict_next_moves_use_case(
+        config,
+        stockfish_path=stockfish_path.strip(),
+        huggingface_model=resolved_model,
+        huggingface_token=resolved_token,
+    )
 
 
 @app.post("/analyze", response_class=HTMLResponse)

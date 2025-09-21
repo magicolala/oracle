@@ -9,7 +9,7 @@ from typing import Any, Callable
 class OracleConfig:
     """Configuration required to evaluate and predict chess moves."""
 
-    stockfish_path: str
+    stockfish_path: str = ""
     huggingface_model: str = "mistralai/Mistral-7B-Instruct-v0.2"
     huggingface_token: str | None = None
     huggingface_token_env_var: str | None = "HUGGINGFACEHUB_API_TOKEN"

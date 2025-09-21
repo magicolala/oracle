@@ -9,7 +9,7 @@ from tabulate import tabulate
 
 from oracle.domain import MovePrediction, OracleConfig
 from oracle.domain.services import adjust_rating, determine_game_type
-from oracle.service.prediction import predict_next_moves
+from oracle.service.prediction import build_predict_next_moves_use_case
 
 DEFAULT_HUGGINGFACE_MODEL_ID = "mistralai/Mistral-7B-Instruct-v0.2"
 HUGGINGFACE_TOKEN = os.getenv("HUGGINGFACEHUB_API_TOKEN", "")
@@ -95,15 +95,19 @@ def main() -> None:
     black_elo = adjust_rating(black_elo, game_type)
 
     config = OracleConfig(
-        stockfish_path=engine_path,
-        huggingface_token=hf_token or None,
-        huggingface_model=hf_model,
         default_white_elo=white_elo,
         default_black_elo=black_elo,
         default_game_type=game_type,
     )
 
-    result = predict_next_moves(pgn_content, config)
+    service = build_predict_next_moves_use_case(
+        config,
+        stockfish_path=engine_path,
+        huggingface_model=hf_model,
+        huggingface_token=hf_token or None,
+    )
+
+    result = service.execute(pgn_content)
 
     table = _format_predictions(result.moves)
     logger.debug("\n%s", table)

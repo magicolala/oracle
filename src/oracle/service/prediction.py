@@ -6,6 +6,7 @@ import logging
 import math
 import os
 import time
+from dataclasses import replace
 from typing import Any, Callable
 
 import chess
@@ -428,12 +429,60 @@ def get_legal_moves(board: chess.Board) -> list[str]:
     return [board.san(move) for move in board.legal_moves]
 
 
+def build_predict_next_moves_use_case(
+    config: OracleConfig,
+    *,
+    stockfish_path: str,
+    huggingface_model: str | None = None,
+    huggingface_token: str | None = None,
+    huggingface_client: Any | None = None,
+    engine_factory: Callable[[str], chess.engine.SimpleEngine] | None = None,
+    sequence_provider: SequenceProvider | None = None,
+    move_analyzer: MoveAnalyzer | None = None,
+) -> PredictNextMoves:
+    """Create the prediction use case while wiring the infrastructure adapters."""
+
+    resolved_model = huggingface_model or config.huggingface_model
+    resolved_token = (
+        huggingface_token if huggingface_token is not None else config.huggingface_token
+    )
+    resolved_client = (
+        huggingface_client if huggingface_client is not None else config.huggingface_client
+    )
+    resolved_factory = engine_factory if engine_factory is not None else config.engine_factory
+
+    full_config = replace(
+        config,
+        stockfish_path=stockfish_path,
+        huggingface_model=resolved_model,
+        huggingface_token=resolved_token,
+        huggingface_client=resolved_client,
+        engine_factory=resolved_factory,
+    )
+
+    composed_sequence_provider = sequence_provider or HuggingFaceSequenceProvider.from_config(
+        full_config
+    )
+    composed_move_analyzer = move_analyzer or StockfishMoveAnalyzer.from_config(full_config)
+
+    return PredictNextMoves(
+        sequence_provider=composed_sequence_provider,
+        move_analyzer=composed_move_analyzer,
+        config=full_config,
+    )
+
+
 def create_prediction_service(config: OracleConfig) -> PredictNextMoves:
     """Compose the infrastructure adapters with the prediction use case."""
 
-    sequence_provider = HuggingFaceSequenceProvider.from_config(config)
-    move_analyzer = StockfishMoveAnalyzer.from_config(config)
-    return PredictNextMoves(sequence_provider=sequence_provider, move_analyzer=move_analyzer, config=config)
+    return build_predict_next_moves_use_case(
+        config,
+        stockfish_path=config.stockfish_path,
+        huggingface_model=config.huggingface_model,
+        huggingface_token=config.huggingface_token,
+        huggingface_client=config.huggingface_client,
+        engine_factory=config.engine_factory,
+    )
 
 
 def predict_next_moves(pgn: str, config: OracleConfig) -> PredictionResult:
@@ -453,6 +502,7 @@ __all__ = [
     "_get_client",
     "get_legal_moves",
     "get_top_sequences",
+    "build_predict_next_moves_use_case",
     "create_prediction_service",
     "predict_next_moves",
 ]
