@@ -136,6 +136,6 @@ def test_analyze_endpoint_returns_predictions(monkeypatch):
     assert captured["stockfish_path"] == "/fake/stockfish"
     assert captured["huggingface_model"] == "test/model"
     assert captured["huggingface_token"] == "api-token"
-    assert "Predicted Moves" in response.text
+    assert "Explorer les coups" in response.text
     first_move = wrapper.last_result.moves[0].move
     assert first_move in response.text
