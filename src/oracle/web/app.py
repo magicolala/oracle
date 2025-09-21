@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from dotenv import load_dotenv
 from fastapi import FastAPI, Form, Request, status
 from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import HTMLResponse
@@ -14,6 +15,8 @@ from fastapi.templating import Jinja2Templates
 
 from oracle.domain import OracleConfig
 from oracle.service.prediction import build_predict_next_moves_use_case
+
+load_dotenv()
 
 if TYPE_CHECKING:
     from oracle.application.ports import PredictNextMovesUseCase
