@@ -15,9 +15,9 @@ Oracle is the first chess engine that plays like a human, from amateur to super 
 
 ## Usage
 
-- **Oracle_one_move:** Set your openAI API key and the path to your Stockfish at the top of the file then run the file. Past the PGN up to the move you want to predict into the console, type END and press Enter
-- **Oracle_pgn_file:** Set your openAI API key, the path to your Stockfish, your input pgn file, and your output csv file, and then run the file. Oracle will write her predictions for every move of every game of the PGN into the csv file.
-- **Web interface:** Export your OpenAI key as `OPENAI_API_KEY` and the Stockfish binary path as `STOCKFISH_PATH`, then launch `uvicorn src.oracle.web.app:app --reload` to access a browser-based PGN form.
+- **Oracle_one_move:** Set your Hugging Face token (if required by the model) and the path to your Stockfish at the top of the file then run the file. Past the PGN up to the move you want to predict into the console, type END and press Enter
+- **Oracle_pgn_file:** Set your Hugging Face token, the path to your Stockfish, your input pgn file, and your output csv file, and then run the file. Oracle will write her predictions for every move of every game of the PGN into the csv file.
+- **Web interface:** Export your Hugging Face token as `HUGGINGFACEHUB_API_TOKEN` (optional, models supporting anonymous access do not require a token) and the Stockfish binary path as `STOCKFISH_PATH`, then launch `uvicorn src.oracle.web.app:app --reload` to access a browser-based PGN form.
 
 ## Examples
 
@@ -35,7 +35,7 @@ Position after 11...Nc6 in the infamous "Danse of the Knights" pre-arranged draw
 
 ## Requirements
 
-Oracle uses GPT-3.5 turbo instruct and Stockfish to deliver human-like chess moves. Users need an [OpenAI API key](https://platform.openai.com/api-keys) and a version of Stockfish, which can be downloaded [here](https://stockfishchess.org/download/).
+Oracle uses Hugging Face Inference models and Stockfish to deliver human-like chess moves. Users need access to a suitable text-generation model on [huggingface.co](https://huggingface.co/models) (set the `HUGGINGFACEHUB_API_TOKEN` environment variable if authentication is required) and a version of Stockfish, which can be downloaded [here](https://stockfishchess.org/download/).
 
 ## Configuration
 
@@ -46,7 +46,7 @@ On my computer, Oracle takes on average about 2 seconds per move. This duration 
 
 ## Cost
 
-Because Oracle uses GPT for her prediction, she is costly! The average cost is ~400 predictions per $1 but can vary greatly with the length of the prompt (up to 10.000 predictions per $1 for opening moves with a short header)
+Because Oracle uses hosted Hugging Face inference for her prediction, usage costs depend on the selected model and hosting plan. Expect throughput and pricing to vary with provider limits and prompt length (shorter headers allow far more predictions per credit).
 
 ## Author's Note
 

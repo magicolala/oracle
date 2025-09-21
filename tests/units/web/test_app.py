@@ -25,20 +25,19 @@ SAMPLE_PGN = """
 """.strip()
 
 
-class DummyOpenAIClient:
+class DummyInferenceClient:
     def __init__(self) -> None:
-        self.tokens = {"e4": math.log(0.6), "d4": math.log(0.4)}
+        self.tokens = {" e4": math.log(0.6), " d4": math.log(0.4)}
 
-    def completions_create(self, *_args, **_kwargs) -> SimpleNamespace:
-        usage = SimpleNamespace(prompt_tokens=10, completion_tokens=5)
-        logprobs = SimpleNamespace(top_logprobs=[self.tokens])
-        choice = SimpleNamespace(logprobs=logprobs)
-        return SimpleNamespace(choices=[choice], usage=usage)
-
-    def __getattr__(self, item: str):  # pragma: no cover - compatibility shim
-        if item == "completions":
-            return SimpleNamespace(create=self.completions_create)
-        raise AttributeError(item)
+    def text_generation(self, *_args, **_kwargs) -> SimpleNamespace:
+        prefill = [SimpleNamespace(token="1"), SimpleNamespace(token=".")]
+        top_tokens = [
+            SimpleNamespace(text=token, logprob=logprob)
+            for token, logprob in self.tokens.items()
+        ]
+        tokens = [SimpleNamespace(top_tokens=top_tokens)]
+        details = SimpleNamespace(prefill=prefill, tokens=tokens)
+        return SimpleNamespace(details=details)
 
 
 class DummyEngine:
@@ -59,13 +58,13 @@ class DummyEngine:
 
 
 def test_analyze_endpoint_returns_predictions():
-    client = DummyOpenAIClient()
+    client = DummyInferenceClient()
 
     def override_config() -> OracleConfig:
         return OracleConfig(
             stockfish_path="/fake/stockfish",
-            openai_api_key="test",
-            openai_client=client,
+            huggingface_token="test",
+            huggingface_client=client,
             engine_factory=lambda _path: DummyEngine(),
             depth=1,
         )

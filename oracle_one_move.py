@@ -15,7 +15,7 @@ from oracle.service.prediction import (
     predict_next_moves,
 )
 
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
+HUGGINGFACE_TOKEN = os.getenv("HUGGINGFACEHUB_API_TOKEN", "")
 STOCKFISH_PATH = os.getenv("STOCKFISH_PATH", "")
 
 logger = logging.getLogger(__name__)
@@ -66,7 +66,9 @@ def main() -> None:
     logger.info('Enter the PGN (type "END" on a new line to finish):')
     pgn_content = _collect_pgn_from_stdin()
 
-    openai_key = OPENAI_API_KEY or input("Enter your OpenAI API key: ").strip()
+    hf_token = HUGGINGFACE_TOKEN or input(
+        "Enter your Hugging Face token (leave blank for anonymous access): "
+    ).strip()
     engine_path = STOCKFISH_PATH or input("Enter the path to your Stockfish binary: ").strip()
 
     game_type = _resolve_game_type(pgn_content)
@@ -81,7 +83,7 @@ def main() -> None:
 
     config = OracleConfig(
         stockfish_path=engine_path,
-        openai_api_key=openai_key,
+        huggingface_token=hf_token or None,
         default_white_elo=white_elo,
         default_black_elo=black_elo,
         default_game_type=game_type,

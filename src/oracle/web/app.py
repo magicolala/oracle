@@ -21,8 +21,14 @@ def get_oracle_config() -> OracleConfig:
     stockfish_path = os.getenv("STOCKFISH_PATH")
     if not stockfish_path:
         raise HTTPException(status_code=500, detail="STOCKFISH_PATH environment variable not set")
-    openai_key = os.getenv("OPENAI_API_KEY")
-    return OracleConfig(stockfish_path=stockfish_path, openai_api_key=openai_key)
+    huggingface_token = os.getenv("HUGGINGFACEHUB_API_TOKEN")
+    model_id = os.getenv("HUGGINGFACE_MODEL_ID")
+    config_kwargs: dict[str, str | None] = {}
+    if model_id:
+        config_kwargs["huggingface_model"] = model_id
+    if huggingface_token:
+        config_kwargs["huggingface_token"] = huggingface_token
+    return OracleConfig(stockfish_path=stockfish_path, **config_kwargs)
 
 
 @app.get("/", response_class=HTMLResponse)

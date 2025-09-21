@@ -5,11 +5,11 @@ These guidelines apply to the entire repository.
 
 ## Project overview
 - Core chess helpers live in [`src/oracle/core`](src/oracle/core). `_chess.py` exposes utilities such as `get_legal_moves` and `uci_to_san`, while `pgn.py` focuses on PGN parsing helpers that build on those primitives.
-- [`oracle_one_move.py`](oracle_one_move.py) and [`oracle_pgn_file.py`](oracle_pgn_file.py) are interactive scripts that call the OpenAI API and Stockfish. Users must set their own API key, Stockfish binary path, and (for the PGN batch script) input/output file locations before running them.
+- [`oracle_one_move.py`](oracle_one_move.py) and [`oracle_pgn_file.py`](oracle_pgn_file.py) are interactive scripts that call the Hugging Face Inference API and Stockfish. Users must set their own access token (if required by the selected model), Stockfish binary path, and (for the PGN batch script) input/output file locations before running them.
 - Consult [`README.md`](README.md) for feature explanations, screenshots, and usage instructions before adding new behaviour.
 
 ## Environment setup
-- The project targets Python 3.12 and is managed with Poetry. Install dependencies with `poetry install` to fetch runtime packages (`openai`, `chess`, `python-dotenv`) and development tools (`ruff`, `pytest`).
+- The project targets Python 3.12 and is managed with Poetry. Install dependencies with `poetry install` to fetch runtime packages (`huggingface-hub`, `chess`, `python-dotenv`) and development tools (`ruff`, `pytest`).
 - Pytest automatically adds `src/` to `PYTHONPATH` via the Poetry configuration, so modules under `src/oracle` can be imported directly in tests.
 
 ## Quality checks
