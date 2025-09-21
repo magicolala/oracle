@@ -75,6 +75,27 @@
       footer {
         color: #57606a;
       }
+
+      .guide-section + .guide-section {
+        border-top: 1px solid var(--github-border);
+        padding-top: 1.5rem;
+      }
+
+      .guide-section h3 {
+        letter-spacing: 0.08em;
+      }
+
+      .code-block {
+        background-color: var(--github-bg);
+        border: 1px solid var(--github-border);
+        border-radius: 8px;
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+        font-size: 0.875rem;
+        margin-bottom: 0;
+        padding: 1rem;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
     </style>
   </head>
   <body>
@@ -114,6 +135,98 @@
                 </button>
               </div>
             </form>
+          </div>
+          <div class="card p-4 mt-4" id="guide">
+            <h2 class="h5 mb-3">Profiter pleinement d'Oracle</h2>
+            <p class="text-secondary">
+              Ce guide reprend les principales étapes de la documentation officielle pour préparer votre environnement,
+              lancer l'interface web et interpréter les prédictions fournies par Oracle.
+            </p>
+            <div class="guide-section pb-3">
+              <h3 class="h6 text-uppercase text-secondary fw-semibold">1. Préparer l'environnement</h3>
+              <p class="mb-2">
+                Oracle combine le moteur Stockfish et un modèle hébergé sur Hugging Face. Avant de démarrer le serveur,
+                vérifiez les éléments suivants&nbsp;:
+              </p>
+              <ul class="mb-0">
+                <li>
+                  Installez Stockfish localement et exportez son chemin absolu dans la variable d'environnement
+                  <code>STOCKFISH_PATH</code>.
+                </li>
+                <li>
+                  (Optionnel) Choisissez un modèle Hugging Face via <code>HUGGINGFACE_MODEL_ID</code> et renseignez
+                  <code>HUGGINGFACEHUB_API_TOKEN</code> si l'endpoint nécessite une authentification.
+                </li>
+                <li>
+                  Les paramètres par défaut (profondeur, temps, Elo, cadence) sont définis dans
+                  <code>OracleConfig</code> et peuvent être ajustés pour coller à votre usage (blitz, classique, etc.).
+                </li>
+              </ul>
+            </div>
+            <div class="guide-section pb-3">
+              <h3 class="h6 text-uppercase text-secondary fw-semibold">2. Démarrer le serveur web</h3>
+              <p>
+                Une fois les variables configurées, lancez l'application FastAPI avec Uvicorn. Le serveur se met en écoute par
+                défaut sur <code>http://127.0.0.1:8000/</code>&nbsp;:
+              </p>
+              <pre class="code-block">uvicorn src.oracle.web.app:app --reload</pre>
+              <p class="mb-0 mt-2">
+                Le mode <em>reload</em> recharge automatiquement le serveur lorsque vous modifiez le code pendant vos tests.
+              </p>
+            </div>
+            <div class="guide-section pb-3">
+              <h3 class="h6 text-uppercase text-secondary fw-semibold">3. Préparer un PGN à analyser</h3>
+              <p class="mb-2">
+                Oracle accepte un PGN complet jusqu'au coup que vous souhaitez prédire. Incluez les balises si vous les avez et
+                assurez-vous que la notation SAN est correcte.
+              </p>
+              <p class="text-secondary small mb-2">Exemple minimal&nbsp;:</p>
+              <pre class="code-block">[Event "Exemple"]
+[Site "Local"]
+[White "Joueur A"]
+[Black "Joueur B"]
+[Result "*"]
+
+1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 *</pre>
+              <p class="mb-0">
+                Collez le PGN ci-dessus (ou le vôtre) dans le formulaire, puis cliquez sur <strong>Analyser</strong> pour que
+                l'application calcule les coups probables suivants.
+              </p>
+            </div>
+            <div class="guide-section pb-3">
+              <h3 class="h6 text-uppercase text-secondary fw-semibold">4. Lire et exploiter les résultats</h3>
+              <p class="mb-2">
+                La page de résultats présente&nbsp;:
+              </p>
+              <ul class="mb-0">
+                <li>Le pourcentage de gain estimé pour les blancs dans la position actuelle.</li>
+                <li>Un classement des coups probables avec leur probabilité et l'évaluation associée.</li>
+                <li>Les métriques du modèle (tokens utilisés, coût estimé) pour suivre la consommation de l'API Hugging Face.</li>
+                <li>Le PGN analysé pour vérification rapide et partage.</li>
+              </ul>
+            </div>
+            <div class="guide-section pb-1">
+              <h3 class="h6 text-uppercase text-secondary fw-semibold">5. Dépannage rapide</h3>
+              <ul class="mb-0">
+                <li>Erreur sur <code>STOCKFISH_PATH</code>&nbsp;: vérifiez que le chemin pointe bien vers un binaire exécutable.</li>
+                <li>PGN invalide&nbsp;: corrigez la notation SAN ou la numérotation des coups avant de relancer l'analyse.</li>
+                <li>
+                  Temps de réponse ou coût élevés&nbsp;: sélectionnez un modèle Hugging Face plus léger ou ajustez les paramètres
+                  d'analyse dans <code>OracleConfig</code>.
+                </li>
+              </ul>
+            </div>
+            <p class="mt-3 mb-0 small text-secondary">
+              Retrouvez davantage de détails (modes CLI, configuration avancée, exemples) dans le fichier
+              <a
+                href="https://github.com/yoshachess/oracle/blob/main/README.md"
+                class="link-secondary"
+                target="_blank"
+                rel="noopener"
+                >README</a
+              >
+              du projet.
+            </p>
           </div>
         </div>
       </div>
