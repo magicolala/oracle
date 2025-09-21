@@ -15,7 +15,9 @@ from oracle.service.prediction import (
     predict_next_moves,
 )
 
+DEFAULT_HUGGINGFACE_MODEL_ID = "mistralai/Mistral-7B-Instruct-v0.2"
 HUGGINGFACE_TOKEN = os.getenv("HUGGINGFACEHUB_API_TOKEN", "")
+HUGGINGFACE_MODEL_ID = os.getenv("HUGGINGFACE_MODEL_ID", "")
 STOCKFISH_PATH = os.getenv("STOCKFISH_PATH", "")
 
 logger = logging.getLogger(__name__)
@@ -66,9 +68,24 @@ def main() -> None:
     logger.info('Enter the PGN (type "END" on a new line to finish):')
     pgn_content = _collect_pgn_from_stdin()
 
-    hf_token = HUGGINGFACE_TOKEN or input(
-        "Enter your Hugging Face token (leave blank for anonymous access): "
+    hf_token_default = HUGGINGFACE_TOKEN.strip()
+    if hf_token_default:
+        hf_token_prompt = input(
+            "Press Enter to keep your Hugging Face token or paste a new one "
+            "(free-tier public models work without a token): "
+        ).strip()
+        hf_token = hf_token_prompt or hf_token_default
+    else:
+        hf_token = input(
+            "Enter your Hugging Face token (press Enter to try free-tier/anonymous access): "
+        ).strip()
+
+    resolved_model_default = HUGGINGFACE_MODEL_ID.strip() or DEFAULT_HUGGINGFACE_MODEL_ID
+    hf_model_prompt = input(
+        "Enter the Hugging Face model ID (press Enter to use "
+        f"'{resolved_model_default}' or another free-tier option): "
     ).strip()
+    hf_model = hf_model_prompt or resolved_model_default
     engine_path = STOCKFISH_PATH or input("Enter the path to your Stockfish binary: ").strip()
 
     game_type = _resolve_game_type(pgn_content)
@@ -84,6 +101,7 @@ def main() -> None:
     config = OracleConfig(
         stockfish_path=engine_path,
         huggingface_token=hf_token or None,
+        huggingface_model=hf_model,
         default_white_elo=white_elo,
         default_black_elo=black_elo,
         default_game_type=game_type,

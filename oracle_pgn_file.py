@@ -1,4 +1,3 @@
-import concurrent.futures
 import csv
 import logging
 import math
@@ -11,20 +10,15 @@ import time
 import chess
 import chess.engine
 import chess.pgn
-from huggingface_hub import InferenceClient
-from huggingface_hub.errors import (
-    GenerationError,
-    HTTPError,
-    InferenceEndpointError,
-    InferenceTimeoutError,
-    TextGenerationError,
-)
+
+from oracle.service import prediction as prediction_service
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 # Set your Hugging Face token and model here
-HUGGINGFACE_API_TOKEN = os.getenv("HUGGINGFACEHUB_API_TOKEN", "")
-HUGGINGFACE_MODEL_ID = "mistralai/Mistral-7B-Instruct-v0.2"
+DEFAULT_HUGGINGFACE_MODEL_ID = "mistralai/Mistral-7B-Instruct-v0.2"
+ENV_HUGGINGFACE_API_TOKEN = os.getenv("HUGGINGFACEHUB_API_TOKEN", "")
+ENV_HUGGINGFACE_MODEL_ID = os.getenv("HUGGINGFACE_MODEL_ID", "")
 
 # Set your Stockfish path here
 engine_path = ""
@@ -35,66 +29,7 @@ pgn_file_path = ".pgn"
 # Set your output csv file path here
 output_file_path = ".csv"
 
-total_input_tokens = 0
-total_output_tokens = 0
 best_move_notation = ""
-
-hf_client: InferenceClient | None = None
-
-
-def _update_usage_metrics(response) -> None:
-    global total_input_tokens, total_output_tokens
-    details = getattr(response, "details", None)
-    if details is None and isinstance(response, dict):
-        details = response.get("details")
-    if details is None:
-        return
-
-    prefill = getattr(details, "prefill", None)
-    tokens = getattr(details, "tokens", None)
-    if prefill is None and isinstance(details, dict):
-        prefill = details.get("prefill", [])
-        tokens = details.get("tokens", [])
-
-    total_input_tokens += len(prefill or [])
-    total_output_tokens += len(tokens or [])
-
-
-def _extract_token_logprobs(response) -> dict[str, float]:
-    details = getattr(response, "details", None)
-    if details is None and isinstance(response, dict):
-        details = response.get("details")
-    if not details:
-        return {}
-
-    tokens = getattr(details, "tokens", None)
-    if tokens is None and isinstance(details, dict):
-        tokens = details.get("tokens")
-    if not tokens:
-        return {}
-
-    first_token = tokens[0]
-    top_tokens = getattr(first_token, "top_tokens", None)
-    if top_tokens is None and isinstance(first_token, dict):
-        top_tokens = first_token.get("top_tokens")
-    if not top_tokens:
-        return {}
-
-    results: dict[str, float] = {}
-    for candidate in top_tokens:
-        token_text = getattr(candidate, "text", None)
-        if token_text is None:
-            token_text = getattr(candidate, "token", None)
-        if token_text is None and isinstance(candidate, dict):
-            token_text = candidate.get("text") or candidate.get("token")
-        logprob = getattr(candidate, "logprob", None)
-        if logprob is None and isinstance(candidate, dict):
-            logprob = candidate.get("logprob")
-        if token_text is None or logprob is None:
-            continue
-        results[str(token_text)] = float(logprob)
-
-    return results
 
 
 def extract_moves_from_pgn(pgn_file_path):
@@ -217,39 +152,6 @@ def clamp_score(score):
     return max(-2000, min(2000, score))
 
 
-def make_api_call_with_backoff(prompt, retries):
-    attempt = 0
-    while attempt < retries:
-        try:
-            if hf_client is None:
-                raise RuntimeError("Hugging Face client has not been initialised")
-            response = hf_client.text_generation(
-                prompt,
-                max_new_tokens=1,
-                details=True,
-                return_full_text=False,
-            )
-            _update_usage_metrics(response)
-            return response
-        except (
-            InferenceTimeoutError,
-            InferenceEndpointError,
-            TextGenerationError,
-            GenerationError,
-            HTTPError,
-        ) as e:
-            logging.error(f"Inference error: {e}")
-            sleep_time = min(60, 2**attempt)
-            logging.info("Retrying in %s seconds...", sleep_time)
-            time.sleep(sleep_time)
-            attempt += 1
-        except Exception as e:
-            logging.error(f"API call error: {e}")
-            time.sleep(1)
-            attempt += 1
-    return None
-
-
 def get_best_move_notation(best_win_percentage, new_norm_prob, board_turn, current_win_percentage):
     if (
         board_turn == chess.WHITE
@@ -311,237 +213,6 @@ def get_notation(percentage_loss, is_best_move, new_norm_prob, eval_score, board
     else:
         return "??"
 
-
-def get_top_sequences(
-    prompt,
-    legal_moves,
-    depth=5,
-    retries=3,
-    prob_threshold=0.001,
-    temperature=None,
-    top_p=None,
-    top_k=None,
-    repetition_penalty=None,
-):
-    sequences = []
-
-    if depth == 0:
-        return [("", 0.0)]
-
-    def is_valid_continuation(token, partial_sequence, legal_moves_list):
-        potential_sequence = partial_sequence + token
-        return any(legal_move.startswith(potential_sequence) for legal_move in legal_moves_list)
-
-    def make_api_call(prompt_text, retries_left):
-        attempt = 0
-        while attempt < retries_left:
-            try:
-                if hf_client is None:
-                    raise RuntimeError("Hugging Face client has not been initialised")
-                generation_kwargs = {
-                    "max_new_tokens": 1,
-                    "details": True,
-                    "return_full_text": False,
-                }
-                if temperature is not None:
-                    generation_kwargs["temperature"] = temperature
-                if top_p is not None:
-                    generation_kwargs["top_p"] = top_p
-                if top_k is not None:
-                    generation_kwargs["top_k"] = top_k
-                if repetition_penalty is not None:
-                    generation_kwargs["repetition_penalty"] = repetition_penalty
-
-                response = hf_client.text_generation(prompt_text, **generation_kwargs)
-                _update_usage_metrics(response)
-                return response
-            except (
-                InferenceTimeoutError,
-                InferenceEndpointError,
-                TextGenerationError,
-                GenerationError,
-                HTTPError,
-            ) as exc:
-                logging.error("Inference error: %s", exc)
-                attempt += 1
-                time.sleep(1)
-            except Exception as exc:  # - broad to preserve script behaviour
-                logging.error("API call error: %s", exc)
-                attempt += 1
-                time.sleep(1)
-        return None
-
-    def expand_sequence(
-        base_prompt,
-        seq,
-        seq_logprob,
-        legal_moves_list,
-        remaining_depth,
-        retries_left,
-        threshold,
-    ):
-        if remaining_depth == 0:
-            return
-
-        expanded_prompt = base_prompt + " " + seq
-        response = make_api_call(expanded_prompt, retries_left)
-
-        if not response:
-            return
-
-        top_tokens = _extract_token_logprobs(response)
-        if not top_tokens:
-            return
-
-        futures = []
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            for next_token, next_logprob in top_tokens.items():
-                token_text = next_token.strip()
-                if not token_text:
-                    continue
-
-                combined_sequence = seq + token_text
-                combined_logprob = seq_logprob + next_logprob
-
-                combined_prob = math.exp(combined_logprob)
-                next_token_prob = math.exp(next_logprob)
-
-                if next_token_prob < threshold or combined_prob < threshold:
-                    continue
-
-                if not is_valid_continuation(token_text, seq, legal_moves_list):
-                    continue
-
-                possible_moves = [
-                    move for move in legal_moves_list if move.startswith(combined_sequence)
-                ]
-                if len(possible_moves) == 1:
-                    complete_sequence = possible_moves[0]
-                    sequences.append((complete_sequence, combined_logprob))
-                    if complete_sequence in legal_moves_list:
-                        legal_moves_list.remove(complete_sequence)
-                else:
-                    if (
-                        "O-O" in legal_moves_list
-                        and "O-O-O" in legal_moves_list
-                        and combined_sequence == "O-O"
-                    ):
-                        response_after_castling = make_api_call(
-                            base_prompt + " " + combined_sequence, retries_left
-                        )
-                        if response_after_castling:
-                            after_tokens = _extract_token_logprobs(response_after_castling)
-                            if not after_tokens:
-                                continue
-                            next_token_logprob = after_tokens.get("-O")
-                            if next_token_logprob is not None:
-                                combined_logprob_tall_castling = (
-                                    combined_logprob + next_token_logprob
-                                )
-                                combined_prob_tall_castling = math.exp(
-                                    combined_logprob_tall_castling
-                                )
-                                combined_prob_castling = (
-                                    combined_prob - combined_prob_tall_castling
-                                )
-                                combined_logprob_castling = (
-                                    math.log(combined_prob_castling)
-                                    if combined_prob_castling > 0
-                                    else float("-inf")
-                                )
-
-                                if combined_prob_tall_castling >= threshold:
-                                    sequences.append(
-                                        ("O-O-O", combined_logprob_tall_castling)
-                                    )
-                                    if "O-O-O" in legal_moves_list:
-                                        legal_moves_list.remove("O-O-O")
-
-                                if (
-                                    combined_logprob_castling != float("-inf")
-                                    and combined_prob_castling >= threshold
-                                ):
-                                    sequences.append(
-                                        (combined_sequence, combined_logprob_castling)
-                                    )
-                                    if combined_sequence in legal_moves_list:
-                                        legal_moves_list.remove(combined_sequence)
-                            else:
-                                if combined_prob >= threshold:
-                                    sequences.append((combined_sequence, combined_logprob))
-                                    if combined_sequence in legal_moves_list:
-                                        legal_moves_list.remove(combined_sequence)
-                    else:
-                        futures.append(
-                            executor.submit(
-                                expand_sequence,
-                                base_prompt,
-                                combined_sequence,
-                                combined_logprob,
-                                legal_moves_list,
-                                remaining_depth - 1,
-                                retries_left,
-                                threshold,
-                            )
-                        )
-
-        concurrent.futures.wait(futures)
-
-    response = make_api_call(prompt, retries)
-    if not response:
-        return []
-
-    top_tokens = _extract_token_logprobs(response)
-    if not top_tokens:
-        return []
-
-    initial_sequences = []
-
-    for token, logprob in top_tokens.items():
-        token_text = token.strip()
-        if not token_text:
-            continue
-
-        token_prob = math.exp(logprob)
-        if token_prob < prob_threshold:
-            continue
-
-        if not is_valid_continuation(token_text, "", legal_moves):
-            continue
-
-        initial_sequences.append((token_text, logprob))
-
-    with concurrent.futures.ThreadPoolExecutor() as executor:
-        futures = [
-            executor.submit(
-                expand_sequence,
-                prompt,
-                token,
-                logprob,
-                legal_moves.copy(),
-                depth - 1,
-                retries,
-                prob_threshold,
-            )
-            for token, logprob in initial_sequences
-        ]
-        concurrent.futures.wait(futures)
-
-    if not sequences and prob_threshold > 0.01:
-        return get_top_sequences(
-            prompt,
-            legal_moves,
-            depth,
-            retries,
-            prob_threshold / 10,
-            temperature,
-            top_p,
-            top_k,
-            repetition_penalty,
-        )
-
-    return sequences
-
 def calculate_win_percentage(rating, centipawns):
     coefficient = rating * -0.00000274 + 0.00048
 
@@ -600,17 +271,31 @@ def determine_game_type(time_control):
 def process_pgn_and_analyze(
     pgn_file_path,
     engine_path,
-    model=HUGGINGFACE_MODEL_ID,
+    model: str | None = None,
     depth=5,
     prob_threshold=0.001,
     output_file_path="analysis_results.csv",
     default_rating=2000,
     default_game_type="classical",
-    token: str | None = HUGGINGFACE_API_TOKEN or None,
+    token: str | None = None,
 ):
+    resolved_model = (model or ENV_HUGGINGFACE_MODEL_ID or DEFAULT_HUGGINGFACE_MODEL_ID).strip()
+    if not resolved_model:
+        resolved_model = DEFAULT_HUGGINGFACE_MODEL_ID
+
+    resolved_token = token if token is not None else ENV_HUGGINGFACE_API_TOKEN
+    resolved_token = (resolved_token or "").strip() or None
+
+    config = prediction_service.OracleConfig(
+        stockfish_path=engine_path,
+        huggingface_model=resolved_model,
+        huggingface_token=resolved_token,
+    )
+    metrics = prediction_service.PredictionMetrics()
+    client = prediction_service._get_client(config)
+
     all_moves = extract_moves_from_pgn(pgn_file_path)
-    global best_move_notation, hf_client
-    hf_client = InferenceClient(model=model, token=token)
+    global best_move_notation
     prompts = process_pgn(pgn_file_path)
 
     engine = chess.engine.SimpleEngine.popen_uci(engine_path)
@@ -723,10 +408,12 @@ def process_pgn_and_analyze(
                 legal_moves = get_legal_moves(board)
                 logging.info(f"Legal moves before Stockfish: {legal_moves}")
 
-                top_sequences = get_top_sequences(
+                top_sequences = prediction_service.get_top_sequences(
+                    client,
                     prompt,
                     legal_moves,
                     depth=depth,
+                    metrics=metrics,
                     retries=3,
                     prob_threshold=prob_threshold,
                 )
@@ -981,10 +668,35 @@ def process_pgn_and_analyze(
         end_time = time.time()
         logging.debug(f"Final results saved. Total moves processed: {move_index}")
         logging.debug(f"Total Time taken: {end_time - start_time:.2f} seconds")
-        logging.debug(f"Total input tokens: {total_input_tokens}")
-        logging.debug(f"Total output tokens: {total_output_tokens}")
+        logging.debug(f"Total input tokens: {metrics.input_tokens}")
+        logging.debug(f"Total output tokens: {metrics.output_tokens}")
 
 
 if __name__ == "__main__":
-    process_pgn_and_analyze(pgn_file_path, engine_path, output_file_path=output_file_path)
+    env_token = ENV_HUGGINGFACE_API_TOKEN.strip()
+    if env_token:
+        token_prompt = input(
+            "Press Enter to reuse your Hugging Face token or paste a new one "
+            "(free-tier public models work without a token): "
+        ).strip()
+        hf_token = token_prompt or env_token
+    else:
+        hf_token = input(
+            "Enter your Hugging Face token (press Enter to try free-tier/anonymous access): "
+        ).strip()
+
+    default_model = (ENV_HUGGINGFACE_MODEL_ID or DEFAULT_HUGGINGFACE_MODEL_ID).strip() or DEFAULT_HUGGINGFACE_MODEL_ID
+    model_prompt = input(
+        "Enter the Hugging Face model ID (press Enter to use "
+        f"'{default_model}' or another free-tier option): "
+    ).strip()
+    hf_model = model_prompt or default_model
+
+    process_pgn_and_analyze(
+        pgn_file_path,
+        engine_path,
+        model=hf_model,
+        output_file_path=output_file_path,
+        token=hf_token or None,
+    )
     logging.info(f"Results saved to {output_file_path}")
