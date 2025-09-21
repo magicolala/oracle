@@ -3,9 +3,11 @@ from __future__ import annotations
 import math
 
 import chess
+import pytest
 
 from oracle.application.predict_next_moves import PredictNextMoves
 from oracle.domain import OracleConfig
+from oracle.domain.services import adjust_rating, determine_game_type
 
 PGN_SNIPPET = """
 [Event "?"]
@@ -72,6 +74,33 @@ class StubMoveAnalyzer:
         return evaluations
 
 
+class RecordingPredictNextMoves(PredictNextMoves):
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.observed_contexts: list[tuple[int, int, int, str]] = []
+
+    def _evaluate_position(
+        self,
+        board: chess.Board,
+        prompt: str,
+        metrics,
+        white_rating: int,
+        black_rating: int,
+        high_rating: int,
+        game_type: str,
+    ):
+        self.observed_contexts.append((white_rating, black_rating, high_rating, game_type))
+        return super()._evaluate_position(
+            board,
+            prompt,
+            metrics,
+            white_rating,
+            black_rating,
+            high_rating,
+            game_type,
+        )
+
+
 def test_use_case_combines_sequence_and_engine_results() -> None:
     use_case = PredictNextMoves(
         sequence_provider=StubSequenceProvider(),
@@ -112,3 +141,45 @@ def test_use_case_combines_sequence_and_engine_results() -> None:
     assert result.metrics.input_tokens == len(result.history)
     assert result.metrics.output_tokens == len(result.history)
     assert math.isclose(result.metrics.cost, 0.01 * len(result.history), rel_tol=1e-9)
+
+
+def test_execute_applies_selected_level_overrides_pgn_metadata() -> None:
+    level_config = {
+        800: "120+0",
+        1200: "300+2",
+    }
+    use_case = RecordingPredictNextMoves(
+        sequence_provider=StubSequenceProvider(),
+        move_analyzer=StubMoveAnalyzer(),
+        config=OracleConfig(
+            stockfish_path="/fake/stockfish",
+            depth=2,
+            analysis_depth=1,
+            rating_buckets=[800, 1200, 1600],
+            level_time_controls=level_config,
+        ),
+    )
+
+    result = use_case.execute(PGN_SNIPPET, selected_level=800)
+
+    assert result.history
+    expected_game_type = determine_game_type(level_config[800])
+    assert expected_game_type == "bullet"
+    adjusted_rating = adjust_rating(800, expected_game_type)
+    assert use_case.observed_contexts
+    for white_rating, black_rating, high_rating, game_type in use_case.observed_contexts:
+        assert white_rating == adjusted_rating
+        assert black_rating == adjusted_rating
+        assert high_rating == adjusted_rating
+        assert game_type == expected_game_type
+
+
+def test_execute_raises_for_unknown_level() -> None:
+    use_case = PredictNextMoves(
+        sequence_provider=StubSequenceProvider(),
+        move_analyzer=StubMoveAnalyzer(),
+        config=OracleConfig(level_time_controls={800: "120+0"}),
+    )
+
+    with pytest.raises(ValueError):
+        use_case.execute(PGN_SNIPPET, selected_level=999)

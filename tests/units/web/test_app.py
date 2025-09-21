@@ -8,6 +8,7 @@ import chess
 from fastapi import status
 from httpx import ASGITransport, AsyncClient
 
+from oracle.domain import OracleConfig
 from oracle.service.prediction import build_predict_next_moves_use_case
 from oracle.web.app import app
 
@@ -23,6 +24,8 @@ SAMPLE_PGN = """
 
 1.
 """.strip()
+
+LEVEL_TIME_CONTROLS = {800: "120+0", 1200: "300+2", 1600: "900+10"}
 
 
 class StubSequenceProvider:
@@ -78,19 +81,21 @@ class CapturingUseCase:
         self._inner = inner
         self.last_pgn: str | None = None
         self.last_result = None
+        self.last_selected_level: int | None = None
 
     @property
     def config(self) -> Any:
         return self._inner.config
 
-    def execute(self, pgn: str):
+    def execute(self, pgn: str, selected_level: int | None = None):
         self.last_pgn = pgn
-        result = self._inner.execute(pgn)
+        self.last_selected_level = selected_level
+        result = self._inner.execute(pgn, selected_level=selected_level)
         self.last_result = result
         return result
 
 
-def test_analyze_endpoint_returns_predictions(monkeypatch):
+def configure_test_environment(monkeypatch) -> dict[str, Any]:
     real_factory = build_predict_next_moves_use_case
     captured: dict[str, Any] = {}
 
@@ -105,6 +110,7 @@ def test_analyze_endpoint_returns_predictions(monkeypatch):
         captured["stockfish_path"] = stockfish_path
         captured["huggingface_model"] = huggingface_model
         captured["huggingface_token"] = huggingface_token
+        captured["config"] = config
         service = real_factory(
             config,
             stockfish_path=stockfish_path,
@@ -117,10 +123,20 @@ def test_analyze_endpoint_returns_predictions(monkeypatch):
         captured["service"] = wrapper
         return wrapper
 
+    def fake_get_config() -> OracleConfig:
+        return OracleConfig(level_time_controls=LEVEL_TIME_CONTROLS.copy())
+
+    monkeypatch.setattr("oracle.web.app.build_predict_next_moves_use_case", fake_factory)
+    monkeypatch.setattr("oracle.web.app.get_oracle_config", fake_get_config)
+
+    return captured
+
+
+def test_analyze_endpoint_returns_predictions(monkeypatch):
+    captured = configure_test_environment(monkeypatch)
     monkeypatch.setenv("STOCKFISH_PATH", "/fake/stockfish")
     monkeypatch.setenv("HUGGINGFACE_MODEL_ID", "test/model")
     monkeypatch.setenv("HUGGINGFACEHUB_API_TOKEN", "api-token")
-    monkeypatch.setattr("oracle.web.app.build_predict_next_moves_use_case", fake_factory)
 
     transport = ASGITransport(app=app)
 
@@ -140,3 +156,68 @@ def test_analyze_endpoint_returns_predictions(monkeypatch):
     first_move = wrapper.last_result.moves[0].move
     assert first_move in response.text
     assert "Évaluations Elo" in response.text
+    assert wrapper.last_selected_level is None
+
+
+def test_analyze_endpoint_forwards_selected_level(monkeypatch):
+    captured = configure_test_environment(monkeypatch)
+    monkeypatch.setenv("STOCKFISH_PATH", "/fake/stockfish")
+    monkeypatch.setenv("HUGGINGFACE_MODEL_ID", "test/model")
+    monkeypatch.setenv("HUGGINGFACEHUB_API_TOKEN", "api-token")
+
+    transport = ASGITransport(app=app)
+
+    async def perform_request():
+        async with AsyncClient(transport=transport, base_url="http://testserver") as async_client:
+            return await async_client.post(
+                "/analyze", data={"pgn": SAMPLE_PGN, "level": "1200"}
+            )
+
+    response = asyncio.run(perform_request())
+
+    assert response.status_code == status.HTTP_200_OK
+    wrapper = captured["service"]
+    assert wrapper.last_pgn == SAMPLE_PGN
+    assert wrapper.last_selected_level == 1200
+    config: OracleConfig = captured["config"]
+    assert config.time_control_for_level(1200) == LEVEL_TIME_CONTROLS[1200]
+
+
+def test_analyze_endpoint_rejects_non_numeric_level(monkeypatch):
+    configure_test_environment(monkeypatch)
+    monkeypatch.setenv("STOCKFISH_PATH", "/fake/stockfish")
+    monkeypatch.setenv("HUGGINGFACE_MODEL_ID", "test/model")
+    monkeypatch.setenv("HUGGINGFACEHUB_API_TOKEN", "api-token")
+
+    transport = ASGITransport(app=app)
+
+    async def perform_request():
+        async with AsyncClient(transport=transport, base_url="http://testserver") as async_client:
+            return await async_client.post(
+                "/analyze", data={"pgn": SAMPLE_PGN, "level": "niveau"}
+            )
+
+    response = asyncio.run(perform_request())
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert "Niveau invalide" in response.text
+
+
+def test_analyze_endpoint_rejects_unknown_level(monkeypatch):
+    configure_test_environment(monkeypatch)
+    monkeypatch.setenv("STOCKFISH_PATH", "/fake/stockfish")
+    monkeypatch.setenv("HUGGINGFACE_MODEL_ID", "test/model")
+    monkeypatch.setenv("HUGGINGFACEHUB_API_TOKEN", "api-token")
+
+    transport = ASGITransport(app=app)
+
+    async def perform_request():
+        async with AsyncClient(transport=transport, base_url="http://testserver") as async_client:
+            return await async_client.post(
+                "/analyze", data={"pgn": SAMPLE_PGN, "level": "9999"}
+            )
+
+    response = asyncio.run(perform_request())
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert "Niveau inconnu" in response.text
