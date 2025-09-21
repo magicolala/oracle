@@ -1,16 +1,125 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Oracle Analyzer</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"
+    />
+    <style>
+      :root {
+        --github-bg: #f6f8fa;
+        --github-surface: #ffffff;
+        --github-border: #d0d7de;
+        --github-header: #24292f;
+        --github-primary: #0969da;
+        --github-danger: #cf222e;
+      }
+
+      body {
+        background-color: var(--github-bg);
+        color: #24292f;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial,
+          sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+      }
+
+      .navbar {
+        background-color: var(--github-header);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .navbar-brand {
+        color: #f6f8fa !important;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+      }
+
+      .card {
+        border-radius: 12px;
+        border: 1px solid var(--github-border);
+        box-shadow: 0 1px 3px rgba(27, 31, 35, 0.12);
+      }
+
+      textarea {
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+        background-color: var(--github-bg);
+        border-color: var(--github-border);
+        min-height: 320px;
+      }
+
+      textarea:focus {
+        border-color: var(--github-primary);
+        box-shadow: 0 0 0 0.25rem rgba(9, 105, 218, 0.25);
+      }
+
+      .btn-primary {
+        background-color: var(--github-primary);
+        border-color: var(--github-primary);
+        font-weight: 600;
+      }
+
+      .btn-primary:hover {
+        background-color: #0a5bd3;
+        border-color: #0a5bd3;
+      }
+
+      .alert-danger {
+        border-left: 4px solid var(--github-danger);
+        border-radius: 12px;
+      }
+
+      footer {
+        color: #57606a;
+      }
+    </style>
   </head>
   <body>
-    <h1>Oracle Analyzer</h1>
-    <p>Paste a PGN up to the move you would like to analyze.</p>
-    <form method="post" action="/analyze">
-      <label for="pgn">PGN</label><br />
-      <textarea id="pgn" name="pgn" rows="15" cols="80" required></textarea><br />
-      <button type="submit">Analyze</button>
-    </form>
+    <nav class="navbar navbar-dark">
+      <div class="container">
+        <a class="navbar-brand" href="/">Oracle Analyzer</a>
+      </div>
+    </nav>
+    <main class="container my-5">
+      <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-8">
+          {% if error %}
+          <div class="alert alert-danger" role="alert">
+            <h4 class="alert-heading">{{ error.title }}</h4>
+            <p class="mb-2">{{ error.detail }}</p>
+            {% if error.hint %}
+            <hr />
+            <p class="mb-0">{{ error.hint }}</p>
+            {% endif %}
+          </div>
+          {% endif %}
+          <div class="card p-4">
+            <h1 class="h3 mb-3">Analyser un PGN</h1>
+            <p class="text-secondary mb-4">
+              Collez ci-dessous la partie jusqu'au coup que vous souhaitez analyser, puis cliquez sur
+              <strong>Analyser</strong> pour obtenir les coups les plus probables selon Oracle.
+            </p>
+            <form method="post" action="/analyze" class="row g-3">
+              <div class="col-12">
+                <label for="pgn" class="form-label fw-semibold">PGN</label>
+                <textarea class="form-control" id="pgn" name="pgn" required>{{ pgn or "" }}</textarea>
+              </div>
+              <div class="col-12 d-flex justify-content-end">
+                <button type="submit" class="btn btn-primary">
+                  <span class="me-2" aria-hidden="true">♟️</span>
+                  Analyser
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </main>
+    <footer class="container pb-5 text-center small">
+      <span>Besoin d'aide ? Consultez la documentation dans le README ou vérifiez les logs serveur pour plus de détails.</span>
+    </footer>
   </body>
 </html>
