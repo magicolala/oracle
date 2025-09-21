@@ -7,13 +7,9 @@ import re
 
 from tabulate import tabulate
 
-from oracle.service.prediction import (
-    MovePrediction,
-    OracleConfig,
-    adjust_rating,
-    determine_game_type,
-    predict_next_moves,
-)
+from oracle.domain import MovePrediction, OracleConfig
+from oracle.domain.services import adjust_rating, determine_game_type
+from oracle.service.prediction import predict_next_moves
 
 DEFAULT_HUGGINGFACE_MODEL_ID = "mistralai/Mistral-7B-Instruct-v0.2"
 HUGGINGFACE_TOKEN = os.getenv("HUGGINGFACEHUB_API_TOKEN", "")

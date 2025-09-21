@@ -3,13 +3,18 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from fastapi import Depends, FastAPI, Form, HTTPException, Request
 from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
-from oracle.service.prediction import OracleConfig, predict_next_moves
+from oracle.domain import OracleConfig
+from oracle.service.prediction import create_prediction_service
+
+if TYPE_CHECKING:
+    from oracle.application.ports import PredictNextMovesUseCase
 
 TEMPLATES_DIR = Path(__file__).resolve().parent / "templates"
 
@@ -36,14 +41,20 @@ async def index(request: Request) -> HTMLResponse:
     return templates.TemplateResponse(request, "index.html")
 
 
+def get_prediction_service(
+    config: OracleConfig = Depends(get_oracle_config),  # noqa: B008
+) -> PredictNextMovesUseCase:
+    return create_prediction_service(config)
+
+
 @app.post("/analyze", response_class=HTMLResponse)
 async def analyze(
     request: Request,
     pgn: str = Form(...),
-    config: OracleConfig = Depends(get_oracle_config),  # noqa: B008
+    service: PredictNextMovesUseCase = Depends(get_prediction_service),  # noqa: B008
 ) -> HTMLResponse:
     try:
-        prediction = await run_in_threadpool(predict_next_moves, pgn, config)
+        prediction = await run_in_threadpool(service.execute, pgn)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
