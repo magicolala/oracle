@@ -5,6 +5,7 @@ import concurrent.futures
 import io
 import logging
 import math
+import os
 import re
 import time
 from dataclasses import dataclass, field
@@ -13,7 +14,14 @@ from typing import Any, Callable, Iterable, Sequence
 import chess
 import chess.engine
 import chess.pgn
-from openai import OpenAI
+from huggingface_hub import InferenceClient
+from huggingface_hub.errors import (
+    GenerationError,
+    HTTPError,
+    InferenceEndpointError,
+    InferenceTimeoutError,
+    TextGenerationError,
+)
 
 
 @dataclass
@@ -21,8 +29,13 @@ class OracleConfig:
     """Configuration required to evaluate and predict chess moves."""
 
     stockfish_path: str
-    openai_api_key: str | None = None
-    model: str = "gpt-3.5-turbo-instruct"
+    huggingface_model: str = "mistralai/Mistral-7B-Instruct-v0.2"
+    huggingface_token: str | None = None
+    huggingface_token_env_var: str | None = "HUGGINGFACEHUB_API_TOKEN"
+    temperature: float | None = 0.7
+    top_p: float | None = None
+    top_k: int | None = None
+    repetition_penalty: float | None = None
     depth: int = 5
     prob_threshold: float = 0.001
     analysis_time_limit: float = 1.3
@@ -32,13 +45,13 @@ class OracleConfig:
     default_white_elo: int = 1500
     default_black_elo: int = 1500
     default_game_type: str = "classical"
-    openai_client: Any | None = None
+    huggingface_client: Any | None = None
     engine_factory: Callable[[str], chess.engine.SimpleEngine] | None = None
 
 
 @dataclass
 class PredictionMetrics:
-    """Book-keeping for OpenAI usage statistics."""
+    """Book-keeping for language model usage statistics."""
 
     input_tokens: int = 0
     output_tokens: int = 0
@@ -139,49 +152,71 @@ def get_legal_moves(board: chess.Board) -> list[str]:
 
 
 def _update_usage_metrics(metrics: PredictionMetrics, response: Any) -> None:
-    usage = getattr(response, "usage", None)
-    if usage is None and isinstance(response, dict):
-        usage = response.get("usage")
-    if usage is None:
+    details = getattr(response, "details", None)
+    if details is None and isinstance(response, dict):
+        details = response.get("details")
+    if details is None:
         return
 
-    prompt_tokens = getattr(usage, "prompt_tokens", None)
-    completion_tokens = getattr(usage, "completion_tokens", None)
-    if prompt_tokens is None and isinstance(usage, dict):
-        prompt_tokens = usage.get("prompt_tokens", 0)
-        completion_tokens = usage.get("completion_tokens", 0)
-    prompt_tokens = prompt_tokens or 0
-    completion_tokens = completion_tokens or 0
+    prefill = getattr(details, "prefill", None)
+    tokens = getattr(details, "tokens", None)
+    if prefill is None and isinstance(details, dict):
+        prefill = details.get("prefill", [])
+        tokens = details.get("tokens", [])
 
-    metrics.input_tokens += int(prompt_tokens)
-    metrics.output_tokens += int(completion_tokens)
-
-    cost_input = prompt_tokens * 1.50 / 1_000_000
-    cost_output = completion_tokens * 2.00 / 1_000_000
-    metrics.cost += cost_input + cost_output
+    metrics.input_tokens += len(prefill or [])
+    metrics.output_tokens += len(tokens or [])
 
 
-def _extract_top_logprobs(choice: Any) -> Sequence[dict[str, float]] | None:
-    logprobs = getattr(choice, "logprobs", None)
-    if logprobs is None and isinstance(choice, dict):
-        logprobs = choice.get("logprobs")
-    if logprobs is None:
-        return None
-    top_logprobs = getattr(logprobs, "top_logprobs", None)
-    if top_logprobs is None and isinstance(logprobs, dict):
-        top_logprobs = logprobs.get("top_logprobs")
-    return top_logprobs
+def _extract_token_logprobs(response: Any) -> dict[str, float]:
+    details = getattr(response, "details", None)
+    if details is None and isinstance(response, dict):
+        details = response.get("details")
+    if not details:
+        return {}
+
+    tokens = getattr(details, "tokens", None)
+    if tokens is None and isinstance(details, dict):
+        tokens = details.get("tokens")
+    if not tokens:
+        return {}
+
+    first_token = tokens[0]
+    top_tokens = getattr(first_token, "top_tokens", None)
+    if top_tokens is None and isinstance(first_token, dict):
+        top_tokens = first_token.get("top_tokens")
+    if not top_tokens:
+        return {}
+
+    logprob_by_token: dict[str, float] = {}
+    for candidate in top_tokens:
+        token_text = getattr(candidate, "text", None)
+        if token_text is None:
+            token_text = getattr(candidate, "token", None)
+        if token_text is None and isinstance(candidate, dict):
+            token_text = candidate.get("text") or candidate.get("token")
+        logprob = getattr(candidate, "logprob", None)
+        if logprob is None and isinstance(candidate, dict):
+            logprob = candidate.get("logprob")
+        if token_text is None or logprob is None:
+            continue
+        logprob_by_token[str(token_text)] = float(logprob)
+
+    return logprob_by_token
 
 
 def get_top_sequences(
     client: Any,
     prompt: str,
     legal_moves: list[str],
-    model: str,
     depth: int,
     metrics: PredictionMetrics,
     retries: int = 3,
     prob_threshold: float = 0.001,
+    temperature: float | None = None,
+    top_p: float | None = None,
+    top_k: int | None = None,
+    repetition_penalty: float | None = None,
 ) -> list[tuple[str, float]]:
     sequences: list[tuple[str, float]] = []
 
@@ -192,14 +227,32 @@ def get_top_sequences(
         attempt = 0
         while attempt < retries_left:
             try:
-                response = client.completions.create(
-                    model=model,
-                    prompt=prompt_text,
-                    max_tokens=1,
-                    logprobs=10,
-                )
+                generation_kwargs: dict[str, Any] = {
+                    "max_new_tokens": 1,
+                    "details": True,
+                    "return_full_text": False,
+                }
+                if temperature is not None:
+                    generation_kwargs["temperature"] = temperature
+                if top_p is not None:
+                    generation_kwargs["top_p"] = top_p
+                if top_k is not None:
+                    generation_kwargs["top_k"] = top_k
+                if repetition_penalty is not None:
+                    generation_kwargs["repetition_penalty"] = repetition_penalty
+
+                response = client.text_generation(prompt_text, **generation_kwargs)
                 _update_usage_metrics(metrics, response)
                 return response
+            except (
+                InferenceTimeoutError,
+                InferenceEndpointError,
+                TextGenerationError,
+                GenerationError,
+                HTTPError,
+            ):
+                attempt += 1
+                time.sleep(1)
             except Exception:
                 attempt += 1
                 time.sleep(1)
@@ -227,25 +280,18 @@ def get_top_sequences(
         if not response:
             return
 
-        if not getattr(response, "choices", None):
-            choices = response.get("choices") if isinstance(response, dict) else None
-        else:
-            choices = response.choices
-
-        if not choices:
+        top_tokens = _extract_token_logprobs(response)
+        if not top_tokens:
             return
 
-        choice = choices[0]
-        top_logprobs = _extract_top_logprobs(choice)
-        if not top_logprobs:
-            return
-
-        top_tokens = top_logprobs[0]
         futures: list[concurrent.futures.Future[None]] = []
         with concurrent.futures.ThreadPoolExecutor() as executor:
             for next_token, next_logprob in top_tokens.items():
-                next_token = next_token.strip()
-                combined_sequence = seq + next_token
+                token_text = next_token.strip()
+                if not token_text:
+                    continue
+
+                combined_sequence = seq + token_text
                 combined_logprob = seq_logprob + next_logprob
 
                 combined_prob = math.exp(combined_logprob)
@@ -254,7 +300,7 @@ def get_top_sequences(
                 if next_token_prob < threshold or combined_prob < threshold:
                     continue
 
-                if not is_valid_continuation(next_token, seq, legal):
+                if not is_valid_continuation(token_text, seq, legal):
                     continue
 
                 possible_moves = [
@@ -271,16 +317,9 @@ def get_top_sequences(
                             base_prompt + " " + combined_sequence, retries_left
                         )
                         if response_after_castling:
-                            after_choices = getattr(response_after_castling, "choices", None)
-                            if not after_choices and isinstance(response_after_castling, dict):
-                                after_choices = response_after_castling.get("choices")
-                            if not after_choices:
+                            after_tokens = _extract_token_logprobs(response_after_castling)
+                            if not after_tokens:
                                 continue
-                            after_choice = after_choices[0]
-                            after_logprobs = _extract_top_logprobs(after_choice)
-                            if not after_logprobs:
-                                continue
-                            after_tokens = after_logprobs[0]
                             next_token_logprob = after_tokens.get("-O")
                             if next_token_logprob is not None:
                                 combined_logprob_tall_castling = (
@@ -338,37 +377,25 @@ def get_top_sequences(
     if not response:
         return []
 
-    choices = getattr(response, "choices", None)
-    if not choices and isinstance(response, dict):
-        choices = response.get("choices")
-    if not choices:
+    top_tokens = _extract_token_logprobs(response)
+    if not top_tokens:
         return []
 
-    try:
-        choice = choices[0]
-    except IndexError:
-        return []
-
-    top_logprobs = _extract_top_logprobs(choice)
-    if not top_logprobs:
-        return []
-    top_tokens = top_logprobs[0]
-
-    initial_sequences: list[tuple[str, float, str]] = []
+    initial_sequences: list[tuple[str, float]] = []
 
     for token, logprob in top_tokens.items():
-        token = token.strip()
-        if not token:
+        token_text = token.strip()
+        if not token_text:
             continue
 
         token_prob = math.exp(logprob)
         if token_prob < prob_threshold:
             continue
 
-        if not is_valid_continuation(token, "", legal_moves):
+        if not is_valid_continuation(token_text, "", legal_moves):
             continue
 
-        initial_sequences.append((token, logprob, prompt + token))
+        initial_sequences.append((token_text, logprob))
 
     with concurrent.futures.ThreadPoolExecutor() as executor:
         futures = [
@@ -382,7 +409,7 @@ def get_top_sequences(
                 retries,
                 prob_threshold,
             )
-            for token, logprob, _ in initial_sequences
+            for token, logprob in initial_sequences
         ]
         concurrent.futures.wait(futures)
 
@@ -391,11 +418,14 @@ def get_top_sequences(
             client,
             prompt,
             legal_moves,
-            model,
             depth,
             metrics,
             retries,
             prob_threshold / 10,
+            temperature,
+            top_p,
+            top_k,
+            repetition_penalty,
         )
 
     return sequences
@@ -564,11 +594,14 @@ def adjust_rating(rating: int, game_type: str) -> int:
 
 
 def _get_client(config: OracleConfig) -> Any:
-    if config.openai_client is not None:
-        return config.openai_client
-    if config.openai_api_key is None:
-        raise ValueError("An OpenAI API key or client must be provided in OracleConfig")
-    return OpenAI(api_key=config.openai_api_key)
+    if config.huggingface_client is not None:
+        return config.huggingface_client
+
+    token = config.huggingface_token
+    if not token and config.huggingface_token_env_var:
+        token = os.getenv(config.huggingface_token_env_var)
+
+    return InferenceClient(model=config.huggingface_model, token=token)
 
 
 def predict_next_moves(pgn: str, config: OracleConfig) -> PredictionResult:
@@ -631,11 +664,14 @@ def predict_next_moves(pgn: str, config: OracleConfig) -> PredictionResult:
                 client,
                 prompt,
                 legal_moves.copy(),
-                config.model,
                 config.depth,
                 metrics,
-                3,
-                config.prob_threshold,
+                retries=3,
+                prob_threshold=config.prob_threshold,
+                temperature=config.temperature,
+                top_p=config.top_p,
+                top_k=config.top_k,
+                repetition_penalty=config.repetition_penalty,
             )
 
             top_sequences = future_top_sequences.result()
