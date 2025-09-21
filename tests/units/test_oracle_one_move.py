@@ -148,6 +148,10 @@ def test_cli_main_uses_factory_with_simulated_adapters(monkeypatch, caplog):
     assert captured["huggingface_token"] == "cli-token"
 
     first_move = wrapper.last_result.moves[0].move
+    breakdown = wrapper.last_result.moves[0].win_percentage_by_rating
+    assert set(breakdown) == set(config.rating_buckets)
+    assert all(0.0 <= value <= 100.0 for value in breakdown.values())
     assert first_move in caplog.text
     assert "Likelihood" in caplog.text
+    assert "Elo" in caplog.text
     assert "Évaluation actuelle" in caplog.text

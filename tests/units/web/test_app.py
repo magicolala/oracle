@@ -139,3 +139,4 @@ def test_analyze_endpoint_returns_predictions(monkeypatch):
     assert "Explorer les coups" in response.text
     first_move = wrapper.last_result.moves[0].move
     assert first_move in response.text
+    assert "Évaluations Elo" in response.text

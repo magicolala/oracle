@@ -26,6 +26,9 @@ class OracleConfig:
     default_white_elo: int = 1500
     default_black_elo: int = 1500
     default_game_type: str = "classical"
+    rating_buckets: list[int] = field(
+        default_factory=lambda: [1200, 1500, 1800, 2100]
+    )
     huggingface_client: Any | None = None
     engine_factory: Callable[[str], Any] | None = None
 
@@ -48,6 +51,7 @@ class MovePrediction:
     win_percentage: float
     notation: str
     is_best_move: bool
+    win_percentage_by_rating: dict[int, float] = field(default_factory=dict)
 
 
 @dataclass

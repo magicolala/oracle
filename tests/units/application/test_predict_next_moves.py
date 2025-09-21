@@ -76,7 +76,12 @@ def test_use_case_combines_sequence_and_engine_results() -> None:
     use_case = PredictNextMoves(
         sequence_provider=StubSequenceProvider(),
         move_analyzer=StubMoveAnalyzer(),
-        config=OracleConfig(stockfish_path="/fake/stockfish", depth=2, analysis_depth=1),
+        config=OracleConfig(
+            stockfish_path="/fake/stockfish",
+            depth=2,
+            analysis_depth=1,
+            rating_buckets=[1200, 1500, 2000],
+        ),
     )
 
     result = use_case.execute(PGN_SNIPPET)
@@ -98,6 +103,11 @@ def test_use_case_combines_sequence_and_engine_results() -> None:
     )
     assert math.isclose(final_snapshot.current_win_percentage, recomputed_eval, rel_tol=1e-6)
     assert math.isclose(result.current_win_percentage, final_snapshot.current_win_percentage, rel_tol=1e-6)
+
+    for move in final_snapshot.moves:
+        assert set(move.win_percentage_by_rating) == {1200, 1500, 2000}
+        for value in move.win_percentage_by_rating.values():
+            assert 0.0 <= value <= 100.0
 
     assert result.metrics.input_tokens == len(result.history)
     assert result.metrics.output_tokens == len(result.history)
