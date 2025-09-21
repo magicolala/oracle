@@ -160,7 +160,24 @@
                           {% endif %}
                         </td>
                         <td>{{ '%.2f'|format(prediction.likelihood) }}%</td>
-                        <td>{{ '%.2f'|format(prediction.win_percentage) }}%</td>
+                        <td>
+                          <div>{{ '%.2f'|format(prediction.win_percentage) }}%</div>
+                          {% if prediction.win_percentage_by_rating %}
+                          <details class="mt-1">
+                            <summary class="small text-secondary" style="cursor: pointer;">
+                              Évaluations Elo
+                            </summary>
+                            <ul class="list-unstyled small text-secondary ms-3 mb-0">
+                              {% for rating, percentage in prediction.win_percentage_by_rating|dictsort %}
+                              <li>
+                                <span class="fw-semibold">Elo {{ rating }}</span>
+                                : {{ '%.2f'|format(percentage) }}%
+                              </li>
+                              {% endfor %}
+                            </ul>
+                          </details>
+                          {% endif %}
+                        </td>
                       </tr>
                       {% endfor %}
                     </tbody>

@@ -229,9 +229,29 @@ class PredictNextMoves(PredictNextMovesUseCase):
             move: (prob / total_probability) * 100 for move, prob in move_probabilities.items()
         }
 
-        win_percentages_1500 = {
-            move: calculate_win_percentage(1500, eval_score) for move, eval_score in all_evals
+        rating_buckets_config = [
+            bucket
+            for bucket in dict.fromkeys(self.config.rating_buckets)
+            if isinstance(bucket, int)
+        ]
+        rating_buckets = [bucket for bucket in rating_buckets_config if bucket > 0]
+        if not rating_buckets:
+            rating_buckets = [rating]
+
+        win_percentages_by_bucket: dict[int, dict[str, float]] = {
+            bucket: {
+                move: calculate_win_percentage(bucket, eval_score)
+                for move, eval_score in all_evals
+            }
+            for bucket in rating_buckets
         }
+
+        win_percentages_1500 = win_percentages_by_bucket.get(1500)
+        if win_percentages_1500 is None:
+            win_percentages_1500 = {
+                move: calculate_win_percentage(1500, eval_score)
+                for move, eval_score in all_evals
+            }
         win_percentages_rating = {
             move: calculate_win_percentage(rating, eval_score) for move, eval_score in all_evals
         }
@@ -391,6 +411,11 @@ class PredictNextMoves(PredictNextMovesUseCase):
             win_percentage = win_percentages[move]
             percentage_loss = percentage_losses.get(move, 0.0)
             is_best_move = move == best_move
+            rating_breakdown = {
+                bucket: win_percentages_by_bucket[bucket][move]
+                for bucket in rating_buckets
+                if move in win_percentages_by_bucket[bucket]
+            }
             _color, notation = get_color_and_notation(
                 percentage_loss,
                 is_best_move,
@@ -401,6 +426,7 @@ class PredictNextMoves(PredictNextMovesUseCase):
                     move=move,
                     likelihood=new_norm_prob,
                     win_percentage=win_percentage,
+                    win_percentage_by_rating=rating_breakdown,
                     notation=notation,
                     is_best_move=is_best_move,
                 )

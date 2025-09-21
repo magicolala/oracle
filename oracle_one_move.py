@@ -50,15 +50,25 @@ def _format_predictions(predictions: list[MovePrediction]) -> str:
         return "Aucun coup disponible pour cette position."
 
     headers = ["#", "Move", "Likelihood", "Evaluation"]
-    rows = [
-        [
-            f"#{idx + 1}",
-            f"{prediction.move}{prediction.notation}",
-            f"{prediction.likelihood:.2f}%",
-            f"{prediction.win_percentage:.2f}%",
-        ]
-        for idx, prediction in enumerate(predictions[:5])
-    ]
+    rows = []
+    for idx, prediction in enumerate(predictions[:5]):
+        evaluation_lines = [f"{prediction.win_percentage:.2f}%"]
+        if prediction.win_percentage_by_rating:
+            breakdown_lines = [
+                f"Elo {rating}: {percentage:.2f}%"
+                for rating, percentage in sorted(
+                    prediction.win_percentage_by_rating.items()
+                )
+            ]
+            evaluation_lines.extend(breakdown_lines)
+        rows.append(
+            [
+                f"#{idx + 1}",
+                f"{prediction.move}{prediction.notation}",
+                f"{prediction.likelihood:.2f}%",
+                "\n".join(evaluation_lines),
+            ]
+        )
     return tabulate(rows, headers=headers, tablefmt="pretty")
 
 

@@ -58,6 +58,7 @@ La page de résultats affiche :
 
 - Le pourcentage de gain estimé pour les blancs dans la position actuelle.
 - Un tableau classé des coups probables, avec pour chacun la probabilité, l’évaluation et un indicateur si le coup est considéré comme « best ».
+  Chaque ligne propose également un volet « Évaluations Elo » détaillant les pourcentages calculés pour chaque palier configuré.
 - Les métriques de consommation du modèle (tokens entrants/sortants et coût estimé) présentées sous forme de cartes.
 - Le PGN analysé pour vérification rapide.
 
@@ -72,6 +73,7 @@ Un bouton permet de revenir au formulaire pour une nouvelle analyse.
 ### Personnalisation avancée
 
 - Ajustez les paramètres d’analyse (temps limite, profondeur, threads) ou les valeurs par défaut des Elo et contrôles de temps en modifiant `OracleConfig`. Cela peut être utile pour adapter l’application à des contextes particuliers (par exemple des parties blitz).
+  Utilisez notamment le champ `rating_buckets` pour suivre l’évaluation d’un coup selon plusieurs paliers Elo en parallèle.
 - Surcharger `HUGGINGFACE_MODEL_ID` et `HUGGINGFACEHUB_API_TOKEN` à l’exécution permet d’expérimenter avec d’autres modèles hébergés sur Hugging Face sans toucher au code.
 
 ### Dépannage rapide
