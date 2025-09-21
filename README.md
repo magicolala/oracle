@@ -19,6 +19,15 @@ Oracle is the first chess engine that plays like a human, from amateur to super 
 - **Oracle_pgn_file:** Set your Hugging Face token, the path to your Stockfish, your input pgn file, and your output csv file, and then run the file. Oracle will write her predictions for every move of every game of the PGN into the csv file.
 - **Web interface:** Export your Hugging Face token as `HUGGINGFACEHUB_API_TOKEN` (optional, models supporting anonymous access do not require a token) and the Stockfish binary path as `STOCKFISH_PATH`, then launch `uvicorn src.oracle.web.app:app --reload` to access a browser-based PGN form.
 
+## Hugging Face model access
+
+Oracle now defaults to the free [`mistralai/Mistral-7B-Instruct-v0.2`](https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.2) text-generation model served through the Hugging Face Inference API. The hosted endpoint accepts anonymous requests for light usage; create a free Hugging Face account and provide a token if you need higher throughput or want to use a different hosted model.
+
+1. Sign in (or create an account) at [huggingface.co](https://huggingface.co/).
+2. Generate a read token from **Settings → Access Tokens** and copy its value.
+3. Export it as `HUGGINGFACEHUB_API_TOKEN` or paste it into the prompts shown by `oracle_one_move.py` and `oracle_pgn_file.py`.
+4. Optionally set `HUGGINGFACE_MODEL_ID` to override the default model if you want to experiment with another free endpoint.
+
 ## Examples
 
 ![Ding vs. Nepo, round 14 after 58...a3](docs/static/ding_vs_nepo_chesscom.png)
@@ -36,6 +45,10 @@ Position after 11...Nc6 in the infamous "Danse of the Knights" pre-arranged draw
 ## Requirements
 
 Oracle uses Hugging Face Inference models and Stockfish to deliver human-like chess moves. Users need access to a suitable text-generation model on [huggingface.co](https://huggingface.co/models) (set the `HUGGINGFACEHUB_API_TOKEN` environment variable if authentication is required) and a version of Stockfish, which can be downloaded [here](https://stockfishchess.org/download/).
+
+- **Python packages:** Install the Poetry-managed dependencies (`huggingface-hub`, `chess`, `python-dotenv`, `fastapi`, `uvicorn`, `jinja2`, `python-multipart`) plus the new [`tabulate`](https://pypi.org/project/tabulate/) helper that formats CLI predictions.
+- **Stockfish Engine:** Make sure you have Stockfish installed and properly set up.
+- **PGN Input:** Prepare your PGN input files for analysis.
 
 ## Configuration
 
@@ -61,7 +74,7 @@ I've decided to name my chess engine Oracle because just like the Oracle from Th
 ## Contributions and Future of Oracle
 
 Because I'm new to coding, Oracle's code should be improvable. 
-The next significant step for Oracle would be the creation of an open-source LLM trained on full PGNs with headers to replace GPT-3.5 Turbo Instruct, making Oracle completely free. 
+The next significant step for Oracle would be the creation of an open-source LLM trained on full PGNs with headers to eliminate reliance on third-party hosted instruct models, keeping Oracle completely free to run.
 Following this, Oracle could be turned into a user-friendly executable file and used on a large scale for broadcasts, training, opening preparation, anti-cheating, bots creation, and so on. 
 
 ## Support and Donation
