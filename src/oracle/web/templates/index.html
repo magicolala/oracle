@@ -203,6 +203,22 @@
                     </div>
                     <textarea class="form-control" id="pgn" name="pgn" required>{{ pgn or "" }}</textarea>
                   </div>
+                  <div class="col-12 col-md-6">
+                    <label for="level" class="form-label fw-semibold">Niveau (optionnel)</label>
+                    <select class="form-select" id="level" name="level">
+                      <option value="" {% if not selected_level %}selected{% endif %}>
+                        Utiliser les Elo du PGN
+                      </option>
+                      {% for option in levels or [] %}
+                      <option value="{{ option.value }}" {% if selected_level == option.value %}selected{% endif %}>
+                        {{ option.label }}
+                      </option>
+                      {% endfor %}
+                    </select>
+                    <div class="form-text">
+                      Choisissez un niveau cible pour ignorer les Elo du PGN et appliquer la cadence correspondante.
+                    </div>
+                  </div>
                   <div class="col-12 d-flex justify-content-end">
                     <button type="submit" class="btn btn-primary">
                       <span class="me-2" aria-hidden="true">♟️</span>

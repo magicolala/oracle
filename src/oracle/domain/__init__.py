@@ -29,8 +29,27 @@ class OracleConfig:
     rating_buckets: list[int] = field(
         default_factory=lambda: [1200, 1500, 1800, 2100]
     )
+    level_time_controls: dict[int, str] = field(
+        default_factory=lambda: {
+            800: "120+0",
+            1200: "300+2",
+            1600: "900+10",
+            2000: "3600+30",
+        }
+    )
     huggingface_client: Any | None = None
     engine_factory: Callable[[str], Any] | None = None
+
+    @property
+    def available_levels(self) -> tuple[int, ...]:
+        """Expose the configured player levels sorted increasingly."""
+
+        return tuple(sorted(self.level_time_controls))
+
+    def time_control_for_level(self, level: int) -> str | None:
+        """Return the configured time control for a given level when available."""
+
+        return self.level_time_controls.get(level)
 
 
 @dataclass

@@ -45,5 +45,5 @@ class MoveAnalyzer(Protocol):
 class PredictNextMovesUseCase(Protocol):
     """Application use case for predicting the next chess moves."""
 
-    def execute(self, pgn: str) -> PredictionResult:
+    def execute(self, pgn: str, selected_level: int | None = None) -> PredictionResult:
         """Predict the next moves for the given PGN string."""

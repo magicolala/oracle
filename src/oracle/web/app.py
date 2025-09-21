@@ -15,6 +15,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from oracle.domain import OracleConfig
+from oracle.domain.services import determine_game_type
 from oracle.service.prediction import build_predict_next_moves_use_case
 
 load_dotenv()
@@ -55,9 +56,31 @@ def get_oracle_config() -> OracleConfig:
     return OracleConfig()
 
 
+def build_level_options(config: OracleConfig) -> list[dict[str, str]]:
+    """Return level options ready to be consumed by the template."""
+
+    options: list[dict[str, str]] = []
+    for level in config.available_levels:
+        time_control = config.time_control_for_level(level) or ""
+        label = f"Elo {level}"
+        if time_control:
+            game_type = determine_game_type(time_control)
+            if game_type == "Unknown":
+                game_type = config.default_game_type
+            label = f"Elo {level} • {game_type.capitalize()} ({time_control})"
+        options.append({"value": str(level), "label": label})
+    return options
+
+
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request) -> HTMLResponse:
-    context = {"request": request}
+    config = get_oracle_config()
+    context = {
+        "request": request,
+        "levels": build_level_options(config),
+        "selected_level": "",
+        "pgn": "",
+    }
     return templates.TemplateResponse(request, "index.html", context)
 
 
@@ -107,9 +130,51 @@ def get_prediction_service(config: OracleConfig | None = None) -> PredictNextMov
 
 
 @app.post("/analyze", response_class=HTMLResponse)
-async def analyze(request: Request, pgn: str = Form(...)) -> HTMLResponse:
+async def analyze(
+    request: Request,
+    pgn: str = Form(...),
+    level: str | None = Form(None),
+) -> HTMLResponse:
+    config = get_oracle_config()
+    level_options = build_level_options(config)
     normalized_pgn = pgn.strip()
-    base_context = {"request": request, "pgn": normalized_pgn}
+    selected_level_raw = (level or "").strip()
+    base_context = {
+        "request": request,
+        "pgn": normalized_pgn,
+        "levels": level_options,
+        "selected_level": selected_level_raw,
+    }
+
+    selected_level_value: int | None = None
+    if selected_level_raw:
+        try:
+            selected_level_value = int(selected_level_raw)
+        except ValueError:
+            error = ErrorMessage(
+                title="Niveau invalide",
+                detail="Le niveau sélectionné doit être une valeur numérique connue.",
+                hint="Sélectionnez un niveau proposé dans la liste déroulante ou laissez le champ vide pour utiliser les informations du PGN.",
+            )
+            return templates.TemplateResponse(
+                request,
+                "index.html",
+                {**base_context, "error": error},
+                status_code=status.HTTP_400_BAD_REQUEST,
+            )
+        if selected_level_value not in config.available_levels:
+            error = ErrorMessage(
+                title="Niveau inconnu",
+                detail="La valeur sélectionnée ne correspond à aucun niveau pris en charge.",
+                hint="Choisissez un niveau parmi les options affichées ou laissez le champ vide pour conserver le PGN tel quel.",
+            )
+            return templates.TemplateResponse(
+                request,
+                "index.html",
+                {**base_context, "error": error},
+                status_code=status.HTTP_400_BAD_REQUEST,
+            )
+        base_context["selected_level"] = str(selected_level_value)
 
     if not normalized_pgn:
         error = ErrorMessage(
@@ -125,7 +190,7 @@ async def analyze(request: Request, pgn: str = Form(...)) -> HTMLResponse:
         )
 
     try:
-        service = get_prediction_service()
+        service = get_prediction_service(config=config)
     except WebAppConfigurationError as exc:  # pragma: no cover - configuration errors are environment-dependent
         logger.exception("Configuration error while building the prediction service")
         error = ErrorMessage(
@@ -141,7 +206,14 @@ async def analyze(request: Request, pgn: str = Form(...)) -> HTMLResponse:
         )
 
     try:
-        prediction = await run_in_threadpool(service.execute, normalized_pgn)
+        execution_kwargs = {}
+        if selected_level_value is not None:
+            execution_kwargs["selected_level"] = selected_level_value
+        prediction = await run_in_threadpool(
+            service.execute,
+            normalized_pgn,
+            **execution_kwargs,
+        )
     except ValueError as exc:
         logger.warning("Invalid PGN received: %s", exc)
         error = ErrorMessage(

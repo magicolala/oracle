@@ -40,7 +40,7 @@ class PredictNextMoves(PredictNextMovesUseCase):
     move_analyzer: MoveAnalyzer
     config: OracleConfig
 
-    def execute(self, pgn: str) -> PredictionResult:
+    def execute(self, pgn: str, selected_level: int | None = None) -> PredictionResult:
         metrics = PredictionMetrics()
 
         cleaned_pgn = clean_pgn(pgn)
@@ -50,7 +50,9 @@ class PredictNextMoves(PredictNextMovesUseCase):
             raise ValueError("Unable to parse PGN content")
 
         header_lines, token_queue = self._extract_headers_and_tokens(cleaned_pgn)
-        white_elo_val, black_elo_val, game_type = self._resolve_game_context(game)
+        white_elo_val, black_elo_val, game_type = self._resolve_game_context(
+            game, selected_level
+        )
         high_rating = max(white_elo_val, black_elo_val)
 
         board = game.board()
@@ -136,8 +138,18 @@ class PredictNextMoves(PredictNextMovesUseCase):
         return moves_segment
 
     def _resolve_game_context(
-        self, game: chess.pgn.Game
+        self, game: chess.pgn.Game, selected_level: int | None = None
     ) -> tuple[int, int, str]:
+        if selected_level is not None:
+            time_control = self.config.time_control_for_level(selected_level)
+            if time_control is None:
+                raise ValueError(f"Unknown level: {selected_level}")
+            game_type = determine_game_type(time_control) if time_control else "Unknown"
+            if game_type == "Unknown":
+                game_type = self.config.default_game_type
+            adjusted_rating = adjust_rating(selected_level, game_type)
+            return adjusted_rating, adjusted_rating, game_type
+
         white_elo = game.headers.get("WhiteElo")
         black_elo = game.headers.get("BlackElo")
         white_elo_val = (
