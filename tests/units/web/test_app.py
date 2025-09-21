@@ -132,6 +132,26 @@ def configure_test_environment(monkeypatch) -> dict[str, Any]:
     return captured
 
 
+def test_index_page_exposes_mode_selector():
+    transport = ASGITransport(app=app)
+
+    async def perform_request():
+        async with AsyncClient(transport=transport, base_url="http://testserver") as async_client:
+            return await async_client.get("/")
+
+    response = asyncio.run(perform_request())
+
+    assert response.status_code == status.HTTP_200_OK
+    assert 'data-app-root' in response.text
+    assert 'data-mode-input' in response.text
+    assert 'value="analyze"' in response.text
+    assert 'value="play"' in response.text
+    assert 'data-mode-panel="play"' in response.text
+    assert 'data-game-level' in response.text
+    assert 'data-game-new' in response.text
+    assert 'data-game-resign' in response.text
+
+
 def test_analyze_endpoint_returns_predictions(monkeypatch):
     captured = configure_test_environment(monkeypatch)
     monkeypatch.setenv("STOCKFISH_PATH", "/fake/stockfish")
@@ -153,6 +173,7 @@ def test_analyze_endpoint_returns_predictions(monkeypatch):
     assert captured["huggingface_model"] == "test/model"
     assert captured["huggingface_token"] == "api-token"
     assert "Explorer les coups" in response.text
+    assert "href=\"/?mode=analyze\"" in response.text
     first_move = wrapper.last_result.moves[0].move
     assert first_move in response.text
     assert "Évaluations Elo" in response.text
