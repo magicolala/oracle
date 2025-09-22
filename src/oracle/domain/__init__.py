@@ -19,7 +19,7 @@ class OracleConfig:
     repetition_penalty: float | None = None
     depth: int = 5
     prob_threshold: float = 0.001
-    analysis_time_limit: float = 1.3
+    analysis_time_limit: float = 0.5
     analysis_depth: int = 20
     analysis_threads: int = 8
     analysis_hash_size: int = 512
