@@ -9,6 +9,7 @@
     "lint": "tsc --noEmit"
   },
   "dependencies": {
+    "chart.js": "^4.4.6",
     "neo-chess-board-ts-library": "https://github.com/magicolala/Neo-Chess-Board-Ts-Library/archive/refs/heads/main.tar.gz"
   },
   "devDependencies": {

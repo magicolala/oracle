@@ -102,10 +102,7 @@ def build_level_options(config: OracleConfig) -> list[dict[str, str]]:
 
 def _resolve_active_mode(raw_mode: str | None) -> tuple[str, str]:
     normalized = (raw_mode or "").strip().lower()
-    if normalized in ALLOWED_MODES:
-        active_mode = normalized
-    else:
-        active_mode = DEFAULT_MODE
+    active_mode = normalized if normalized in ALLOWED_MODES else DEFAULT_MODE
     effective_mode = MODE_ALIASES.get(active_mode, active_mode)
     return active_mode, effective_mode
 

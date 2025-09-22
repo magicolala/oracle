@@ -104,6 +104,7 @@
                   </div>
                   <div class="table-responsive mt-3">
                     {% if snapshot.moves %}
+                    {% set chart_points = namespace(items=[]) %}
                     <table class="table table-hover align-middle">
                       <thead class="table-light">
                         <tr>
@@ -115,6 +116,13 @@
                       </thead>
                       <tbody>
                         {% for prediction in snapshot.moves %}
+                        {% set move_label = prediction.move ~ (prediction.notation or '') %}
+                        {% set _ = chart_points.items.append({
+                          'label': move_label,
+                          'likelihood': prediction.likelihood,
+                          'win_percentage': prediction.win_percentage,
+                          'is_best_move': prediction.is_best_move,
+                        }) %}
                         <tr>
                           <th scope="row">{{ loop.index }}</th>
                           <td>
@@ -146,6 +154,23 @@
                         {% endfor %}
                       </tbody>
                     </table>
+                    {% if chart_points.items %}
+                    <div class="mt-4" data-chart-section>
+                      <h4 class="h6 mb-2">Visualisation des prédictions</h4>
+                      <p class="mb-3 text-secondary small">
+                        Compare les probabilités estimées et le score attendu pour chaque coup recommandé.
+                      </p>
+                      <div class="prediction-chart-container">
+                        <canvas
+                          class="prediction-chart"
+                          data-prediction-chart
+                          data-chart-series='{{ chart_points.items | tojson }}'
+                          role="img"
+                          aria-label="Probabilités et évaluations pour {{ snapshot.san or 'la position initiale' }}"
+                        ></canvas>
+                      </div>
+                    </div>
+                    {% endif %}
                     {% else %}
                     <p class="mb-0 text-secondary">
                       Aucun coup légal disponible pour cette position.
@@ -274,6 +299,9 @@
     if (window.oracleBoard) {
       connectBoard(window.oracleBoard);
     }
+
+    const predictionTabsContent = document.getElementById('prediction-tabs-content');
+    window.oracleCharts?.refreshCharts(predictionTabsContent ?? document);
     </script>
   </body>
 </html>
