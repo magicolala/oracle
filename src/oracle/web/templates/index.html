@@ -62,30 +62,47 @@
               </div>
             </div>
             <div data-mode-panel="analyze" {% if not is_analyze_mode %}hidden{% endif %}>
-              <div class="col-12 col-md-6">
-                <label for="modal-analysis-level" class="form-label fw-semibold">Niveau (optionnel)</label>
-                <select class="form-select" id="modal-analysis-level" name="level">
-                  <option value="" {% if not selected_level %}selected{% endif %}>
-                    Utiliser les Elo du PGN
-                  </option>
-                  <option value="1000">Elo 1000</option>
-                  <option value="1500">Elo 1500</option>
-                  <option value="2000">Elo 2000</option>
-                </select>
-                <div class="form-text">
-                  Choisissez un niveau cible pour ignorer les Elo du PGN et appliquer la cadence correspondante.
+              <div class="row">
+                <div class="col-12 col-md-6">
+                  <label for="modal-analysis-elo" class="form-label fw-semibold">Elo (optionnel)</label>
+                  <select class="form-select" id="modal-analysis-elo" name="elo">
+                    <option value="" selected>Utiliser l'Elo du PGN</option>
+                    {% for option in elos or [] %}
+                    <option value="{{ option.value }}">{{ option.label }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="col-12 col-md-6">
+                  <label for="modal-analysis-time-control" class="form-label fw-semibold">Cadence (optionnel)</label>
+                  <select class="form-select" id="modal-analysis-time-control" name="time_control">
+                    <option value="" selected>Utiliser la cadence du PGN</option>
+                    {% for option in time_controls or [] %}
+                    <option value="{{ option.value }}">{{ option.label }}</option>
+                    {% endfor %}
+                  </select>
                 </div>
               </div>
             </div>
             <div data-mode-panel="prediction" {% if not is_prediction_mode %}hidden{% endif %}>
-              <div class="col-12 col-md-8">
-                <p class="mb-2">
-                  Le mode <strong>Prédictions</strong> vous permet d'obtenir rapidement les coups les plus probables
-                  à partir d'un PGN ou du plateau interactif.
-                </p>
-                <p class="text-secondary mb-0">
-                  Sélectionnez éventuellement un niveau cible pour adapter la cadence puis lancez la génération.
-                </p>
+              <div class="row">
+                <div class="col-12 col-md-6">
+                  <label for="modal-analysis-elo" class="form-label fw-semibold">Elo (optionnel)</label>
+                  <select class="form-select" id="modal-analysis-elo" name="elo">
+                    <option value="" selected>Utiliser l'Elo du PGN</option>
+                    {% for option in elos or [] %}
+                    <option value="{{ option.value }}">{{ option.label }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="col-12 col-md-6">
+                  <label for="modal-analysis-time-control" class="form-label fw-semibold">Cadence (optionnel)</label>
+                  <select class="form-select" id="modal-analysis-time-control" name="time_control">
+                    <option value="" selected>Utiliser la cadence du PGN</option>
+                    {% for option in time_controls or [] %}
+                    <option value="{{ option.value }}">{{ option.label }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
               </div>
             </div>
             <div data-mode-panel="play" {% if not is_play_mode %}hidden{% endif %}>
@@ -95,9 +112,11 @@
                   <option value="" {% if not selected_level %}selected{% endif %}>
                     Recommandé automatiquement
                   </option>
-                  <option value="1000">Elo 1000</option>
-                  <option value="1500">Elo 1500</option>
-                  <option value="2000">Elo 2000</option>
+                  {% for option in levels or [] %}
+                  <option value="{{ option.value }}" {% if selected_level == option.value %}selected{% endif %}>
+                    {{ option.label }}
+                  </option>
+                  {% endfor %}
                 </select>
                 <div class="form-text">
                   Ajustez la difficulté ou laissez Oracle choisir un niveau adapté en fonction de la position.
@@ -190,19 +209,35 @@
                         <textarea class="form-control" id="pgn" name="pgn" required>{{ pgn or "" }}</textarea>
                       </div>
                       <div class="col-12 col-md-6">
-                        <label for="analysis-level" class="form-label fw-semibold">Niveau (optionnel)</label>
-                        <select class="form-select" id="analysis-level" name="level">
-                          <option value="" {% if not selected_level %}selected{% endif %}>
-                            Utiliser les Elo du PGN
+                        <label for="analysis-elo" class="form-label fw-semibold">Elo (optionnel)</label>
+                        <select class="form-select" id="analysis-elo" name="elo">
+                          <option value="" {% if not selected_elo %}selected{% endif %}>
+                            Utiliser l'Elo du PGN
                           </option>
-                          {% for option in levels or [] %}
-                          <option value="{{ option.value }}" {% if selected_level == option.value %}selected{% endif %}>
+                          {% for option in elos or [] %}
+                          <option value="{{ option.value }}" {% if selected_elo == option.value %}selected{% endif %}>
                             {{ option.label }}
                           </option>
                           {% endfor %}
                         </select>
                         <div class="form-text">
-                          Choisissez un niveau cible pour ignorer les Elo du PGN et appliquer la cadence correspondante.
+                          Choisissez un Elo cible pour ignorer celui du PGN.
+                        </div>
+                      </div>
+                      <div class="col-12 col-md-6">
+                        <label for="analysis-time-control" class="form-label fw-semibold">Cadence (optionnel)</label>
+                        <select class="form-select" id="analysis-time-control" name="time_control">
+                          <option value="" {% if not selected_time_control %}selected{% endif %}>
+                            Utiliser la cadence du PGN
+                          </option>
+                          {% for option in time_controls or [] %}
+                          <option value="{{ option.value }}" {% if selected_time_control == option.value %}selected{% endif %}>
+                            {{ option.label }}
+                          </option>
+                          {% endfor %}
+                        </select>
+                        <div class="form-text">
+                          Choisissez une cadence pour ignorer celle du PGN.
                         </div>
                       </div>
                       <div class="col-12 d-flex justify-content-end">
@@ -391,9 +426,11 @@
           play: modalElement?.querySelector('[data-mode-panel="play"]') ?? null,
         };
         const modeInputs = document.querySelectorAll('input[name="oracle-mode"]');
-        const analysisLevelSelect = document.getElementById('modal-analysis-level');
+        const analysisEloSelect = document.getElementById('modal-analysis-elo');
+        const analysisTimeControlSelect = document.getElementById('modal-analysis-time-control');
         const playLevelSelect = document.getElementById('modal-play-level');
-        const analysisFormSelect = document.getElementById('analysis-level');
+        const analysisFormEloSelect = document.getElementById('analysis-elo');
+        const analysisFormTimeControlSelect = document.getElementById('analysis-time-control');
         const playFormSelect = document.getElementById('play-level');
         const commenceButton = document.querySelector('#initialConfigModal .btn-primary');
         const controlsColumn = document.getElementById('controls-column'); // Get the controls column
@@ -467,20 +504,19 @@
         commenceButton.addEventListener('click', () => {
           const selectedMode = document.querySelector('input[name="oracle-mode"]:checked').value;
           const isAnalysisMode = analysisModeSet.has(selectedMode);
-          const selectedLevel = isAnalysisMode
-            ? analysisLevelSelect?.value ?? ''
-            : playLevelSelect?.value ?? '';
+          const selectedElo = analysisEloSelect?.value ?? '';
+          const selectedTimeControl = analysisTimeControlSelect?.value ?? '';
+          const selectedLevel = playLevelSelect?.value ?? '';
 
           appRoot.dataset.activeMode = selectedMode;
           updateModeUI(selectedMode);
-          if (isAnalysisMode && analysisFormSelect) {
-            analysisFormSelect.value = selectedLevel;
+          if (isAnalysisMode) {
+            if(analysisFormEloSelect) analysisFormEloSelect.value = selectedElo;
+            if(analysisFormTimeControlSelect) analysisFormTimeControlSelect.value = selectedTimeControl;
           }
           if (selectedMode === 'play' && playFormSelect) {
             playFormSelect.value = selectedLevel;
           }
-          // You might want to pass the selectedLevel to the board or other parts of the app here
-          // For now, we'll just update the activeMode.
 
           if (initialConfigModal) {
             initialConfigModal.hide();
