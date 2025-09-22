@@ -425,15 +425,15 @@ function setupIndexPage(): void {
     const rawValue = textarea.value.trim();
     withSuppressed(() => {
       if (rawValue.length > 0) {
-        const loaded = board.loadPgn(rawValue);
+        const loaded = board!.loadPgn(rawValue);
         if (!loaded) {
-          board.reset();
+          board!.reset();
         }
       } else {
-        board.reset();
+        board!.reset();
       }
     });
-    const normalized = board.getPgn();
+    const normalized = board!.getPgn();
     setTextareaValue(normalized);
     gameState.lastStablePgn = normalized;
   };
@@ -445,34 +445,40 @@ function setupIndexPage(): void {
     const target = (fallback ?? gameState.lastStablePgn).trim();
     withSuppressed(() => {
       if (target.length > 0) {
-        const loaded = board.loadPgn(target);
+        const loaded = board!.loadPgn(target);
         if (!loaded) {
-          board.reset();
+          board!.reset();
         }
       } else {
-        board.reset();
+        board!.reset();
       }
     });
-    const normalized = board.getPgn();
+    const normalized = board!.getPgn();
     setTextareaValue(normalized);
   };
 
   const applyServerUpdate = (pgn: string, data: any): void => {
+    console.log('[DEBUG] Applying server update with PGN:', pgn, 'data:', data);
     if (!board) {
       return;
     }
     const trimmed = typeof pgn === 'string' ? pgn.trim() : '';
+    console.log('[DEBUG] Loading PGN into board, trimmed length:', trimmed.length);
     withSuppressed(() => {
       if (trimmed.length > 0) {
-        const loaded = board.loadPgn(trimmed);
+        const loaded = board!.loadPgn(trimmed);
+        console.log('[DEBUG] board.loadPgn result:', loaded);
         if (!loaded) {
-          board.reset();
+          console.log('[DEBUG] board.loadPgn failed, resetting board');
+          board!.reset();
         }
       } else {
-        board.reset();
+        console.log('[DEBUG] No PGN to load, resetting board');
+        board!.reset();
       }
     });
-    const normalized = board.getPgn();
+    const normalized = board!.getPgn();
+    console.log('[DEBUG] Normalized PGN after load:', normalized);
     gameState.lastStablePgn = normalized;
     setTextareaValue(normalized);
 
@@ -483,11 +489,9 @@ function setupIndexPage(): void {
 
     let message: string | undefined;
     if (moveMessage && statusText) {
-      message = `${moveMessage}
-${statusText}`;
+      message = `${moveMessage}\n${statusText}`;
     } else if (moveMessage && fallbackText) {
-      message = `${moveMessage}
-${fallbackText}`;
+      message = `${moveMessage}\n${fallbackText}`;
     } else if (moveMessage) {
       message = moveMessage;
     } else if (statusText) {
@@ -498,6 +502,7 @@ ${fallbackText}`;
       message = 'Partie terminee.';
     }
 
+    console.log('[DEBUG] Setting status message:', message);
     setStatus(message ?? 'Coup joue.', finished ? 'success' : 'info');
 
     if (finished) {
@@ -550,8 +555,8 @@ ${fallbackText}`;
     gameState.inProgress = false;
     gameState.awaitingResponse = false;
     if (board) {
-      withSuppressed(() => board.reset());
-      const normalized = board.getPgn();
+      withSuppressed(() => board!.reset());
+      const normalized = board!.getPgn();
       gameState.lastStablePgn = normalized;
       setTextareaValue(normalized);
     } else {
@@ -583,8 +588,8 @@ ${fallbackText}`;
     if (mode !== 'analyze' || !board) {
       return;
     }
-    withSuppressed(() => board.reset());
-    const normalized = board.getPgn();
+    withSuppressed(() => board!.reset());
+    const normalized = board!.getPgn();
     setTextareaValue(normalized);
     textarea?.focus();
   });
@@ -654,7 +659,7 @@ ${fallbackText}`;
       for (const { name, value } of script.attributes) {
         newScript.setAttribute(name, value);
       }
-      script.parentNode?.replaceChild(newScript, script);
+      (script.parentNode as HTMLElement)?.replaceChild(newScript, script);
     });
   };
 
@@ -684,12 +689,12 @@ ${fallbackText}`;
       }
       const data = await postJson(endpoints.newGame, payload);
       withSuppressed(() => {
-        board.reset();
+        board!.reset();
         if (typeof data?.pgn === 'string' && data.pgn.trim().length > 0) {
-          board.loadPgn(data.pgn);
+          board!.loadPgn(data.pgn);
         }
       });
-      const normalized = board.getPgn();
+      const normalized = board!.getPgn();
       gameState.lastStablePgn = normalized;
       gameState.inProgress = true;
       setTextareaValue(normalized);
@@ -725,13 +730,13 @@ ${fallbackText}`;
       if (typeof data?.pgn === 'string') {
         withSuppressed(() => {
           if (data.pgn.trim().length > 0) {
-            board.loadPgn(data.pgn);
+            board!.loadPgn(data.pgn);
           } else {
-            board.reset();
+            board!.reset();
           }
         });
       }
-      const normalized = board.getPgn();
+      const normalized = board!.getPgn();
       setTextareaValue(normalized);
       gameState.lastStablePgn = normalized;
       gameState.inProgress = false;
@@ -756,14 +761,15 @@ ${fallbackText}`;
     if (mode === 'analyze') {
       syncBoardToTextarea();
     } else if (board) {
-      withSuppressed(() => board.reset());
-      const normalized = board.getPgn();
+      withSuppressed(() => board!.reset());
+      const normalized = board!.getPgn();
       gameState.lastStablePgn = normalized;
       setTextareaValue(normalized);
       setStatus('Choisissez un niveau puis démarrez une partie.', 'info');
     }
 
     board?.onMove((payload) => {
+      console.log('[DEBUG] Move made in play mode:', payload);
       if (!board || suppress) {
         return;
       }
@@ -781,7 +787,7 @@ ${fallbackText}`;
         return;
       }
       const previousPgn = gameState.lastStablePgn;
-      const playerPgn = board.getPgn();
+      const playerPgn = board!.getPgn();
       const requestPayload: Record<string, unknown> = {
         move: payload.san ?? '',
         from: payload.from,
@@ -793,12 +799,14 @@ ${fallbackText}`;
       if (level) {
         requestPayload.level = level;
       }
+      console.log('[DEBUG] Sending move request:', requestPayload);
       gameState.awaitingResponse = true;
       updateGameControls();
       boardLoader.hidden = false;
       setStatus('Coup envoyé, attente de la réponse…', 'info');
       postJson(endpoints.move, requestPayload)
         .then((data) => {
+          console.log('[DEBUG] Received response:', data);
           const responsePgn =
             data && typeof data.pgn === 'string' ? data.pgn : playerPgn;
           applyServerUpdate(responsePgn, data);

@@ -400,12 +400,16 @@ async def start_new_game(payload: NewGameRequest) -> JSONResponse:
 async def play_next_move(payload: PlayMoveRequest) -> JSONResponse:
     """Return the computer move for the provided PGN position."""
 
+    logger.info("[DEBUG] /play/move called with payload: %s", payload.model_dump())
+
     config = get_oracle_config()
     selected_level, error_response = _resolve_level(payload.level, config)
     if error_response:
+        logger.warning("[DEBUG] Level resolution error: %s", error_response.body)
         return error_response
 
     normalized_pgn = (payload.pgn or "").strip()
+    logger.info("[DEBUG] Normalized PGN: %s", normalized_pgn)
     if not normalized_pgn:
         return _json_error(
             status.HTTP_400_BAD_REQUEST,
@@ -417,6 +421,7 @@ async def play_next_move(payload: PlayMoveRequest) -> JSONResponse:
     play_time_control = config.time_control_for_mode("play") or config.play_mode_time_control
     if play_time_control:
         normalized_pgn = _ensure_time_control_header(normalized_pgn, play_time_control)
+        logger.info("[DEBUG] PGN with time control: %s", normalized_pgn)
 
     try:
         service = get_prediction_service(config=config)
@@ -433,13 +438,16 @@ async def play_next_move(payload: PlayMoveRequest) -> JSONResponse:
     execution_kwargs = {"mode": "play"}
     if selected_level is not None:
         execution_kwargs["selected_level"] = selected_level
+        logger.info("[DEBUG] Using selected level: %s", selected_level)
 
     try:
+        logger.info("[DEBUG] Calling prediction service with PGN length: %d", len(normalized_pgn))
         prediction = await run_in_threadpool(
             service.execute,
             normalized_pgn,
             **execution_kwargs,
         )
+        logger.info("[DEBUG] Prediction completed, history length: %d", len(prediction.history))
     except ValueError as exc:
         logger.warning("Invalid PGN received on /play/move: %s", exc)
         return _json_error(
@@ -458,7 +466,9 @@ async def play_next_move(payload: PlayMoveRequest) -> JSONResponse:
         )
 
     snapshot = prediction.last()
+    logger.info("[DEBUG] Last snapshot PGN length: %d", len(snapshot.pgn) if snapshot else 0)
     if snapshot is None:
+        logger.error("[DEBUG] No snapshot returned from prediction")
         return _json_error(
             status.HTTP_500_INTERNAL_SERVER_ERROR,
             "Résultat indisponible",
@@ -468,6 +478,7 @@ async def play_next_move(payload: PlayMoveRequest) -> JSONResponse:
 
     try:
         game, node, board = _build_game_state(snapshot.pgn)
+        logger.info("[DEBUG] Game state built, current FEN: %s", board.fen())
     except ValueError as exc:
         logger.warning("Unable to rebuild game state from snapshot: %s", exc)
         return _json_error(
@@ -478,10 +489,12 @@ async def play_next_move(payload: PlayMoveRequest) -> JSONResponse:
         )
 
     candidate_moves = snapshot.moves
+    logger.info("[DEBUG] Candidate moves count: %d", len(candidate_moves))
     exporter = chess.pgn.StringExporter(headers=True, variations=False, comments=False)
 
     if not candidate_moves:
         stable_pgn = game.accept(exporter).strip()
+        logger.info("[DEBUG] No moves available, returning finished game")
         return JSONResponse(
             status_code=status.HTTP_200_OK,
             content={
@@ -493,9 +506,11 @@ async def play_next_move(payload: PlayMoveRequest) -> JSONResponse:
         )
 
     best_move = next((move for move in candidate_moves if move.is_best_move), candidate_moves[0])
+    logger.info("[DEBUG] Best move selected: %s", best_move.move)
 
     try:
         parsed_move = board.parse_san(best_move.move)
+        logger.info("[DEBUG] Move parsed successfully: %s", parsed_move)
     except ValueError as exc:  # pragma: no cover - defensive branch
         logger.exception("Invalid SAN received from prediction: %s", best_move.move)
         return _json_error(
@@ -509,6 +524,8 @@ async def play_next_move(payload: PlayMoveRequest) -> JSONResponse:
     updated_pgn = game.accept(exporter).strip()
     response_board = new_node.board()
     finished = response_board.is_game_over()
+
+    logger.info("[DEBUG] Computer move added, new PGN length: %d, finished: %s", len(updated_pgn), finished)
 
     response_payload = {
         "move": {
@@ -526,4 +543,5 @@ async def play_next_move(payload: PlayMoveRequest) -> JSONResponse:
         "status": f"Coup joué par l'ordinateur: {best_move.move}",
     }
 
+    logger.info("[DEBUG] Returning response with PGN length: %d", len(updated_pgn))
     return JSONResponse(status_code=status.HTTP_200_OK, content=response_payload)
