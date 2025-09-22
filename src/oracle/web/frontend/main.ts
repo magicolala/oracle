@@ -764,27 +764,27 @@ function setupIndexPage(): void {
   };
 
   const applyServerUpdate = (pgn: string, data: any): void => {
-    console.log('[DEBUG] Applying server update with PGN:', pgn, 'data:', data);
+    
     if (!board) {
       return;
     }
     const trimmed = typeof pgn === 'string' ? pgn.trim() : '';
-    console.log('[DEBUG] Loading PGN into board, trimmed length:', trimmed.length);
+    
     withSuppressed(() => {
       if (trimmed.length > 0) {
         const loaded = board!.loadPgn(trimmed);
-        console.log('[DEBUG] board.loadPgn result:', loaded);
+        
         if (!loaded) {
-          console.log('[DEBUG] board.loadPgn failed, resetting board');
+          
           board!.reset();
         }
       } else {
-        console.log('[DEBUG] No PGN to load, resetting board');
+        
         board!.reset();
       }
     });
     const normalized = board!.getPgn();
-    console.log('[DEBUG] Normalized PGN after load:', normalized);
+    
     gameState.lastStablePgn = normalized;
     setTextareaValue(normalized);
 
@@ -808,7 +808,7 @@ function setupIndexPage(): void {
       message = 'Partie terminee.';
     }
 
-    console.log('[DEBUG] Setting status message:', message);
+    
     setStatus(message ?? 'Coup joue.', finished ? 'success' : 'info');
 
     if (finished) {
@@ -1081,7 +1081,7 @@ function setupIndexPage(): void {
     }
 
     board?.onMove((payload) => {
-      console.log('[DEBUG] Move made in play mode:', payload);
+      
       if (!board || suppress) {
         return;
       }
@@ -1111,14 +1111,14 @@ function setupIndexPage(): void {
       if (level) {
         requestPayload.level = level;
       }
-      console.log('[DEBUG] Sending move request:', requestPayload);
+      
       gameState.awaitingResponse = true;
       updateGameControls();
       boardLoader.hidden = false;
       setStatus('Coup envoyé, attente de la réponse…', 'info');
       postJson(endpoints.move, requestPayload)
         .then((data) => {
-          console.log('[DEBUG] Received response:', data);
+          
           const responsePgn =
             data && typeof data.pgn === 'string' ? data.pgn : playerPgn;
           applyServerUpdate(responsePgn, data);
