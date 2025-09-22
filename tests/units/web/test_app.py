@@ -83,15 +83,23 @@ class CapturingUseCase:
         self.last_pgn: str | None = None
         self.last_result = None
         self.last_selected_level: int | None = None
+        self.last_mode: str | None = None
 
     @property
     def config(self) -> Any:
         return self._inner.config
 
-    def execute(self, pgn: str, selected_level: int | None = None):
+    def execute(
+        self, pgn: str, selected_level: int | None = None, *, mode: str | None = None
+    ):
         self.last_pgn = pgn
         self.last_selected_level = selected_level
-        result = self._inner.execute(pgn, selected_level=selected_level)
+        self.last_mode = mode
+        result = self._inner.execute(
+            pgn,
+            selected_level=selected_level,
+            mode=mode,
+        )
         self.last_result = result
         return result
 
@@ -276,6 +284,9 @@ def test_play_move_endpoint_returns_computer_move(monkeypatch):
     node = game.end()
     assert node.board().fen() == data["fen"]
     assert wrapper.last_selected_level == 1600
+    assert wrapper.last_mode == "play"
+    expected_header = f'[TimeControl "{wrapper.config.play_mode_time_control}"]'
+    assert expected_header in wrapper.last_pgn
 
 
 def test_play_move_endpoint_rejects_missing_pgn(monkeypatch):

@@ -25,6 +25,11 @@ Oracle is the first chess engine that plays like a human, from amateur to super 
 
 L’application web d’Oracle s’appuie sur FastAPI et Jinja2 : la page d’accueil accessible sur `/` affiche un formulaire de saisie de PGN tandis que l’endpoint `/analyze` exécute l’analyse avant de renvoyer la page de résultats avec les coups probables et les métriques associées. L’interface adopte Bootstrap et un thème inspiré de GitHub pour offrir une expérience utilisateur claire et soignée.
 
+### Modes disponibles
+
+- **Analyse** : mode historique de l’application, il exploite les métadonnées présentes dans votre PGN (Elo, cadence) ou celles fournies dans le formulaire pour ajuster les recommandations.
+- **Jouer contre l’ordinateur** : un second onglet « jouer » démarre une partie interactive contre Oracle. Le niveau Elo sélectionné module toujours la force de l’adversaire, mais la cadence est verrouillée à 10 minutes (`600+0`). Le serveur enrichit automatiquement le PGN transmis avec cet en-tête `TimeControl` afin que la détection du type de partie et l’ajustement des évaluations reflètent bien ce format rapide.
+
 ### Prérequis
 
 1. **Moteur Stockfish** : installez Stockfish localement et exportez son chemin absolu dans la variable d’environnement `STOCKFISH_PATH`. Sans cette variable, l’interface affiche un message d’erreur détaillé permettant de corriger la configuration.
