@@ -354,7 +354,7 @@ class StockfishMoveAnalyzer(MoveAnalyzer):
         depth: int,
         threads: int,
         hash_size: int,
-    ) -> list[tuple[str, float | str]]:
+    ) -> list[tuple[str, float | str, list[str]]]:
         engine = self._engine_factory(self._stockfish_path)
         try:
             engine.configure({"Threads": threads, "Hash": hash_size})
@@ -364,10 +364,26 @@ class StockfishMoveAnalyzer(MoveAnalyzer):
                 chess.engine.Limit(time=time_limit, depth=depth),
                 multipv=num_moves,
             )
-            evals: list[tuple[str, float | str]] = []
+            evals: list[tuple[str, float | str, list[str]]] = []
             for i in range(min(num_moves, len(info))):
                 move_info = info[i]
-                move = board.san(chess.Move.from_uci(move_info["pv"][0].uci()))
+                pv_moves = list(move_info.get("pv", []))
+                pv_board = board.copy(stack=False)
+                principal_variation: list[str] = []
+                for pv_move in pv_moves:
+                    try:
+                        san_move = pv_board.san(pv_move)
+                    except ValueError:
+                        san_move = pv_move.uci()
+                    principal_variation.append(san_move)
+                    pv_board.push(pv_move)
+
+                if principal_variation:
+                    move = principal_variation[0]
+                elif pv_moves:
+                    move = board.san(pv_moves[0])
+                else:
+                    continue
                 eval_score = move_info["score"].relative
 
                 if eval_score.is_mate():
@@ -378,7 +394,7 @@ class StockfishMoveAnalyzer(MoveAnalyzer):
                         score_value = -score_value
                     eval_value = score_value
 
-                evals.append((move, eval_value))
+                evals.append((move, eval_value, principal_variation))
             return evals
         finally:
             try:
@@ -493,16 +509,16 @@ def predict_next_moves(pgn: str, config: OracleConfig) -> PredictionResult:
 
 
 __all__ = [
+    "HuggingFaceSequenceProvider",
     "MovePrediction",
     "OracleConfig",
     "PredictionMetrics",
     "PredictionResult",
-    "HuggingFaceSequenceProvider",
     "StockfishMoveAnalyzer",
     "_get_client",
-    "get_legal_moves",
-    "get_top_sequences",
     "build_predict_next_moves_use_case",
     "create_prediction_service",
+    "get_legal_moves",
+    "get_top_sequences",
     "predict_next_moves",
 ]

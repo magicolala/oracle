@@ -66,14 +66,14 @@ class StubMoveAnalyzer:
         depth: int,
         threads: int,
         hash_size: int,
-    ) -> list[tuple[str, float | str]]:
+    ) -> list[tuple[str, float | str, list[str]]]:
         self.calls.append((board.board_fen(), num_moves))
-        evaluations: list[tuple[str, float]] = []
+        evaluations: list[tuple[str, float, list[str]]] = []
         legal_moves = list(board.legal_moves)[:num_moves]
         for index, move in enumerate(legal_moves):
             san_move = board.san(move)
             score = 80 - index * 10 if board.turn == chess.WHITE else -80 + index * 10
-            evaluations.append((san_move, score))
+            evaluations.append((san_move, score, [san_move]))
         return evaluations
 
 
@@ -275,6 +275,7 @@ def test_play_move_endpoint_returns_computer_move(monkeypatch):
     wrapper = captured["service"]
     best_prediction = wrapper.last_result.moves[0]
     assert data["move"]["san"] == best_prediction.move
+    assert data["move"]["principal_variation"] == best_prediction.principal_variation
     assert data["fen"]
     assert data["pgn"]
     assert isinstance(data["finished"], bool)

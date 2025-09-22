@@ -62,15 +62,15 @@ class StubMoveAnalyzer:
         depth: int,
         threads: int,
         hash_size: int,
-    ):
+    ) -> list[tuple[str, float, list[str]]]:
         legal_moves = list(board.legal_moves)[:num_moves]
-        evaluations: list[tuple[str, float]] = []
+        evaluations: list[tuple[str, float, list[str]]] = []
         base = 120.0 if board.turn == chess.WHITE else -120.0
         step = 40.0
         for index, move in enumerate(legal_moves):
             san_move = board.san(move)
             score = base - step * index if board.turn == chess.WHITE else base + step * index
-            evaluations.append((san_move, score))
+            evaluations.append((san_move, score, [san_move]))
         return evaluations
 
 

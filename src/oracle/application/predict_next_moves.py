@@ -215,8 +215,10 @@ class PredictNextMoves(PredictNextMovesUseCase):
             self.config.analysis_hash_size,
         )
 
+        principal_variations: dict[str, list[str]] = {}
         all_evals: list[tuple[str, float]] = []
-        for move, eval_score in all_evals_with_mate:
+        for move, eval_score, variation in all_evals_with_mate:
+            principal_variations[move] = variation
             if isinstance(eval_score, str) and eval_score.startswith("mate:"):
                 mate_value = int(eval_score.split(":")[1])
                 if board.turn == chess.WHITE:
@@ -348,7 +350,7 @@ class PredictNextMoves(PredictNextMovesUseCase):
         }
 
         mate_in_dict: dict[str, int] = {}
-        for move, eval_score in all_evals_with_mate:
+        for move, eval_score, _ in all_evals_with_mate:
             if isinstance(eval_score, str) and eval_score.startswith("mate:"):
                 mate_in_dict[move] = abs(int(eval_score.split(":")[1]))
 
@@ -448,6 +450,7 @@ class PredictNextMoves(PredictNextMovesUseCase):
                     win_percentage_by_rating=rating_breakdown,
                     notation=notation,
                     is_best_move=is_best_move,
+                    principal_variation=principal_variations.get(move),
                 )
             )
 

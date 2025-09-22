@@ -518,6 +518,7 @@ async def play_next_move(payload: PlayMoveRequest) -> JSONResponse:
             "win_percentage": best_move.win_percentage,
             "win_percentage_by_rating": best_move.win_percentage_by_rating,
             "is_best": best_move.is_best_move,
+            "principal_variation": best_move.principal_variation,
         },
         "pgn": updated_pgn,
         "fen": response_board.fen(),

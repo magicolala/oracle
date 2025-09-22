@@ -82,6 +82,7 @@ class MovePrediction:
     win_percentage: float
     notation: str
     is_best_move: bool
+    principal_variation: list[str] | None = None
     win_percentage_by_rating: dict[int, float] = field(default_factory=dict)
 
 
@@ -129,9 +130,9 @@ class PredictionResult:
 
 
 __all__ = [
+    "MovePrediction",
     "OracleConfig",
     "PredictionMetrics",
-    "MovePrediction",
-    "PredictionSnapshot",
     "PredictionResult",
+    "PredictionSnapshot",
 ]

@@ -269,18 +269,35 @@ function setupIndexPage(): void {
     }
   };
 
-  const setStatus = (message?: string, tone: StatusTone = 'info'): void => {
+  const setStatus = (
+    message?: string,
+    tone: StatusTone = 'info',
+    options: { variation?: string[] } = {},
+  ): void => {
     if (!gameStatus) {
       return;
     }
-    if (!message) {
+    const normalizedMessage = typeof message === 'string' ? message.trim() : '';
+    const rawVariation = Array.isArray(options.variation) ? options.variation : [];
+    const sanitizedVariation = rawVariation
+      .map((entry) => (typeof entry === 'string' ? entry.trim() : ''))
+      .filter((entry) => entry.length > 0);
+
+    if (normalizedMessage.length === 0 && sanitizedVariation.length === 0) {
       gameStatus.textContent = '';
       gameStatus.hidden = true;
       gameStatus.classList.remove('alert-info', 'alert-danger', 'alert-success');
       return;
     }
     gameStatus.hidden = false;
-    gameStatus.textContent = message;
+    const segments = [];
+    if (normalizedMessage.length > 0) {
+      segments.push(normalizedMessage);
+    }
+    if (sanitizedVariation.length > 0) {
+      segments.push(`Ligne Stockfish : ${sanitizedVariation.join(' ')}`);
+    }
+    gameStatus.textContent = segments.join('\n');
     gameStatus.classList.remove('alert-info', 'alert-danger', 'alert-success');
     const className = tone === 'error' ? 'alert-danger' : tone === 'success' ? 'alert-success' : 'alert-info';
     gameStatus.classList.add(className);
@@ -345,6 +362,11 @@ function setupIndexPage(): void {
     setTextareaValue(normalized);
 
     const finished = Boolean(data?.finished);
+    const variation: string[] | undefined = Array.isArray(data?.move?.principal_variation)
+      ? data.move.principal_variation.filter(
+          (entry: unknown): entry is string => typeof entry === 'string',
+        )
+      : undefined;
     let message: string | undefined;
     if (typeof data?.status === 'string') {
       message = data.status;
@@ -353,7 +375,7 @@ function setupIndexPage(): void {
     } else if (finished) {
       message = 'Partie terminée.';
     }
-    setStatus(message ?? 'Coup joué.', finished ? 'success' : 'info');
+    setStatus(message ?? 'Coup joué.', finished ? 'success' : 'info', { variation });
 
     if (finished) {
       gameState.inProgress = false;
