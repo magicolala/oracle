@@ -53,11 +53,9 @@
                   <option value="" {% if not selected_level %}selected{% endif %}>
                     Utiliser les Elo du PGN
                   </option>
-                  {% for option in levels or [] %}
-                  <option value="{{ option.value }}" {% if selected_level == option.value %}selected{% endif %}>
-                    {{ option.label }}
-                  </option>
-                  {% endfor %}
+                  <option value="1000">Elo 1000</option>
+                  <option value="1500">Elo 1500</option>
+                  <option value="2000">Elo 2000</option>
                 </select>
                 <div class="form-text">
                   Choisissez un niveau cible pour ignorer les Elo du PGN et appliquer la cadence correspondante.
@@ -71,11 +69,9 @@
                   <option value="" {% if not selected_level %}selected{% endif %}>
                     Recommandé automatiquement
                   </option>
-                  {% for option in levels or [] %}
-                  <option value="{{ option.value }}" {% if selected_level == option.value %}selected{% endif %}>
-                    {{ option.label }}
-                  </option>
-                  {% endfor %}
+                  <option value="1000">Elo 1000</option>
+                  <option value="1500">Elo 1500</option>
+                  <option value="2000">Elo 2000</option>
                 </select>
                 <div class="form-text">
                   Ajustez la difficulté ou laissez Oracle choisir un niveau adapté en fonction de la position.
