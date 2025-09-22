@@ -40,7 +40,9 @@ class PredictNextMoves(PredictNextMovesUseCase):
     move_analyzer: MoveAnalyzer
     config: OracleConfig
 
-    def execute(self, pgn: str, selected_level: int | None = None) -> PredictionResult:
+    def execute(
+        self, pgn: str, selected_level: int | None = None, *, mode: str | None = None
+    ) -> PredictionResult:
         metrics = PredictionMetrics()
 
         cleaned_pgn = clean_pgn(pgn)
@@ -51,7 +53,7 @@ class PredictNextMoves(PredictNextMovesUseCase):
 
         header_lines, token_queue = self._extract_headers_and_tokens(cleaned_pgn)
         white_elo_val, black_elo_val, game_type = self._resolve_game_context(
-            game, selected_level
+            game, selected_level, mode
         )
         high_rating = max(white_elo_val, black_elo_val)
 
@@ -138,10 +140,15 @@ class PredictNextMoves(PredictNextMovesUseCase):
         return moves_segment
 
     def _resolve_game_context(
-        self, game: chess.pgn.Game, selected_level: int | None = None
+        self,
+        game: chess.pgn.Game,
+        selected_level: int | None = None,
+        mode: str | None = None,
     ) -> tuple[int, int, str]:
         if selected_level is not None:
-            time_control = self.config.time_control_for_level(selected_level)
+            time_control = self.config.time_control_for_level(
+                selected_level, mode=mode
+            )
             if time_control is None:
                 raise ValueError(f"Unknown level: {selected_level}")
             game_type = determine_game_type(time_control) if time_control else "Unknown"

@@ -67,9 +67,15 @@ class CapturingUseCase:
     def config(self) -> Any:
         return self._inner.config
 
-    def execute(self, pgn: str, selected_level: int | None = None):
+    def execute(
+        self, pgn: str, selected_level: int | None = None, *, mode: str | None = None
+    ):
         self.last_pgn = pgn
-        result = self._inner.execute(pgn, selected_level=selected_level)
+        result = self._inner.execute(
+            pgn,
+            selected_level=selected_level,
+            mode=mode,
+        )
         self.last_result = result
         return result
 

@@ -174,6 +174,31 @@ def test_execute_applies_selected_level_overrides_pgn_metadata() -> None:
         assert game_type == expected_game_type
 
 
+def test_execute_in_play_mode_uses_ten_minute_time_control() -> None:
+    use_case = RecordingPredictNextMoves(
+        sequence_provider=StubSequenceProvider(),
+        move_analyzer=StubMoveAnalyzer(),
+        config=OracleConfig(
+            stockfish_path="/fake/stockfish",
+            depth=2,
+            analysis_depth=1,
+            rating_buckets=[800, 1200, 1600],
+        ),
+    )
+
+    result = use_case.execute(PGN_SNIPPET, selected_level=800, mode="play")
+
+    assert result.history
+    expected_game_type = determine_game_type(use_case.config.play_mode_time_control)
+    adjusted_rating = adjust_rating(800, expected_game_type)
+    assert use_case.observed_contexts
+    for white_rating, black_rating, high_rating, game_type in use_case.observed_contexts:
+        assert white_rating == adjusted_rating
+        assert black_rating == adjusted_rating
+        assert high_rating == adjusted_rating
+        assert game_type == expected_game_type
+
+
 def test_execute_raises_for_unknown_level() -> None:
     use_case = PredictNextMoves(
         sequence_provider=StubSequenceProvider(),

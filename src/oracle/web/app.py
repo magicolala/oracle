@@ -211,6 +211,28 @@ def _resolve_level(
     return resolved, None
 
 
+def _ensure_time_control_header(pgn: str, time_control: str) -> str:
+    """Guarantee that the PGN contains the requested time control header."""
+
+    if not time_control:
+        return pgn
+
+    header_line = f'[TimeControl "{time_control}"]'
+    lines = pgn.splitlines()
+
+    for index, line in enumerate(lines):
+        if line.startswith("[TimeControl "):
+            lines[index] = header_line
+            break
+    else:
+        insert_index = 0
+        while insert_index < len(lines) and lines[insert_index].startswith("["):
+            insert_index += 1
+        lines.insert(insert_index, header_line)
+
+    return "\n".join(lines)
+
+
 def _build_game_state(
     pgn: str,
 ) -> tuple[chess.pgn.Game, chess.pgn.GameNode, chess.Board]:
@@ -392,6 +414,10 @@ async def play_next_move(payload: PlayMoveRequest) -> JSONResponse:
             detail="Le PGN actuel est nécessaire pour calculer la réponse de l'ordinateur.",
         )
 
+    play_time_control = config.time_control_for_mode("play") or config.play_mode_time_control
+    if play_time_control:
+        normalized_pgn = _ensure_time_control_header(normalized_pgn, play_time_control)
+
     try:
         service = get_prediction_service(config=config)
     except WebAppConfigurationError as exc:  # pragma: no cover - env dependent
@@ -404,7 +430,7 @@ async def play_next_move(payload: PlayMoveRequest) -> JSONResponse:
             hint=exc.hint,
         )
 
-    execution_kwargs: dict[str, int] = {}
+    execution_kwargs = {"mode": "play"}
     if selected_level is not None:
         execution_kwargs["selected_level"] = selected_level
 

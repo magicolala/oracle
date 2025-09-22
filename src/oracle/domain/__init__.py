@@ -37,6 +37,7 @@ class OracleConfig:
             2000: "3600+30",
         }
     )
+    play_mode_time_control: str = "600+0"
     huggingface_client: Any | None = None
     engine_factory: Callable[[str], Any] | None = None
 
@@ -46,10 +47,21 @@ class OracleConfig:
 
         return tuple(sorted(self.level_time_controls))
 
-    def time_control_for_level(self, level: int) -> str | None:
-        """Return the configured time control for a given level when available."""
+    def time_control_for_level(
+        self, level: int, mode: str | None = None
+    ) -> str | None:
+        """Return the time control associated with a level, accounting for the mode."""
 
+        if mode == "play":
+            return self.play_mode_time_control
         return self.level_time_controls.get(level)
+
+    def time_control_for_mode(self, mode: str) -> str | None:
+        """Expose the default time control for a specific interaction mode."""
+
+        if mode == "play":
+            return self.play_mode_time_control
+        return None
 
 
 @dataclass
