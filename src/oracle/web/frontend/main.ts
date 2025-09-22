@@ -26,7 +26,11 @@ interface OracleBoardAPI {
 }
 
 type VerboseMove = Partial<Move> & { san?: string };
-type Mode = 'analyze' | 'play';
+type Mode = 'analyze' | 'play' | 'prediction';
+
+const ANALYSIS_MODES: readonly Mode[] = ['analyze', 'prediction'] as const;
+
+const isAnalysisMode = (value: Mode): boolean => ANALYSIS_MODES.includes(value);
 
 type StatusTone = 'info' | 'error' | 'success';
 
@@ -202,7 +206,7 @@ function setupIndexPage(): void {
   const textarea = document.getElementById('pgn') as HTMLTextAreaElement | null;
   const loadButton = root.querySelector<HTMLButtonElement>('[data-load-pgn]');
   const resetButton = root.querySelector<HTMLButtonElement>('[data-reset-board]');
-  const modeInputs = root.querySelectorAll<HTMLInputElement>('[data-mode-input]');
+  const modeInputs = document.querySelectorAll<HTMLInputElement>('[data-mode-input]');
   const panels = root.querySelectorAll<HTMLElement>('[data-mode-panel]');
   const newGameButton = root.querySelector<HTMLButtonElement>('[data-game-new]');
   const resignButton = root.querySelector<HTMLButtonElement>('[data-game-resign]');
@@ -223,7 +227,17 @@ function setupIndexPage(): void {
   const parseEndpoint = (value: string | undefined): string =>
     value && value.trim().length > 0 ? value.trim() : '';
 
-  let mode: Mode = root.dataset.activeMode === 'play' ? 'play' : 'analyze';
+  const parseMode = (value: string | undefined): Mode => {
+    if (value === 'play') {
+      return 'play';
+    }
+    if (value === 'prediction') {
+      return 'prediction';
+    }
+    return 'analyze';
+  };
+
+  let mode: Mode = parseMode(root.dataset.activeMode);
   let board: OracleBoardAPI | undefined;
   let suppress = false;
 
@@ -256,10 +270,29 @@ function setupIndexPage(): void {
     textarea.value = value;
   };
 
+  const parsePanelModes = (value: string | undefined): string[] => {
+    if (!value) {
+      return [];
+    }
+    return value
+      .split(',')
+      .map((entry) => entry.trim())
+      .filter((entry) => entry.length > 0);
+  };
+
   const updatePanels = (): void => {
     panels.forEach((panel) => {
-      const panelMode = (panel.dataset.modePanel as Mode | undefined) ?? 'analyze';
-      panel.toggleAttribute('hidden', panelMode !== mode);
+      const panelModes = parsePanelModes(panel.dataset.modePanel);
+      const shouldShow =
+        panelModes.length === 0
+          ? isAnalysisMode(mode)
+          : panelModes.some((panelMode) => {
+              if (panelMode === 'analysis') {
+                return isAnalysisMode(mode);
+              }
+              return panelMode === mode;
+            });
+      panel.toggleAttribute('hidden', !shouldShow);
     });
     if (textarea) {
       if (mode === 'play') {
@@ -544,7 +577,11 @@ function setupIndexPage(): void {
     updatePanels();
     updateGameControls();
 
-    if (mode === 'analyze') {
+    if (analysisModeInput) {
+      analysisModeInput.value = isAnalysisMode(mode) ? mode : 'analyze';
+    }
+
+    if (isAnalysisMode(mode)) {
       setStatus();
       if (board) {
         syncBoardToTextarea();
@@ -572,12 +609,13 @@ function setupIndexPage(): void {
       if (!input.checked) {
         return;
       }
-      setMode(input.value === 'play' ? 'play' : 'analyze');
+      const value = input.value === 'play' ? 'play' : input.value === 'prediction' ? 'prediction' : 'analyze';
+      setMode(value);
     });
   });
 
   loadButton?.addEventListener('click', () => {
-    if (mode !== 'analyze') {
+    if (!isAnalysisMode(mode)) {
       return;
     }
     syncBoardToTextarea();
@@ -585,7 +623,7 @@ function setupIndexPage(): void {
   });
 
   resetButton?.addEventListener('click', () => {
-    if (mode !== 'analyze' || !board) {
+    if (!isAnalysisMode(mode) || !board) {
       return;
     }
     withSuppressed(() => board!.reset());
@@ -599,6 +637,7 @@ function setupIndexPage(): void {
   });
 
   const analysisForm = document.querySelector<HTMLFormElement>('form[action="/analyze"]');
+  const analysisModeInput = analysisForm?.querySelector<HTMLInputElement>('[data-analysis-mode-input]');
   analysisForm?.addEventListener('submit', async (event) => {
     event.preventDefault();
 
@@ -758,7 +797,7 @@ function setupIndexPage(): void {
   whenBoardReady((api) => {
     board = api;
 
-    if (mode === 'analyze') {
+    if (isAnalysisMode(mode)) {
       syncBoardToTextarea();
     } else if (board) {
       withSuppressed(() => board!.reset());
@@ -773,7 +812,7 @@ function setupIndexPage(): void {
       if (!board || suppress) {
         return;
       }
-      if (mode === 'analyze') {
+      if (isAnalysisMode(mode)) {
         setTextareaValue(board.getPgn());
         return;
       }
@@ -829,7 +868,7 @@ function setupIndexPage(): void {
       if (suppress) {
         return;
       }
-      if (mode === 'analyze') {
+      if (isAnalysisMode(mode)) {
         if (!textarea || document.activeElement === textarea) {
           return;
         }

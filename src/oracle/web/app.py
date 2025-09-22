@@ -38,6 +38,11 @@ app = FastAPI()
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
 
+ALLOWED_MODES = {"analyze", "play", "prediction"}
+ANALYSIS_MODES = {"analyze", "prediction"}
+DEFAULT_MODE = "analyze"
+MODE_ALIASES = {"prediction": "analyze"}
+
 
 @dataclass
 class ErrorMessage:
@@ -95,17 +100,40 @@ def build_level_options(config: OracleConfig) -> list[dict[str, str]]:
     return options
 
 
+def _resolve_active_mode(raw_mode: str | None) -> tuple[str, str]:
+    normalized = (raw_mode or "").strip().lower()
+    if normalized in ALLOWED_MODES:
+        active_mode = normalized
+    else:
+        active_mode = DEFAULT_MODE
+    effective_mode = MODE_ALIASES.get(active_mode, active_mode)
+    return active_mode, effective_mode
+
+
+def _resolve_analysis_mode(raw_mode: str | None) -> tuple[str, str]:
+    active_mode, effective_mode = _resolve_active_mode(raw_mode)
+    if active_mode not in ANALYSIS_MODES:
+        active_mode = DEFAULT_MODE
+        effective_mode = MODE_ALIASES.get(DEFAULT_MODE, DEFAULT_MODE)
+    return active_mode, effective_mode
+
+
+def _analysis_form_mode(active_mode: str) -> str:
+    return active_mode if active_mode in ANALYSIS_MODES else DEFAULT_MODE
+
+
 @app.get("/", response_class=HTMLResponse, name="index")
 async def index(request: Request) -> HTMLResponse:
     config = get_oracle_config()
-    requested_mode = request.query_params.get("mode", "analyze").strip().lower()
-    active_mode = requested_mode if requested_mode in {"analyze", "play"} else "analyze"
+    requested_mode = request.query_params.get("mode")
+    active_mode, _ = _resolve_active_mode(requested_mode)
     context = {
         "request": request,
         "levels": build_level_options(config),
         "selected_level": "",
         "pgn": "",
         "active_mode": active_mode,
+        "analysis_form_mode": _analysis_form_mode(active_mode),
     }
     return templates.TemplateResponse(request, "index.html", context)
 
@@ -252,17 +280,21 @@ async def analyze(
     request: Request,
     pgn: str = Form(...),
     level: str | None = Form(None),
+    mode: str = Form(DEFAULT_MODE),
 ) -> HTMLResponse:
     config = get_oracle_config()
     level_options = build_level_options(config)
     normalized_pgn = pgn.strip()
     selected_level_raw = (level or "").strip()
+    active_mode, _ = _resolve_analysis_mode(mode)
+    analysis_form_mode = _analysis_form_mode(active_mode)
     base_context = {
         "request": request,
         "pgn": normalized_pgn,
         "levels": level_options,
         "selected_level": selected_level_raw,
-        "active_mode": "analyze",
+        "active_mode": active_mode,
+        "analysis_form_mode": analysis_form_mode,
     }
 
     selected_level_value: int | None = None
