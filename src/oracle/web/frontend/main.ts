@@ -208,6 +208,17 @@ function setupIndexPage(): void {
   const resignButton = root.querySelector<HTMLButtonElement>('[data-game-resign]');
   const gameStatus = root.querySelector<HTMLElement>('[data-game-status]');
   const playLevelSelect = root.querySelector<HTMLSelectElement>('[data-game-level]');
+  const boardPanel = root.querySelector<HTMLElement>('.board-panel');
+  const boardLoader = document.createElement('div');
+  boardLoader.id = 'board-loader';
+  boardLoader.className = 'board-loader';
+  boardLoader.hidden = true;
+  boardLoader.innerHTML = `
+    <div class="spinner-border text-light" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  `;
+  boardPanel?.appendChild(boardLoader);
 
   const parseEndpoint = (value: string | undefined): string =>
     value && value.trim().length > 0 ? value.trim() : '';
@@ -526,6 +537,11 @@ function setupIndexPage(): void {
     }
     gameState.awaitingResponse = true;
     updateGameControls();
+    const originalButtonContent = newGameButton.innerHTML;
+    newGameButton.innerHTML = `
+      <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+      Démarrage...
+    `;
     setStatus('Initialisation de la partie…', 'info');
     try {
       const payload: Record<string, unknown> = {};
@@ -553,6 +569,7 @@ function setupIndexPage(): void {
         error instanceof Error ? error.message : 'Impossible de démarrer la partie.';
       setStatus(message, 'error');
     } finally {
+      newGameButton.innerHTML = originalButtonContent;
       gameState.awaitingResponse = false;
       updateGameControls();
     }
@@ -645,6 +662,7 @@ function setupIndexPage(): void {
       }
       gameState.awaitingResponse = true;
       updateGameControls();
+      boardLoader.hidden = false;
       setStatus('Coup envoyé, attente de la réponse…', 'info');
       postJson(endpoints.move, requestPayload)
         .then((data) => {
@@ -660,6 +678,7 @@ function setupIndexPage(): void {
           revertToStable(previousPgn);
         })
         .finally(() => {
+          boardLoader.hidden = true;
           gameState.awaitingResponse = false;
           updateGameControls();
         });
