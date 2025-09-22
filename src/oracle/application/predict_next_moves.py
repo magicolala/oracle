@@ -409,21 +409,48 @@ class PredictNextMoves(PredictNextMovesUseCase):
                 continue
             valid_moves.append((move, norm_prob, eval_score))
 
-        valid_total_probability = sum(prob for move, prob, eval_score in valid_moves) or 1.0
-        new_normalized_moves: list[tuple[str, float, float, float]] = [
-            (move, prob, (prob / valid_total_probability) * 100, eval_score)
-            for move, prob, eval_score in valid_moves
-        ]
+        valid_total_probability = sum(prob for _, prob, _ in valid_moves)
+        highest_probability = valid_moves[0][1] if valid_moves else 0.0
+        should_preserve_probabilities = bool(valid_moves) and (
+            len(valid_moves) == 1
+            or math.isclose(
+                valid_total_probability,
+                highest_probability,
+                rel_tol=1e-9,
+                abs_tol=1e-6,
+            )
+        )
+        effective_total_probability = valid_total_probability if valid_total_probability > 0 else 1.0
+        new_normalized_moves: list[tuple[str, float, float, float]] = []
+        for move, prob, eval_score in valid_moves:
+            displayed_probability = (
+                prob
+                if should_preserve_probabilities
+                else (prob / effective_total_probability) * 100
+            )
+            new_normalized_moves.append((move, prob, displayed_probability, eval_score))
 
         win_percentages: dict[str, float] = {}
-        current_win_percentage = 0.0
-        for move, _, new_norm_prob, eval_score in new_normalized_moves:
+        weighted_sum = 0.0
+        total_displayed_probability = sum(
+            displayed_prob for _, _, displayed_prob, _ in new_normalized_moves
+        )
+        for move, _, displayed_prob, eval_score in new_normalized_moves:
             win_percentage = calculate_win_percentage(high_rating, eval_score)
             win_percentages[move] = win_percentage
-            current_win_percentage += win_percentage * new_norm_prob / 100
+            weighted_sum += win_percentage * displayed_prob
+
+        if total_displayed_probability > 0:
+            current_win_percentage = weighted_sum / total_displayed_probability
+        else:
+            current_win_percentage = 0.0
 
         best_move_probability = next(
-            (new_norm_prob for move, _, new_norm_prob, _ in new_normalized_moves if move == best_move),
+            (
+                displayed_prob
+                for move, _, displayed_prob, _ in new_normalized_moves
+                if move == best_move
+            ),
             normalized_moves_final.get(best_move, 0.0),
         )
         best_win_percentage = calculate_win_percentage(rating, best_eval_value)

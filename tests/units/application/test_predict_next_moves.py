@@ -24,8 +24,17 @@ PGN_SNIPPET = """
 
 
 class StubSequenceProvider:
-    def __init__(self) -> None:
+    def __init__(
+        self,
+        *,
+        max_moves: int = 2,
+        probabilities: list[float] | None = None,
+    ) -> None:
         self.prompts: list[str] = []
+        self.max_moves = max_moves
+        self.probabilities = (
+            list(probabilities) if probabilities is not None else [0.6, 0.3]
+        )
 
     def get_top_sequences(
         self,
@@ -44,16 +53,24 @@ class StubSequenceProvider:
         metrics.input_tokens += 1
         metrics.output_tokens += 1
         metrics.cost += 0.01
-        selected_moves = legal_moves[:2]
-        probabilities = [0.6, 0.3]
+        limit = max(0, min(len(legal_moves), self.max_moves))
+        selected_moves = legal_moves[:limit]
         results: list[tuple[str, float]] = []
         for index, move in enumerate(selected_moves):
-            weight = probabilities[index] if index < len(probabilities) else 0.1
+            if index < len(self.probabilities):
+                weight = self.probabilities[index]
+            elif self.probabilities:
+                weight = self.probabilities[-1]
+            else:
+                weight = 0.1
             results.append((move, math.log(weight)))
         return results
 
 
 class StubMoveAnalyzer:
+    def __init__(self, *, max_moves: int | None = None) -> None:
+        self.max_moves = max_moves
+
     def analyze(
         self,
         board: chess.Board,
@@ -64,6 +81,8 @@ class StubMoveAnalyzer:
         hash_size: int,
     ) -> list[tuple[str, float | str, list[str]]]:
         legal_moves = list(board.legal_moves)[:num_moves]
+        if self.max_moves is not None:
+            legal_moves = legal_moves[: self.max_moves]
         evaluations: list[tuple[str, float, list[str]]] = []
         base = 120.0 if board.turn == chess.WHITE else -120.0
         step = 40.0
@@ -128,8 +147,8 @@ def test_use_case_combines_sequence_and_engine_results() -> None:
     total_likelihood = sum(move.likelihood for move in final_snapshot.moves)
     assert math.isclose(total_likelihood, 100.0, rel_tol=1e-3)
     recomputed_eval = sum(
-        move.win_percentage * move.likelihood / 100 for move in final_snapshot.moves
-    )
+        move.win_percentage * move.likelihood for move in final_snapshot.moves
+    ) / total_likelihood
     assert math.isclose(final_snapshot.current_win_percentage, recomputed_eval, rel_tol=1e-6)
     assert math.isclose(result.current_win_percentage, final_snapshot.current_win_percentage, rel_tol=1e-6)
 
@@ -172,6 +191,35 @@ def test_execute_applies_selected_level_overrides_pgn_metadata() -> None:
         assert black_rating == adjusted_rating
         assert high_rating == adjusted_rating
         assert game_type == expected_game_type
+
+
+def test_single_move_probability_is_not_forced_to_hundred_percent() -> None:
+    sequence_provider = StubSequenceProvider(probabilities=[0.65, 0.2])
+    move_analyzer = StubMoveAnalyzer(max_moves=1)
+    use_case = PredictNextMoves(
+        sequence_provider=sequence_provider,
+        move_analyzer=move_analyzer,
+        config=OracleConfig(
+            stockfish_path="/fake/stockfish",
+            depth=2,
+            analysis_depth=1,
+            rating_buckets=[1500],
+        ),
+    )
+
+    result = use_case.execute(PGN_SNIPPET)
+
+    final_snapshot = result.history[-1]
+    assert len(final_snapshot.moves) == 1
+    sole_move = final_snapshot.moves[0]
+    assert sole_move.likelihood == pytest.approx(87.046, abs=1e-3)
+    assert sole_move.likelihood < 100.0
+    assert final_snapshot.current_win_percentage == pytest.approx(
+        sole_move.win_percentage, rel=1e-6
+    )
+    assert result.current_win_percentage == pytest.approx(
+        final_snapshot.current_win_percentage, rel=1e-6
+    )
 
 
 def test_execute_in_play_mode_uses_ten_minute_time_control() -> None:
