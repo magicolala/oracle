@@ -1,4 +1,6 @@
 import './styles/board.css';
+import Chart from 'chart.js/auto';
+import type { ChartConfiguration, TooltipItem } from 'chart.js';
 import { NeoChessBoard } from '@magicolala/neo-chess-board/core/NeoChessBoard';
 import { ChessJsRules } from '@magicolala/neo-chess-board/core/ChessJsRules';
 import { PGNRecorder } from '@magicolala/neo-chess-board/core/PGN';
@@ -47,9 +49,21 @@ interface GameState {
   selectedLevel: string;
 }
 
+interface MoveChartPoint {
+  label: string;
+  likelihood: number;
+  winPercentage: number;
+  isBestMove: boolean;
+}
+
+interface OracleChartsAPI {
+  refreshCharts: (root?: Document | Element) => void;
+}
+
 declare global {
   interface Window {
     oracleBoard?: OracleBoardAPI;
+    oracleCharts?: OracleChartsAPI;
   }
 }
 
@@ -71,6 +85,265 @@ function notifyBoardReady(board: OracleBoardAPI): void {
     callback?.(board);
   }
 }
+
+const chartInstances = new WeakMap<HTMLCanvasElement, Chart>();
+let chartTabEventsBound = false;
+
+const CHART_CANVAS_SELECTOR = '[data-prediction-chart]';
+
+function clampPercentage(value: number): number {
+  if (Number.isNaN(value)) {
+    return 0;
+  }
+  return Math.min(100, Math.max(0, value));
+}
+
+function parsePercentage(input: unknown): number | null {
+  if (typeof input === 'number' && Number.isFinite(input)) {
+    return clampPercentage(input);
+  }
+  if (typeof input === 'string') {
+    const parsed = Number.parseFloat(input);
+    if (Number.isFinite(parsed)) {
+      return clampPercentage(parsed);
+    }
+  }
+  return null;
+}
+
+function parseChartPoints(canvas: HTMLCanvasElement): MoveChartPoint[] {
+  const rawSeries = canvas.dataset.chartSeries;
+  if (!rawSeries) {
+    return [];
+  }
+  try {
+    const parsed = JSON.parse(rawSeries) as unknown;
+    if (!Array.isArray(parsed)) {
+      return [];
+    }
+    return parsed
+      .map((entry): MoveChartPoint | null => {
+        if (!entry || typeof entry !== 'object') {
+          return null;
+        }
+        const record = entry as Record<string, unknown>;
+        const rawLabel = record.label ?? record.move;
+        const label = typeof rawLabel === 'string' ? rawLabel.trim() : '';
+        if (!label) {
+          return null;
+        }
+        const likelihood = parsePercentage(record.likelihood);
+        const evaluation = parsePercentage(record.win_percentage ?? record.winPercentage);
+        if (likelihood === null || evaluation === null) {
+          return null;
+        }
+        const isBestMove = Boolean(record.is_best_move ?? record.isBestMove);
+        return {
+          label,
+          likelihood,
+          winPercentage: evaluation,
+          isBestMove,
+        };
+      })
+      .filter((entry): entry is MoveChartPoint => entry !== null);
+  } catch (error) {
+    console.warn('[oracle-board] Unable to parse chart payload.', error);
+    return [];
+  }
+}
+
+function extractTooltipValue(context: TooltipItem<'bar'>): number | null {
+  const parsed = context.parsed as unknown;
+  if (typeof parsed === 'number' && Number.isFinite(parsed)) {
+    return parsed;
+  }
+  if (parsed && typeof parsed === 'object' && 'y' in parsed) {
+    const candidate = (parsed as { y?: unknown }).y;
+    if (typeof candidate === 'number' && Number.isFinite(candidate)) {
+      return candidate;
+    }
+  }
+  return null;
+}
+
+function buildChartConfiguration(points: MoveChartPoint[]): ChartConfiguration<'bar', (number | null)[], string> {
+  const labels = points.map((point) => point.label);
+  const likelihoods = points.map((point) => point.likelihood);
+  const evaluations = points.map((point) => point.winPercentage);
+  const backgroundColors = points.map((point) =>
+    point.isBestMove ? 'rgba(25, 135, 84, 0.7)' : 'rgba(13, 110, 253, 0.65)',
+  );
+  const borderColors = points.map((point) =>
+    point.isBestMove ? 'rgba(25, 135, 84, 1)' : 'rgba(13, 110, 253, 1)',
+  );
+
+  return {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        {
+          type: 'bar',
+          label: 'Probabilité (%)',
+          data: likelihoods,
+          backgroundColor: backgroundColors,
+          borderColor: borderColors,
+          borderWidth: 1,
+          yAxisID: 'likelihood',
+        },
+        {
+          type: 'line',
+          label: 'Score attendu (%)',
+          data: evaluations,
+          borderColor: 'rgba(220, 53, 69, 0.85)',
+          backgroundColor: 'rgba(220, 53, 69, 0.85)',
+          yAxisID: 'evaluation',
+          tension: 0.25,
+          fill: false,
+          pointRadius: 4,
+          pointHoverRadius: 5,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: {
+        mode: 'index',
+        intersect: false,
+      },
+      scales: {
+        x: {
+          ticks: {
+            maxRotation: 45,
+            minRotation: 0,
+          },
+        },
+        likelihood: {
+          beginAtZero: true,
+          min: 0,
+          max: 100,
+          position: 'left',
+          title: {
+            display: true,
+            text: 'Probabilité (%)',
+          },
+          ticks: {
+            callback(value) {
+              return `${value}%`;
+            },
+          },
+        },
+        evaluation: {
+          beginAtZero: true,
+          min: 0,
+          max: 100,
+          position: 'right',
+          grid: {
+            drawOnChartArea: false,
+          },
+          title: {
+            display: true,
+            text: 'Score attendu (%)',
+          },
+          ticks: {
+            callback(value) {
+              return `${value}%`;
+            },
+          },
+        },
+      },
+      plugins: {
+        legend: {
+          labels: {
+            usePointStyle: true,
+          },
+        },
+        tooltip: {
+          callbacks: {
+            label(context: TooltipItem<'bar'>) {
+              const baseLabel = context.dataset.label ?? '';
+              const value = extractTooltipValue(context);
+              if (!Number.isFinite(value ?? Number.NaN)) {
+                return baseLabel;
+              }
+              const formatted = (value as number).toFixed(2);
+              return baseLabel ? `${baseLabel}: ${formatted}%` : `${formatted}%`;
+            },
+          },
+        },
+      },
+    },
+  } as ChartConfiguration<'bar', (number | null)[], string>;
+}
+
+function ensureChartForCanvas(canvas: HTMLCanvasElement): void {
+  if (chartInstances.has(canvas)) {
+    return;
+  }
+  const context = canvas.getContext('2d');
+  if (!context) {
+    console.warn('[oracle-board] Chart canvas is missing a 2D context.');
+    return;
+  }
+  const points = parseChartPoints(canvas);
+  if (points.length === 0) {
+    return;
+  }
+  const configuration = buildChartConfiguration(points);
+  const chart = new Chart(context, configuration);
+  chartInstances.set(canvas, chart);
+}
+
+function renderChartsInPane(pane: Element): void {
+  const canvases = pane.querySelectorAll<HTMLCanvasElement>(CHART_CANVAS_SELECTOR);
+  canvases.forEach((canvas) => ensureChartForCanvas(canvas));
+}
+
+function handleTabShown(event: Event): void {
+  const target = event.target;
+  if (!(target instanceof HTMLElement)) {
+    return;
+  }
+  const selector = target.getAttribute('data-bs-target');
+  if (!selector) {
+    return;
+  }
+  const pane = document.querySelector(selector);
+  if (pane instanceof Element) {
+    renderChartsInPane(pane);
+  }
+}
+
+function setupResultPageCharts(root: Document | Element = document): void {
+  const canvases = root.querySelectorAll<HTMLCanvasElement>(CHART_CANVAS_SELECTOR);
+  if (canvases.length === 0) {
+    return;
+  }
+
+  if (!chartTabEventsBound) {
+    const delegatedHandler = (event: Event) => handleTabShown(event);
+    document.addEventListener('shown.bs.tab', delegatedHandler);
+    chartTabEventsBound = true;
+  }
+
+  canvases.forEach((canvas) => {
+    const pane = canvas.closest('.tab-pane');
+    if (!pane) {
+      ensureChartForCanvas(canvas);
+      return;
+    }
+    if (pane.classList.contains('active') && pane.classList.contains('show')) {
+      ensureChartForCanvas(canvas);
+    }
+  });
+}
+
+window.oracleCharts = {
+  refreshCharts(root?: Document | Element) {
+    setupResultPageCharts(root ?? document);
+  },
+};
 
 function toRecorderMove(move: Partial<Move>): Move {
   return {
@@ -684,7 +957,7 @@ function setupIndexPage(): void {
     }
   });
 
-  const executeScripts = (container: HTMLElement) => {
+  const executeScripts = (container: Element) => {
     const scripts = Array.from(container.querySelectorAll('script'));
     scripts.forEach((script) => {
       const newScript = document.createElement('script');
@@ -888,6 +1161,7 @@ function setupIndexPage(): void {
 function onDomReady(): void {
   setupIndexPage();
   bootstrapBoard();
+  setupResultPageCharts();
 }
 
 if (document.readyState === 'loading') {

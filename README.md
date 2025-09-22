@@ -88,6 +88,7 @@ La page de résultats affiche :
 - Le pourcentage de gain estimé pour les blancs dans la position actuelle.
 - Un tableau classé des coups probables, avec pour chacun la probabilité, l’évaluation et un indicateur si le coup est considéré comme « best ».
   Chaque ligne propose également un volet « Évaluations Elo » détaillant les pourcentages calculés pour chaque palier configuré.
+- Une visualisation interactive superpose les probabilités (barres) et le score attendu (courbe) pour comparer rapidement l’impact des coups proposés.
 - Les métriques de consommation du modèle (tokens entrants/sortants et coût estimé) présentées sous forme de cartes.
 - Le PGN analysé pour vérification rapide.
 
