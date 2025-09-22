@@ -15,12 +15,12 @@
   </head>
   <body class="app-shell">
     <nav class="app-nav navbar navbar-dark">
-      <div class="container-xxl px-4 px-lg-5">
+      <div class="container-fluid px-4 px-lg-5">
         <a class="navbar-brand" href="/">Oracle Analyzer</a>
       </div>
     </nav>
     <main class="app-main">
-      <div class="container-xxl px-4 px-lg-5">
+      <div class="container-fluid px-4 px-lg-5">
         <div class="row g-4 justify-content-center">
           <div class="col-12 col-xl-10 col-xxl-9">
             {% if error %}
@@ -42,7 +42,7 @@
               data-game-resign-endpoint="/play/resign"
             >
               <div class="row g-5 align-items-start">
-                <div class="col-lg-5 col-xl-4 order-lg-2">
+                <div class="col-lg-6 col-xl-5 order-lg-2">
                   <div class="board-panel">
                     <p class="board-panel__header mb-1">Plateau interactif</p>
                     <div id="oracle-board"></div>
@@ -51,7 +51,7 @@
                     </p>
                   </div>
                 </div>
-                <div class="col-lg-7 col-xl-8 order-lg-1">
+                <div class="col-lg-6 col-xl-7 order-lg-1">
                   <div class="mb-4">
                   <div class="btn-group" role="group" aria-label="Mode d'utilisation">
                     <input
@@ -258,7 +258,7 @@
       </div>
     </main>
     <footer class="app-footer text-center small">
-      <div class="container-xxl px-4 px-lg-5">
+      <div class="container-fluid px-4 px-lg-5">
         <span>
           Besoin d'aide ? Consultez la documentation dans le README ou vérifiez les logs serveur pour plus de détails.
         </span>
