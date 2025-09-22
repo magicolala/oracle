@@ -316,7 +316,7 @@
         </span>
       </div>
     </footer>
-    <script type="module" src="{{ url_for('static', path='oracle-board.js') }}"></script>
+        <script type="module" src="{{ url_for('static', path='oracle-board.js') }}"></script>
     <script type="module">
       import { Modal } from 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js';
 
@@ -335,6 +335,35 @@
         const playLevelSelect = document.getElementById('play-level');
         const commenceButton = document.querySelector('#initialConfigModal .btn-primary');
         const controlsColumn = document.getElementById('controls-column'); // Get the controls column
+
+        // Get references to layout elements
+        const navElement = document.querySelector('.app-nav');
+        const footerElement = document.querySelector('.app-footer');
+        const mainElement = document.querySelector('.app-main');
+        const oracleBoard = document.getElementById('oracle-board');
+        const boardPanel = document.querySelector('.board-panel');
+
+
+        // Function to calculate and set chessboard size
+        const setChessboardSize = () => {
+          const navHeight = navElement ? navElement.offsetHeight : 0;
+          const footerHeight = footerElement ? footerElement.offsetHeight : 0;
+          const mainPadding = 32; // Approximate padding from .card p-4 p-lg-5 and row g-4
+          const availableHeight = window.innerHeight - navHeight - footerHeight - (mainPadding * 2); // Adjust for main content padding/margins
+          const availableWidth = mainElement.offsetWidth;
+
+          // The chessboard is a square, so its size is limited by the minimum of available height and width
+          const boardSize = Math.min(availableHeight, availableWidth);
+
+          if (oracleBoard && boardPanel) {
+            oracleBoard.style.width = `${boardSize}px`;
+            oracleBoard.style.height = `${boardSize}px`;
+            // Adjust board-panel to center the board if needed, or ensure it doesn't add extra space
+            boardPanel.style.width = `${boardSize}px`;
+            boardPanel.style.height = `${boardSize}px`;
+            boardPanel.style.margin = '0 auto'; // Center the board panel
+          }
+        };
 
         // Function to update UI based on selected mode
         const updateModeUI = (mode) => {
@@ -362,7 +391,7 @@
 
 
         commenceButton.addEventListener('click', () => {
-          const selectedMode = document.querySelector('input[name="oracle-mode"]:checked').value;
+          const selectedMode = document.querySelector('input[name="oracle-mode']:checked').value;
           let selectedLevel = '';
 
           if (selectedMode === 'analyze') {
@@ -376,7 +405,12 @@
           // For now, we'll just update the activeMode.
 
           initialConfigModal.hide();
+          setChessboardSize(); // Set chessboard size after modal is dismissed
         });
+
+        // Set initial size and add resize listener
+        setChessboardSize();
+        window.addEventListener('resize', setChessboardSize);
       });
     </script>
   </body>
