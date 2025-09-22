@@ -154,11 +154,31 @@ def test_index_page_exposes_mode_selector():
     assert 'data-app-root' in response.text
     assert 'data-mode-input' in response.text
     assert 'value="analyze"' in response.text
+    assert 'value="prediction"' in response.text
     assert 'value="play"' in response.text
     assert 'data-mode-panel="play"' in response.text
+    assert 'data-mode-panel="prediction"' in response.text
+    assert 'data-mode-panel="analyze,prediction"' in response.text
     assert 'data-game-level' in response.text
     assert 'data-game-new' in response.text
     assert 'data-game-resign' in response.text
+    assert 'data-analysis-mode-input' in response.text
+
+
+def test_index_page_activates_prediction_mode():
+    transport = ASGITransport(app=app)
+
+    async def perform_request():
+        async with AsyncClient(transport=transport, base_url="http://testserver") as async_client:
+            return await async_client.get("/?mode=prediction")
+
+    response = asyncio.run(perform_request())
+
+    assert response.status_code == status.HTTP_200_OK
+    assert 'data-active-mode="prediction"' in response.text
+    assert 'id="mode-prediction"' in response.text
+    assert 'value="prediction"' in response.text
+    assert 'name="mode" value="prediction"' in response.text
 
 
 def test_analyze_endpoint_returns_predictions(monkeypatch):
@@ -187,6 +207,30 @@ def test_analyze_endpoint_returns_predictions(monkeypatch):
     assert first_move in response.text
     assert "Évaluations Elo" in response.text
     assert wrapper.last_selected_level is None
+
+
+def test_analyze_endpoint_respects_prediction_mode(monkeypatch):
+    captured = configure_test_environment(monkeypatch)
+    monkeypatch.setenv("STOCKFISH_PATH", "/fake/stockfish")
+    monkeypatch.setenv("HUGGINGFACE_MODEL_ID", "test/model")
+    monkeypatch.setenv("HUGGINGFACEHUB_API_TOKEN", "api-token")
+
+    transport = ASGITransport(app=app)
+
+    async def perform_request():
+        async with AsyncClient(transport=transport, base_url="http://testserver") as async_client:
+            return await async_client.post(
+                "/analyze",
+                data={"pgn": SAMPLE_PGN, "mode": "prediction"},
+            )
+
+    response = asyncio.run(perform_request())
+
+    assert response.status_code == status.HTTP_200_OK
+    wrapper = captured["service"]
+    assert wrapper.last_pgn == SAMPLE_PGN
+    assert wrapper.last_mode is None
+    assert "href=\"/?mode=prediction\"" in response.text
 
 
 def test_analyze_endpoint_forwards_selected_level(monkeypatch):

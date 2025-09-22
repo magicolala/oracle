@@ -14,6 +14,11 @@
     <link rel="stylesheet" href="{{ url_for('static', path='oracle-board.css') }}" />
   </head>
   <body class="app-shell">
+    {% set current_mode = active_mode or 'analyze' %}
+    {% set analysis_modes = ['analyze', 'prediction'] %}
+    {% set is_analyze_mode = current_mode == 'analyze' %}
+    {% set is_prediction_mode = current_mode == 'prediction' %}
+    {% set is_play_mode = current_mode == 'play' %}
     <!-- Initial Configuration Modal -->
     <div class="modal fade" id="initialConfigModal" tabindex="-1" aria-labelledby="initialConfigModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
       <div class="modal-dialog modal-dialog-centered">
@@ -31,9 +36,19 @@
                   id="mode-analyze"
                   value="analyze"
                   data-mode-input
-                  {% if active_mode != 'play' %}checked{% endif %}
+                  {% if is_analyze_mode %}checked{% endif %}
                 />
                 <label class="btn btn-outline-primary" for="mode-analyze">Analyse</label>
+                <input
+                  type="radio"
+                  class="btn-check"
+                  name="oracle-mode"
+                  id="mode-prediction"
+                  value="prediction"
+                  data-mode-input
+                  {% if is_prediction_mode %}checked{% endif %}
+                />
+                <label class="btn btn-outline-primary" for="mode-prediction">Prédictions</label>
                 <input
                   type="radio"
                   class="btn-check"
@@ -41,12 +56,12 @@
                   id="mode-play"
                   value="play"
                   data-mode-input
-                  {% if active_mode == 'play' %}checked{% endif %}
+                  {% if is_play_mode %}checked{% endif %}
                 />
                 <label class="btn btn-outline-primary" for="mode-play">Jouer contre l'ordinateur</label>
               </div>
             </div>
-            <div data-mode-panel="analyze" {% if active_mode == 'play' %}hidden{% endif %}>
+            <div data-mode-panel="analyze" {% if not is_analyze_mode %}hidden{% endif %}>
               <div class="col-12 col-md-6">
                 <label for="modal-analysis-level" class="form-label fw-semibold">Niveau (optionnel)</label>
                 <select class="form-select" id="modal-analysis-level" name="level">
@@ -62,7 +77,18 @@
                 </div>
               </div>
             </div>
-            <div data-mode-panel="play" {% if active_mode != 'play' %}hidden{% endif %}>
+            <div data-mode-panel="prediction" {% if not is_prediction_mode %}hidden{% endif %}>
+              <div class="col-12 col-md-8">
+                <p class="mb-2">
+                  Le mode <strong>Prédictions</strong> vous permet d'obtenir rapidement les coups les plus probables
+                  à partir d'un PGN ou du plateau interactif.
+                </p>
+                <p class="text-secondary mb-0">
+                  Sélectionnez éventuellement un niveau cible pour adapter la cadence puis lancez la génération.
+                </p>
+              </div>
+            </div>
+            <div data-mode-panel="play" {% if not is_play_mode %}hidden{% endif %}>
               <div class="col-12 col-md-6">
                 <label for="modal-play-level" class="form-label fw-semibold">Niveau de l'adversaire</label>
                 <select class="form-select" id="modal-play-level" data-game-level>
@@ -107,7 +133,7 @@
             <div
               class="card p-4 p-lg-5"
               data-app-root
-              data-active-mode="{{ active_mode or 'analyze' }}"
+              data-active-mode="{{ current_mode }}"
               data-game-new-endpoint="/play/new"
               data-game-move-endpoint="/play/move"
               data-game-resign-endpoint="/play/resign"
@@ -123,52 +149,74 @@
                   </div>
                 </div>
                   <div class="col-12 col-lg-6 d-flex flex-column gap-4" hidden id="controls-column">
-                    <div data-mode-panel="analyze" {% if active_mode == 'play' %}hidden{% endif %}>
+                    <div data-mode-panel="analyze" class="mode-intro" {% if not is_analyze_mode %}hidden{% endif %}>
                       <h1 class="h3 mb-3">Analyser un PGN</h1>
                       <p class="text-secondary mb-4">
-                        Collez ci-dessous la partie jusqu'au coup que vous souhaitez analyser, puis cliquez sur
-                        <strong>Analyser</strong> pour obtenir les coups les plus probables selon Oracle.
+                        Collez la partie jusqu'au coup à étudier puis lancez une analyse complète pour découvrir les
+                        séquences les plus probables.
                       </p>
-                      <form method="post" action="/analyze" class="row g-3">
-                        <div class="col-12">
-                          <div class="form-label-group mb-2">
-                            <label for="pgn" class="form-label fw-semibold mb-0">PGN</label>
-                            <div class="board-actions">
-                              <button type="button" class="btn btn-outline-secondary btn-sm" data-load-pgn>
-                                Synchroniser le plateau
-                              </button>
-                              <button type="button" class="btn btn-outline-danger btn-sm" data-reset-board>
-                                Réinitialiser
-                              </button>
-                            </div>
-                          </div>
-                          <textarea class="form-control" id="pgn" name="pgn" required>{{ pgn or "" }}</textarea>
-                        </div>
-                        <div class="col-12 col-md-6">
-                          <label for="analysis-level" class="form-label fw-semibold">Niveau (optionnel)</label>
-                          <select class="form-select" id="analysis-level" name="level">
-                            <option value="" {% if not selected_level %}selected{% endif %}>
-                              Utiliser les Elo du PGN
-                            </option>
-                            {% for option in levels or [] %}
-                            <option value="{{ option.value }}" {% if selected_level == option.value %}selected{% endif %}>
-                              {{ option.label }}
-                            </option>
-                            {% endfor %}
-                          </select>
-                          <div class="form-text">
-                            Choisissez un niveau cible pour ignorer les Elo du PGN et appliquer la cadence correspondante.
-                          </div>
-                        </div>
-                        <div class="col-12 d-flex justify-content-end">
-                          <button type="submit" class="btn btn-primary">
-                            <span class="me-2" aria-hidden="true">♟️</span>
-                            Analyser
-                          </button>
-                        </div>
-                      </form>
                     </div>
-                    <div data-mode-panel="play" {% if active_mode == 'play' %}hidden{% endif %}>
+                    <div data-mode-panel="prediction" class="mode-intro" {% if not is_prediction_mode %}hidden{% endif %}>
+                      <h1 class="h3 mb-3">Mode Prédictions</h1>
+                      <p class="text-secondary mb-4">
+                        Utilisez le plateau ou un PGN pour générer instantanément les prochains coups suggérés tout en
+                        conservant l'historique dans le tableau des résultats.
+                      </p>
+                    </div>
+                    <form
+                      method="post"
+                      action="/analyze"
+                      class="row g-3"
+                      data-mode-panel="analyze,prediction"
+                      {% if current_mode not in analysis_modes %}hidden{% endif %}
+                    >
+                      <input
+                        type="hidden"
+                        name="mode"
+                        value="{{ analysis_form_mode or 'analyze' }}"
+                        data-analysis-mode-input
+                      />
+                      <div class="col-12">
+                        <div class="form-label-group mb-2">
+                          <label for="pgn" class="form-label fw-semibold mb-0">PGN</label>
+                          <div class="board-actions">
+                            <button type="button" class="btn btn-outline-secondary btn-sm" data-load-pgn>
+                              Synchroniser le plateau
+                            </button>
+                            <button type="button" class="btn btn-outline-danger btn-sm" data-reset-board>
+                              Réinitialiser
+                            </button>
+                          </div>
+                        </div>
+                        <textarea class="form-control" id="pgn" name="pgn" required>{{ pgn or "" }}</textarea>
+                      </div>
+                      <div class="col-12 col-md-6">
+                        <label for="analysis-level" class="form-label fw-semibold">Niveau (optionnel)</label>
+                        <select class="form-select" id="analysis-level" name="level">
+                          <option value="" {% if not selected_level %}selected{% endif %}>
+                            Utiliser les Elo du PGN
+                          </option>
+                          {% for option in levels or [] %}
+                          <option value="{{ option.value }}" {% if selected_level == option.value %}selected{% endif %}>
+                            {{ option.label }}
+                          </option>
+                          {% endfor %}
+                        </select>
+                        <div class="form-text">
+                          Choisissez un niveau cible pour ignorer les Elo du PGN et appliquer la cadence correspondante.
+                        </div>
+                      </div>
+                      <div class="col-12 d-flex justify-content-end">
+                        <button type="submit" class="btn btn-primary">
+                          <span class="me-2" aria-hidden="true">♟️</span>
+                          <span data-mode-panel="analyze" {% if not is_analyze_mode %}hidden{% endif %}>Analyser</span>
+                          <span data-mode-panel="prediction" {% if not is_prediction_mode %}hidden{% endif %}>
+                            Lancer la prédiction
+                          </span>
+                        </button>
+                      </div>
+                    </form>
+                    <div data-mode-panel="play" {% if not is_play_mode %}hidden{% endif %}>
                       <h1 class="h3 mb-3">Jouer contre l'ordinateur</h1>
                       <p class="text-secondary mb-4">
                         Choisissez la force adverse, démarrez une nouvelle partie puis jouez vos coups directement sur le plateau.
@@ -338,8 +386,11 @@
         }
 
         const appRoot = document.querySelector('[data-app-root]');
-        const modeAnalyzePanel = document.querySelector('[data-mode-panel="analyze"]');
-        const modePlayPanel = document.querySelector('[data-mode-panel="play"]');
+        const modalModePanels = {
+          analyze: modalElement?.querySelector('[data-mode-panel="analyze"]') ?? null,
+          prediction: modalElement?.querySelector('[data-mode-panel="prediction"]') ?? null,
+          play: modalElement?.querySelector('[data-mode-panel="play"]') ?? null,
+        };
         const modeInputs = document.querySelectorAll('input[name="oracle-mode"]');
         const analysisLevelSelect = document.getElementById('modal-analysis-level');
         const playLevelSelect = document.getElementById('modal-play-level');
@@ -388,14 +439,16 @@
         };
 
         // Function to update UI based on selected mode
+        const analysisModeSet = new Set(['analyze', 'prediction']);
+
         const updateModeUI = (mode) => {
-          if (mode === 'analyze') {
-            modeAnalyzePanel.hidden = false;
-            modePlayPanel.hidden = true;
-            controlsColumn.hidden = false; // Show controls column for analyze mode
-          } else {
-            modeAnalyzePanel.hidden = true;
-            modePlayPanel.hidden = false;
+          (Object.entries(modalModePanels) || []).forEach(([panelMode, panelElement]) => {
+            if (!panelElement) {
+              return;
+            }
+            panelElement.hidden = panelMode !== mode;
+          });
+          if (controlsColumn) {
             controlsColumn.hidden = false;
           }
         };
@@ -414,17 +467,14 @@
 
         commenceButton.addEventListener('click', () => {
           const selectedMode = document.querySelector('input[name="oracle-mode"]:checked').value;
-          let selectedLevel = '';
-
-          if (selectedMode === 'analyze') {
-            selectedLevel = analysisLevelSelect ? analysisLevelSelect.value : '';
-          } else {
-            selectedLevel = playLevelSelect ? playLevelSelect.value : '';
-          }
+          const isAnalysisMode = analysisModeSet.has(selectedMode);
+          const selectedLevel = isAnalysisMode
+            ? analysisLevelSelect?.value ?? ''
+            : playLevelSelect?.value ?? '';
 
           appRoot.dataset.activeMode = selectedMode;
           updateModeUI(selectedMode);
-          if (selectedMode === 'analyze' && analysisFormSelect) {
+          if (isAnalysisMode && analysisFormSelect) {
             analysisFormSelect.value = selectedLevel;
           }
           if (selectedMode === 'play' && playFormSelect) {
