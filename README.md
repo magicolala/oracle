@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Oracle is the first chess engine that plays like a human, from amateur to super GM. She can play like a 2800-rated player in classical or an 800-rated player in blitz, or at any other level, in any time control. 
+Oracle is the first chess engine that plays like a human, from amateur to super GM. She can play like a 2800-rated player in classical or an 800-rated player in blitz, or at any other level, in any time control.
 
 ## Features
 
@@ -39,16 +39,20 @@ L’application web d’Oracle s’appuie sur FastAPI et Jinja2 : la page d’a
 ### Démarrage du serveur
 
 1. Exportez les variables d’environnement nécessaires :
+
    ```bash
    export STOCKFISH_PATH=/chemin/vers/stockfish
    export HUGGINGFACEHUB_API_TOKEN=...        # optionnel
    export HUGGINGFACE_MODEL_ID=...            # optionnel
    ```
+
 2. Lancez le serveur local avec Uvicorn :
+
    ```bash
    uvicorn src.oracle.web.app:app --reload
    ```
-   Le serveur écoute alors (par défaut) sur http://127.0.0.1:8000/ et recharge automatiquement lors de modifications en mode développement.
+
+   Le serveur écoute alors (par défaut) sur <http://127.0.0.1:8000/> et recharge automatiquement lors de modifications en mode développement.
 
 ### Construire le front-end TypeScript
 
@@ -118,7 +122,7 @@ Oracle now defaults to the free [`mistralai/Mistral-7B-Instruct-v0.2`](https://h
 
 ![Ding vs. Nepo, round 14 after 58...a3](docs/static/ding_vs_nepo_chesscom.png)
 
-Position after 58...a3 in the last tie-break of the [2023 World Championship.](https://www.chess.com/events/2023-fide-world-chess-championship/18/Nepomniachtchi_Ian-Ding_Liren) Stockfish shows 0.00, but considering it's rapid, Oracle only gives white a 18.50% expected score. Nepo ended up blundering with 59. Qc7??, which was the likeliest move according to Oracle. 
+Position after 58...a3 in the last tie-break of the [2023 World Championship.](https://www.chess.com/events/2023-fide-world-chess-championship/18/Nepomniachtchi_Ian-Ding_Liren) Stockfish shows 0.00, but considering it's rapid, Oracle only gives white a 18.50% expected score. Nepo ended up blundering with 59. Qc7??, which was the likeliest move according to Oracle.
 
 ![Ding vs. Nepo, Input and Ouput](docs/static/ding_vs_nepo.png)
 
@@ -141,7 +145,8 @@ Oracle uses Hugging Face Inference models and Stockfish to deliver human-like ch
 By default, Stockfish is set to a time limit of 1.3 seconds, a depth limit of 20 plies, uses 8 threads and 512 MB of hash. You can change these settings in the analyze_moves function.
 
 ## Time
-On my computer, Oracle takes on average about 2 seconds per move. This duration could be reduced with an optimized code and better hardware. 
+
+On my computer, Oracle takes on average about 2 seconds per move. This duration could be reduced with an optimized code and better hardware.
 
 ## Cost
 
@@ -149,19 +154,19 @@ Because Oracle uses hosted Hugging Face inference for her prediction, usage cost
 
 ## Author's Note
 
-I am a FIDE Master and Woman International Master with no previous coding experience, so the code might contains mistakes or improper formulations. 
+I am a FIDE Master and Woman International Master with no previous coding experience, so the code might contains mistakes or improper formulations.
 
 ## Oracle's name
 
 ![The Oracle from The Matrix](docs/static/logo.jpg)
 
-I've decided to name my chess engine Oracle because just like the Oracle from The Matrix, her predictions feel magical even though they are just pure calculations performed by a program. For that reason, Oracle should be referred to as she/her. 
+I've decided to name my chess engine Oracle because just like the Oracle from The Matrix, her predictions feel magical even though they are just pure calculations performed by a program. For that reason, Oracle should be referred to as she/her.
 
 ## Contributions and Future of Oracle
 
-Because I'm new to coding, Oracle's code should be improvable. 
+Because I'm new to coding, Oracle's code should be improvable.
 The next significant step for Oracle would be the creation of an open-source LLM trained on full PGNs with headers to eliminate reliance on third-party hosted instruct models, keeping Oracle completely free to run.
-Following this, Oracle could be turned into a user-friendly executable file and used on a large scale for broadcasts, training, opening preparation, anti-cheating, bots creation, and so on. 
+Following this, Oracle could be turned into a user-friendly executable file and used on a large scale for broadcasts, training, opening preparation, anti-cheating, bots creation, and so on.
 
 ## Support and Donation
 
@@ -182,7 +187,7 @@ I've written an [extensive article](https://yoshachess.com/article/oracle/) on m
 
 ## License
 
-This project is licensed under the MIT License. See the MIT License file for details. 
+This project is licensed under the MIT License. See the MIT License file for details.
 
 ## Copyright
 
