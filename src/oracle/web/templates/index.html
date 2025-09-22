@@ -10,192 +10,49 @@
       integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
       crossorigin="anonymous"
     />
+    <link rel="stylesheet" href="{{ url_for('static', path='github-dark.css') }}" />
     <link rel="stylesheet" href="{{ url_for('static', path='oracle-board.css') }}" />
-    <style>
-      :root {
-        --github-bg: #f6f8fa;
-        --github-surface: #ffffff;
-        --github-border: #d0d7de;
-        --github-header: #24292f;
-        --github-primary: #0969da;
-        --github-danger: #cf222e;
-      }
-
-      body {
-        background-color: var(--github-bg);
-        color: #24292f;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial,
-          sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
-      }
-
-      .navbar {
-        background-color: var(--github-header);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      }
-
-      .navbar-brand {
-        color: #f6f8fa !important;
-        font-weight: 600;
-        letter-spacing: 0.02em;
-      }
-
-      .card {
-        border-radius: 12px;
-        border: 1px solid var(--github-border);
-        box-shadow: 0 1px 3px rgba(27, 31, 35, 0.12);
-      }
-
-      .board-panel {
-        background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
-        border: 1px solid var(--github-border);
-        border-radius: 16px;
-        padding: 1rem 1rem 1.5rem;
-        box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        width: 100%;
-      }
-
-      .board-panel__header {
-        font-size: 0.875rem;
-        letter-spacing: 0.08em;
-        font-weight: 700;
-        text-transform: uppercase;
-        color: #57606a;
-        margin-bottom: 0.5rem;
-      }
-
-      .board-panel__hint {
-        font-size: 0.875rem;
-        color: #6b7280;
-        margin-top: 1rem;
-        text-align: center;
-      }
-
-      .board-actions {
-        display: flex;
-        gap: 0.5rem;
-        flex-wrap: wrap;
-        justify-content: flex-end;
-      }
-
-      .form-label-group {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 0.75rem;
-      }
-
-      @media (max-width: 991.98px) {
-        .form-label-group {
-          flex-direction: column;
-          align-items: flex-start;
-        }
-
-        .board-panel {
-          margin: 0 auto;
-        }
-      }
-
-      textarea {
-        font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
-        background-color: var(--github-bg);
-        border-color: var(--github-border);
-        min-height: 320px;
-      }
-
-      textarea:focus {
-        border-color: var(--github-primary);
-        box-shadow: 0 0 0 0.25rem rgba(9, 105, 218, 0.25);
-      }
-
-      textarea[readonly] {
-        background-color: #e9ecef;
-        cursor: not-allowed;
-      }
-
-      .btn-primary {
-        background-color: var(--github-primary);
-        border-color: var(--github-primary);
-        font-weight: 600;
-      }
-
-      .btn-primary:hover {
-        background-color: #0a5bd3;
-        border-color: #0a5bd3;
-      }
-
-      .alert-danger {
-        border-left: 4px solid var(--github-danger);
-        border-radius: 12px;
-      }
-
-      footer {
-        color: #57606a;
-      }
-
-      .guide-section + .guide-section {
-        border-top: 1px solid var(--github-border);
-        padding-top: 1.5rem;
-      }
-
-      .guide-section h3 {
-        letter-spacing: 0.08em;
-      }
-
-      .code-block {
-        background-color: var(--github-bg);
-        border: 1px solid var(--github-border);
-        border-radius: 8px;
-        font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
-        font-size: 0.875rem;
-        margin-bottom: 0;
-        padding: 1rem;
-        white-space: pre-wrap;
-        word-break: break-word;
-      }
-    </style>
   </head>
-  <body>
-    <nav class="navbar navbar-dark">
-      <div class="container">
+  <body class="app-shell">
+    <nav class="app-nav navbar navbar-dark">
+      <div class="container-xxl px-4 px-lg-5">
         <a class="navbar-brand" href="/">Oracle Analyzer</a>
       </div>
     </nav>
-    <main class="container my-5">
-      <div class="row justify-content-center">
-        <div class="col-lg-10 col-xl-8">
-          {% if error %}
-          <div class="alert alert-danger" role="alert">
-            <h4 class="alert-heading">{{ error.title }}</h4>
-            <p class="mb-2">{{ error.detail }}</p>
-            {% if error.hint %}
-            <hr />
-            <p class="mb-0">{{ error.hint }}</p>
+    <main class="app-main">
+      <div class="container-xxl px-4 px-lg-5">
+        <div class="row g-4 justify-content-center">
+          <div class="col-12 col-xl-10 col-xxl-9">
+            {% if error %}
+            <div class="alert alert-danger" role="alert">
+              <h4 class="alert-heading">{{ error.title }}</h4>
+              <p class="mb-2">{{ error.detail }}</p>
+              {% if error.hint %}
+              <hr />
+              <p class="mb-0">{{ error.hint }}</p>
+              {% endif %}
+            </div>
             {% endif %}
-          </div>
-          {% endif %}
-          <div
-            class="card p-4"
-            data-app-root
-            data-active-mode="{{ active_mode or 'analyze' }}"
-            data-game-new-endpoint="/play/new"
-            data-game-move-endpoint="/play/move"
-            data-game-resign-endpoint="/play/resign"
-          >
-            <div class="row g-4 align-items-start">
-              <div class="col-lg-5 order-lg-2">
-                <div class="board-panel">
-                  <p class="board-panel__header mb-1">Plateau interactif</p>
-                  <div id="oracle-board"></div>
-                  <p class="board-panel__hint mb-0">
-                    Selon le mode sélectionné, le plateau se synchronise avec votre PGN ou envoie vos coups à l'ordinateur.
-                  </p>
+            <div
+              class="card p-4 p-lg-5"
+              data-app-root
+              data-active-mode="{{ active_mode or 'analyze' }}"
+              data-game-new-endpoint="/play/new"
+              data-game-move-endpoint="/play/move"
+              data-game-resign-endpoint="/play/resign"
+            >
+              <div class="row g-5 align-items-start">
+                <div class="col-lg-5 col-xl-4 order-lg-2">
+                  <div class="board-panel">
+                    <p class="board-panel__header mb-1">Plateau interactif</p>
+                    <div id="oracle-board"></div>
+                    <p class="board-panel__hint mb-0">
+                      Selon le mode sélectionné, le plateau se synchronise avec votre PGN ou envoie vos coups à l'ordinateur.
+                    </p>
+                  </div>
                 </div>
-              </div>
-              <div class="col-lg-7 order-lg-1">
-                <div class="mb-4">
+                <div class="col-lg-7 col-xl-8 order-lg-1">
+                  <div class="mb-4">
                   <div class="btn-group" role="group" aria-label="Mode d'utilisation">
                     <input
                       type="radio"
@@ -304,104 +161,108 @@
                 </div>
               </div>
             </div>
-          </div>
-          <div class="card p-4 mt-4" id="guide">
-            <h2 class="h5 mb-3">Profiter pleinement d'Oracle</h2>
-            <p class="text-secondary">
-              Ce guide reprend les principales étapes de la documentation officielle pour préparer votre environnement,
-              lancer l'interface web et interpréter les prédictions fournies par Oracle.
-            </p>
-            <div class="guide-section pb-3">
-              <h3 class="h6 text-uppercase text-secondary fw-semibold">1. Préparer l'environnement</h3>
-              <p class="mb-2">
-                Oracle combine le moteur Stockfish et un modèle hébergé sur Hugging Face. Avant de démarrer le serveur,
-                vérifiez les éléments suivants&nbsp;:
+            <div class="card p-4 p-lg-5 mt-4" id="guide">
+              <h2 class="h5 mb-3">Profiter pleinement d'Oracle</h2>
+              <p class="text-secondary">
+                Ce guide reprend les principales étapes de la documentation officielle pour préparer votre environnement,
+                lancer l'interface web et interpréter les prédictions fournies par Oracle.
               </p>
-              <ul class="mb-0">
-                <li>
-                  Installez Stockfish localement et exportez son chemin absolu dans la variable d'environnement
-                  <code>STOCKFISH_PATH</code>.
-                </li>
-                <li>
-                  (Optionnel) Choisissez un modèle Hugging Face via <code>HUGGINGFACE_MODEL_ID</code> et renseignez
-                  <code>HUGGINGFACEHUB_API_TOKEN</code> si l'endpoint nécessite une authentification.
-                </li>
-                <li>
-                  Les paramètres par défaut (profondeur, temps, Elo, cadence) sont définis dans
-                  <code>OracleConfig</code> et peuvent être ajustés pour coller à votre usage (blitz, classique, etc.).
-                </li>
-              </ul>
-            </div>
-            <div class="guide-section pb-3">
-              <h3 class="h6 text-uppercase text-secondary fw-semibold">2. Démarrer le serveur web</h3>
-              <p>
-                Une fois les variables configurées, lancez l'application FastAPI avec Uvicorn. Le serveur se met en écoute par
-                défaut sur <code>http://127.0.0.1:8000/</code>&nbsp;:
-              </p>
-              <pre class="code-block">uvicorn src.oracle.web.app:app --reload</pre>
-              <p class="mb-0 mt-2">
-                Le mode <em>reload</em> recharge automatiquement le serveur lorsque vous modifiez le code pendant vos tests.
-              </p>
-            </div>
-            <div class="guide-section pb-3">
-              <h3 class="h6 text-uppercase text-secondary fw-semibold">3. Préparer un PGN à analyser</h3>
-              <p class="mb-2">
-                Oracle accepte un PGN complet jusqu'au coup que vous souhaitez prédire. Incluez les balises si vous les avez et
-                assurez-vous que la notation SAN est correcte.
-              </p>
-              <p class="text-secondary small mb-2">Exemple minimal&nbsp;:</p>
-              <pre class="code-block">[Event "Exemple"]
+              <div class="guide-section pb-3">
+                <h3 class="h6 text-uppercase text-secondary fw-semibold">1. Préparer l'environnement</h3>
+                <p class="mb-2">
+                  Oracle combine le moteur Stockfish et un modèle hébergé sur Hugging Face. Avant de démarrer le serveur,
+                  vérifiez les éléments suivants&nbsp;:
+                </p>
+                <ul class="mb-0">
+                  <li>
+                    Installez Stockfish localement et exportez son chemin absolu dans la variable d'environnement
+                    <code>STOCKFISH_PATH</code>.
+                  </li>
+                  <li>
+                    (Optionnel) Choisissez un modèle Hugging Face via <code>HUGGINGFACE_MODEL_ID</code> et renseignez
+                    <code>HUGGINGFACEHUB_API_TOKEN</code> si l'endpoint nécessite une authentification.
+                  </li>
+                  <li>
+                    Les paramètres par défaut (profondeur, temps, Elo, cadence) sont définis dans
+                    <code>OracleConfig</code> et peuvent être ajustés pour coller à votre usage (blitz, classique, etc.).
+                  </li>
+                </ul>
+              </div>
+              <div class="guide-section pb-3">
+                <h3 class="h6 text-uppercase text-secondary fw-semibold">2. Démarrer le serveur web</h3>
+                <p>
+                  Une fois les variables configurées, lancez l'application FastAPI avec Uvicorn. Le serveur se met en écoute par
+                  défaut sur <code>http://127.0.0.1:8000/</code>&nbsp;:
+                </p>
+                <pre class="code-block">uvicorn src.oracle.web.app:app --reload</pre>
+                <p class="mb-0 mt-2">
+                  Le mode <em>reload</em> recharge automatiquement le serveur lorsque vous modifiez le code pendant vos tests.
+                </p>
+              </div>
+              <div class="guide-section pb-3">
+                <h3 class="h6 text-uppercase text-secondary fw-semibold">3. Préparer un PGN à analyser</h3>
+                <p class="mb-2">
+                  Oracle accepte un PGN complet jusqu'au coup que vous souhaitez prédire. Incluez les balises si vous les avez et
+                  assurez-vous que la notation SAN est correcte.
+                </p>
+                <p class="text-secondary small mb-2">Exemple minimal&nbsp;:</p>
+                <pre class="code-block">[Event "Exemple"]
 [Site "Local"]
 [White "Joueur A"]
 [Black "Joueur B"]
 [Result "*"]
 
 1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 *</pre>
-              <p class="mb-0">
-                Collez le PGN ci-dessus (ou le vôtre) dans le formulaire, puis cliquez sur <strong>Analyser</strong> pour que
-                l'application calcule les coups probables suivants.
+                <p class="mb-0">
+                  Collez le PGN ci-dessus (ou le vôtre) dans le formulaire, puis cliquez sur <strong>Analyser</strong> pour que
+                  l'application calcule les coups probables suivants.
+                </p>
+              </div>
+              <div class="guide-section pb-3">
+                <h3 class="h6 text-uppercase text-secondary fw-semibold">4. Lire et exploiter les résultats</h3>
+                <p class="mb-2">
+                  La page de résultats présente&nbsp;:
+                </p>
+                <ul class="mb-0">
+                  <li>Le pourcentage de gain estimé pour les blancs dans la position actuelle.</li>
+                  <li>Un classement des coups probables avec leur probabilité et l'évaluation associée.</li>
+                  <li>Les métriques du modèle (tokens utilisés, coût estimé) pour suivre la consommation de l'API Hugging Face.</li>
+                  <li>Le PGN analysé pour vérification rapide et partage.</li>
+                </ul>
+              </div>
+              <div class="guide-section pb-1">
+                <h3 class="h6 text-uppercase text-secondary fw-semibold">5. Dépannage rapide</h3>
+                <ul class="mb-0">
+                  <li>Erreur sur <code>STOCKFISH_PATH</code>&nbsp;: vérifiez que le chemin pointe bien vers un binaire exécutable.</li>
+                  <li>PGN invalide&nbsp;: corrigez la notation SAN ou la numérotation des coups avant de relancer l'analyse.</li>
+                  <li>
+                    Temps de réponse ou coût élevés&nbsp;: sélectionnez un modèle Hugging Face plus léger ou ajustez les paramètres
+                    d'analyse dans <code>OracleConfig</code>.
+                  </li>
+                </ul>
+              </div>
+              <p class="mt-3 mb-0 small text-secondary">
+                Retrouvez davantage de détails (modes CLI, configuration avancée, exemples) dans le fichier
+                <a
+                  href="https://github.com/yoshachess/oracle/blob/main/README.md"
+                  class="link-secondary"
+                  target="_blank"
+                  rel="noopener"
+                  >README</a
+                >
+                du projet.
               </p>
             </div>
-            <div class="guide-section pb-3">
-              <h3 class="h6 text-uppercase text-secondary fw-semibold">4. Lire et exploiter les résultats</h3>
-              <p class="mb-2">
-                La page de résultats présente&nbsp;:
-              </p>
-              <ul class="mb-0">
-                <li>Le pourcentage de gain estimé pour les blancs dans la position actuelle.</li>
-                <li>Un classement des coups probables avec leur probabilité et l'évaluation associée.</li>
-                <li>Les métriques du modèle (tokens utilisés, coût estimé) pour suivre la consommation de l'API Hugging Face.</li>
-                <li>Le PGN analysé pour vérification rapide et partage.</li>
-              </ul>
-            </div>
-            <div class="guide-section pb-1">
-              <h3 class="h6 text-uppercase text-secondary fw-semibold">5. Dépannage rapide</h3>
-              <ul class="mb-0">
-                <li>Erreur sur <code>STOCKFISH_PATH</code>&nbsp;: vérifiez que le chemin pointe bien vers un binaire exécutable.</li>
-                <li>PGN invalide&nbsp;: corrigez la notation SAN ou la numérotation des coups avant de relancer l'analyse.</li>
-                <li>
-                  Temps de réponse ou coût élevés&nbsp;: sélectionnez un modèle Hugging Face plus léger ou ajustez les paramètres
-                  d'analyse dans <code>OracleConfig</code>.
-                </li>
-              </ul>
-            </div>
-            <p class="mt-3 mb-0 small text-secondary">
-              Retrouvez davantage de détails (modes CLI, configuration avancée, exemples) dans le fichier
-              <a
-                href="https://github.com/yoshachess/oracle/blob/main/README.md"
-                class="link-secondary"
-                target="_blank"
-                rel="noopener"
-                >README</a
-              >
-              du projet.
-            </p>
           </div>
         </div>
       </div>
     </main>
-    <footer class="container pb-5 text-center small">
-      <span>Besoin d'aide ? Consultez la documentation dans le README ou vérifiez les logs serveur pour plus de détails.</span>
+    <footer class="app-footer text-center small">
+      <div class="container-xxl px-4 px-lg-5">
+        <span>
+          Besoin d'aide ? Consultez la documentation dans le README ou vérifiez les logs serveur pour plus de détails.
+        </span>
+      </div>
     </footer>
     <script type="module" src="{{ url_for('static', path='oracle-board.js') }}"></script>
   </body>
