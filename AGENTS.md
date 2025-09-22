@@ -1,5 +1,7 @@
 # Oracle Contribution Guide
 
+**Note:** This project is a fork of the original `andy-landy/chess-llm-oracle` repository. This file has been adapted to reflect the current project structure and conventions.
+
 ## Scope
 
 These guidelines apply to the entire repository.

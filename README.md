@@ -1,5 +1,7 @@
 # Oracle Chess Engine
 
+**Note:** This project is a fork of the original `andy-landy/chess-llm-oracle` repository. This file has been adapted to reflect the current project structure and conventions.
+
 ## Introduction
 
 Oracle is the first chess engine that plays like a human, from amateur to super GM. She can play like a 2800-rated player in classical or an 800-rated player in blitz, or at any other level, in any time control.
