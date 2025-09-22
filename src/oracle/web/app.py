@@ -40,7 +40,7 @@ templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
 
 ALLOWED_MODES = {"analyze", "play", "prediction"}
 ANALYSIS_MODES = {"analyze", "prediction"}
-DEFAULT_MODE = "analyze"
+DEFAULT_MODE = "prediction"
 MODE_ALIASES = {"prediction": "analyze"}
 
 
@@ -84,20 +84,19 @@ def get_oracle_config() -> OracleConfig:
     return OracleConfig()
 
 
-def build_level_options(config: OracleConfig) -> list[dict[str, str]]:
-    """Return level options ready to be consumed by the template."""
-
-    options: list[dict[str, str]] = []
-    for level in config.available_levels:
-        time_control = config.time_control_for_level(level) or ""
-        label = f"Elo {level}"
-        if time_control:
-            game_type = determine_game_type(time_control)
-            if game_type == "Unknown":
-                game_type = config.default_game_type
-            label = f"Elo {level} • {game_type.capitalize()} ({time_control})"
-        options.append({"value": str(level), "label": label})
-    return options
+def build_level_options(
+    config: OracleConfig,
+) -> tuple[list[dict[str, str]], list[dict[str, str]]]:
+    """Return Elo and time control options for the template."""
+    elo_options = [
+        {"value": str(elo), "label": f"Elo {elo}"} for elo in config.available_elos
+    ]
+    time_control_options = []
+    for tc in config.available_time_controls:
+        game_type = determine_game_type(tc)
+        label = f"{game_type.capitalize()} ({tc})"
+        time_control_options.append({"value": tc, "label": label})
+    return elo_options, time_control_options
 
 
 def _resolve_active_mode(raw_mode: str | None) -> tuple[str, str]:
@@ -114,7 +113,6 @@ def _resolve_analysis_mode(raw_mode: str | None) -> tuple[str, str]:
         effective_mode = MODE_ALIASES.get(DEFAULT_MODE, DEFAULT_MODE)
     return active_mode, effective_mode
 
-
 def _analysis_form_mode(active_mode: str) -> str:
     return active_mode if active_mode in ANALYSIS_MODES else DEFAULT_MODE
 
@@ -124,10 +122,13 @@ async def index(request: Request) -> HTMLResponse:
     config = get_oracle_config()
     requested_mode = request.query_params.get("mode")
     active_mode, _ = _resolve_active_mode(requested_mode)
+    elos, time_controls = build_level_options(config)
     context = {
         "request": request,
-        "levels": build_level_options(config),
-        "selected_level": "",
+        "elos": elos,
+        "time_controls": time_controls,
+        "selected_elo": "",
+        "selected_time_control": "",
         "pgn": "",
         "active_mode": active_mode,
         "analysis_form_mode": _analysis_form_mode(active_mode),
@@ -276,33 +277,37 @@ def _build_game_state(
 async def analyze(
     request: Request,
     pgn: str = Form(...),
-    level: str | None = Form(None),
+    elo: str | None = Form(None),
+    time_control: str | None = Form(None),
     mode: str = Form(DEFAULT_MODE),
 ) -> HTMLResponse:
     config = get_oracle_config()
-    level_options = build_level_options(config)
+    elos, time_controls = build_level_options(config)
     normalized_pgn = pgn.strip()
-    selected_level_raw = (level or "").strip()
+    selected_elo_raw = (elo or "").strip()
+    selected_tc_raw = (time_control or "").strip()
     active_mode, _ = _resolve_analysis_mode(mode)
     analysis_form_mode = _analysis_form_mode(active_mode)
     base_context = {
         "request": request,
         "pgn": normalized_pgn,
-        "levels": level_options,
-        "selected_level": selected_level_raw,
+        "elos": elos,
+        "time_controls": time_controls,
+        "selected_elo": selected_elo_raw,
+        "selected_time_control": selected_tc_raw,
         "active_mode": active_mode,
         "analysis_form_mode": analysis_form_mode,
     }
 
-    selected_level_value: int | None = None
-    if selected_level_raw:
+    selected_elo_value: int | None = None
+    if selected_elo_raw:
         try:
-            selected_level_value = int(selected_level_raw)
+            selected_elo_value = int(selected_elo_raw)
         except ValueError:
             error = ErrorMessage(
-                title="Niveau invalide",
-                detail="Le niveau sélectionné doit être une valeur numérique connue.",
-                hint="Sélectionnez un niveau proposé dans la liste déroulante ou laissez le champ vide pour utiliser les informations du PGN.",
+                title="Elo invalide",
+                detail="L'Elo sélectionné doit être une valeur numérique connue.",
+                hint="Sélectionnez un Elo proposé dans la liste déroulante.",
             )
             return templates.TemplateResponse(
                 request,
@@ -310,11 +315,11 @@ async def analyze(
                 {**base_context, "error": error},
                 status_code=status.HTTP_400_BAD_REQUEST,
             )
-        if selected_level_value not in config.available_levels:
+        if selected_elo_value not in config.available_elos:
             error = ErrorMessage(
-                title="Niveau inconnu",
-                detail="La valeur sélectionnée ne correspond à aucun niveau pris en charge.",
-                hint="Choisissez un niveau parmi les options affichées ou laissez le champ vide pour conserver le PGN tel quel.",
+                title="Elo inconnu",
+                detail="La valeur sélectionnée ne correspond à aucun Elo pris en charge.",
+                hint="Choisissez un Elo parmi les options affichées.",
             )
             return templates.TemplateResponse(
                 request,
@@ -322,7 +327,20 @@ async def analyze(
                 {**base_context, "error": error},
                 status_code=status.HTTP_400_BAD_REQUEST,
             )
-        base_context["selected_level"] = str(selected_level_value)
+        base_context["selected_elo"] = str(selected_elo_value)
+
+    if selected_tc_raw and selected_tc_raw not in config.available_time_controls:
+        error = ErrorMessage(
+            title="Cadence inconnue",
+            detail="La valeur sélectionnée ne correspond à aucune cadence prise en charge.",
+            hint="Choisissez une cadence parmi les options affichées.",
+        )
+        return templates.TemplateResponse(
+            request,
+            "index.html",
+            {**base_context, "error": error},
+            status_code=status.HTTP_400_BAD_REQUEST,
+        )
 
     if not normalized_pgn:
         error = ErrorMessage(
@@ -339,7 +357,7 @@ async def analyze(
 
     try:
         service = get_prediction_service(config=config)
-    except WebAppConfigurationError as exc:  # pragma: no cover - configuration errors are environment-dependent
+    except WebAppConfigurationError as exc:
         logger.exception("Configuration error while building the prediction service")
         error = ErrorMessage(
             title="Configuration requise",
@@ -355,39 +373,42 @@ async def analyze(
 
     try:
         execution_kwargs = {}
-        if selected_level_value is not None:
-            execution_kwargs["selected_level"] = selected_level_value
+        if selected_elo_value is not None:
+            execution_kwargs["selected_elo"] = selected_elo_value
+        if selected_tc_raw:
+            execution_kwargs["selected_time_control"] = selected_tc_raw
         prediction = await run_in_threadpool(
             service.execute,
             normalized_pgn,
             **execution_kwargs,
         )
+
     except ValueError as exc:
-        logger.warning("Invalid PGN received: %s", exc)
-        error = ErrorMessage(
-            title="PGN invalide",
-            detail=str(exc),
-            hint="Vérifiez la notation SAN, la numérotation des coups et la présence éventuelle des en-têtes.",
-        )
-        return templates.TemplateResponse(
-            request,
-            "index.html",
-            {**base_context, "error": error},
-            status_code=status.HTTP_400_BAD_REQUEST,
-        )
-    except Exception as exc:  # pragma: no cover - defensive branch
-        logger.exception("Unexpected error while running prediction")
-        error = ErrorMessage(
-            title="Erreur d'analyse",
-            detail=str(exc),
-            hint="Consultez les logs du serveur pour identifier la source exacte du problème.",
-        )
-        return templates.TemplateResponse(
-            request,
-            "index.html",
-            {**base_context, "error": error},
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        )
+            logger.warning("Invalid PGN received: %s", exc)
+            error = ErrorMessage(
+                title="PGN invalide",
+                detail=str(exc),
+                hint="Vérifiez la notation SAN, la numérotation des coups et la présence éventuelle des en-têtes.",
+            )
+            return templates.TemplateResponse(
+                request,
+                "index.html",
+                {**base_context, "error": error},
+                status_code=status.HTTP_400_BAD_REQUEST,
+            )
+        except Exception as exc:  # pragma: no cover - defensive branch
+            logger.exception("Unexpected error while running prediction")
+            error = ErrorMessage(
+                title="Erreur d'analyse",
+                detail=str(exc),
+                hint="Consultez les logs du serveur pour identifier la source exacte du problème.",
+            )
+            return templates.TemplateResponse(
+                request,
+                "index.html",
+                {**base_context, "error": error},
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
     context = {
         **base_context,

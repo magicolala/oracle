@@ -26,16 +26,11 @@ class OracleConfig:
     default_white_elo: int = 1500
     default_black_elo: int = 1500
     default_game_type: str = "classical"
-    rating_buckets: list[int] = field(
-        default_factory=lambda: [1200, 1500, 1800, 2100]
+    available_elos: list[int] = field(
+        default_factory=lambda: [800, 1200, 1500, 1800, 2100, 2400]
     )
-    level_time_controls: dict[int, str] = field(
-        default_factory=lambda: {
-            800: "120+0",
-            1200: "300+2",
-            1600: "900+10",
-            2000: "3600+30",
-        }
+    available_time_controls: list[str] = field(
+        default_factory=lambda: ["10+0", "180+0", "600+0", "1800+0"]
     )
     play_mode_time_control: str = "600+0"
     huggingface_client: Any | None = None
@@ -45,7 +40,7 @@ class OracleConfig:
     def available_levels(self) -> tuple[int, ...]:
         """Expose the configured player levels sorted increasingly."""
 
-        return tuple(sorted(self.level_time_controls))
+        return tuple(sorted(self.available_elos))
 
     def time_control_for_level(
         self, level: int, mode: str | None = None
@@ -54,7 +49,7 @@ class OracleConfig:
 
         if mode == "play":
             return self.play_mode_time_control
-        return self.level_time_controls.get(level)
+        return self.available_time_controls[0] if self.available_time_controls else None
 
     def time_control_for_mode(self, mode: str) -> str | None:
         """Expose the default time control for a specific interaction mode."""

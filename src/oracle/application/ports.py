@@ -48,7 +48,8 @@ class PredictNextMovesUseCase(Protocol):
     def execute(
         self,
         pgn: str,
-        selected_level: int | None = None,
+        selected_elo: int | None = None,
+        selected_time_control: str | None = None,
         *,
         mode: str | None = None,
     ) -> PredictionResult:

@@ -1,4 +1,4 @@
-"""Predict next moves use case implementation."""
+"""Predict next moves use case implementation.
 from __future__ import annotations
 
 import io
@@ -41,7 +41,7 @@ class PredictNextMoves(PredictNextMovesUseCase):
     config: OracleConfig
 
     def execute(
-        self, pgn: str, selected_level: int | None = None, *, mode: str | None = None
+        self, pgn: str, selected_elo: int | None = None, selected_time_control: str | None = None, *, mode: str | None = None
     ) -> PredictionResult:
         metrics = PredictionMetrics()
 
@@ -53,7 +53,7 @@ class PredictNextMoves(PredictNextMovesUseCase):
 
         header_lines, token_queue = self._extract_headers_and_tokens(cleaned_pgn)
         white_elo_val, black_elo_val, game_type = self._resolve_game_context(
-            game, selected_level, mode
+            game, selected_elo, selected_time_control, mode
         )
         high_rating = max(white_elo_val, black_elo_val)
 
@@ -142,31 +142,22 @@ class PredictNextMoves(PredictNextMovesUseCase):
     def _resolve_game_context(
         self,
         game: chess.pgn.Game,
-        selected_level: int | None = None,
+        selected_elo: int | None = None,
+        selected_time_control: str | None = None,
         mode: str | None = None,
     ) -> tuple[int, int, str]:
-        if selected_level is not None:
-            time_control = self.config.time_control_for_level(
-                selected_level, mode=mode
-            )
-            if time_control is None:
-                raise ValueError(f"Unknown level: {selected_level}")
-            game_type = determine_game_type(time_control) if time_control else "Unknown"
-            if game_type == "Unknown":
-                game_type = self.config.default_game_type
-            adjusted_rating = adjust_rating(selected_level, game_type)
-            return adjusted_rating, adjusted_rating, game_type
+        white_elo_header = game.headers.get("WhiteElo")
+        black_elo_header = game.headers.get("BlackElo")
+        time_control_header = game.headers.get("TimeControl")
 
-        white_elo = game.headers.get("WhiteElo")
-        black_elo = game.headers.get("BlackElo")
-        white_elo_val = (
-            int(white_elo) if white_elo and white_elo.isdigit() else self.config.default_white_elo
+        white_elo = selected_elo or (
+            int(white_elo_header) if white_elo_header and white_elo_header.isdigit() else self.config.default_white_elo
         )
-        black_elo_val = (
-            int(black_elo) if black_elo and black_elo.isdigit() else self.config.default_black_elo
+        black_elo = selected_elo or (
+            int(black_elo_header) if black_elo_header and black_elo_header.isdigit() else self.config.default_black_elo
         )
+        time_control = selected_time_control or time_control_header
 
-        time_control = game.headers.get("TimeControl")
         if time_control:
             game_type = determine_game_type(time_control)
             if game_type == "Unknown":
@@ -175,8 +166,8 @@ class PredictNextMoves(PredictNextMovesUseCase):
             game_type = self.config.default_game_type
 
         return (
-            adjust_rating(white_elo_val, game_type),
-            adjust_rating(black_elo_val, game_type),
+            adjust_rating(white_elo, game_type),
+            adjust_rating(black_elo, game_type),
             game_type,
         )
 
@@ -264,7 +255,7 @@ class PredictNextMoves(PredictNextMovesUseCase):
 
         rating_buckets_config = [
             bucket
-            for bucket in dict.fromkeys(self.config.rating_buckets)
+            for bucket in dict.fromkeys(self.config.available_elos)
             if isinstance(bucket, int)
         ]
         rating_buckets = [bucket for bucket in rating_buckets_config if bucket > 0]
