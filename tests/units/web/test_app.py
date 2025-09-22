@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import io
 import math
 from typing import Any
 
@@ -242,3 +243,96 @@ def test_analyze_endpoint_rejects_unknown_level(monkeypatch):
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert "Niveau inconnu" in response.text
+
+
+def test_play_move_endpoint_returns_computer_move(monkeypatch):
+    captured = configure_test_environment(monkeypatch)
+    monkeypatch.setenv("STOCKFISH_PATH", "/fake/stockfish")
+    monkeypatch.setenv("HUGGINGFACE_MODEL_ID", "test/model")
+    monkeypatch.setenv("HUGGINGFACEHUB_API_TOKEN", "api-token")
+
+    transport = ASGITransport(app=app)
+
+    async def perform_request():
+        async with AsyncClient(transport=transport, base_url="http://testserver") as async_client:
+            return await async_client.post(
+                "/play/move",
+                json={"pgn": SAMPLE_PGN, "level": "1600"},
+            )
+
+    response = asyncio.run(perform_request())
+
+    assert response.status_code == status.HTTP_200_OK
+    data = response.json()
+    wrapper = captured["service"]
+    best_prediction = wrapper.last_result.moves[0]
+    assert data["move"]["san"] == best_prediction.move
+    assert data["fen"]
+    assert data["pgn"]
+    assert isinstance(data["finished"], bool)
+    assert data["status"].endswith(best_prediction.move)
+    game = chess.pgn.read_game(io.StringIO(data["pgn"]))
+    assert game is not None
+    node = game.end()
+    assert node.board().fen() == data["fen"]
+    assert wrapper.last_selected_level == 1600
+
+
+def test_play_move_endpoint_rejects_missing_pgn(monkeypatch):
+    configure_test_environment(monkeypatch)
+    monkeypatch.setenv("STOCKFISH_PATH", "/fake/stockfish")
+    monkeypatch.setenv("HUGGINGFACE_MODEL_ID", "test/model")
+    monkeypatch.setenv("HUGGINGFACEHUB_API_TOKEN", "api-token")
+
+    transport = ASGITransport(app=app)
+
+    async def perform_request():
+        async with AsyncClient(transport=transport, base_url="http://testserver") as async_client:
+            return await async_client.post("/play/move", json={"pgn": "   "})
+
+    response = asyncio.run(perform_request())
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    data = response.json()
+    assert data["error"]["code"] == "missing_pgn"
+
+
+def test_play_move_endpoint_rejects_non_numeric_level(monkeypatch):
+    configure_test_environment(monkeypatch)
+    monkeypatch.setenv("STOCKFISH_PATH", "/fake/stockfish")
+    monkeypatch.setenv("HUGGINGFACE_MODEL_ID", "test/model")
+    monkeypatch.setenv("HUGGINGFACEHUB_API_TOKEN", "api-token")
+
+    transport = ASGITransport(app=app)
+
+    async def perform_request():
+        async with AsyncClient(transport=transport, base_url="http://testserver") as async_client:
+            return await async_client.post(
+                "/play/move",
+                json={"pgn": SAMPLE_PGN, "level": "niveau"},
+            )
+
+    response = asyncio.run(perform_request())
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    data = response.json()
+    assert data["error"]["code"] == "invalid_level"
+
+
+def test_start_new_game_endpoint_returns_initial_state(monkeypatch):
+    configure_test_environment(monkeypatch)
+
+    transport = ASGITransport(app=app)
+
+    async def perform_request():
+        async with AsyncClient(transport=transport, base_url="http://testserver") as async_client:
+            return await async_client.post("/play/new", json={"level": "800"})
+
+    response = asyncio.run(perform_request())
+
+    assert response.status_code == status.HTTP_200_OK
+    data = response.json()
+    assert data["pgn"] == ""
+    assert data["fen"] == chess.STARTING_FEN
+    assert data["status"].startswith("Partie démarrée")
+    assert data["level"] == 800
