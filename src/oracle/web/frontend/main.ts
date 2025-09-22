@@ -449,6 +449,71 @@ function setupIndexPage(): void {
     gameState.selectedLevel = playLevelSelect.value?.trim() ?? '';
   });
 
+  const analysisForm = document.querySelector<HTMLFormElement>('form[action="/analyze"]');
+  analysisForm?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+
+    const submitButton = analysisForm.querySelector<HTMLButtonElement>('button[type="submit"]');
+    if (!submitButton) {
+      return;
+    }
+
+    const originalButtonContent = submitButton.innerHTML;
+    submitButton.disabled = true;
+    submitButton.innerHTML = `
+      <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+      Analyse en cours...
+    `;
+
+    try {
+      const formData = new FormData(analysisForm);
+      const response = await fetch(analysisForm.action, {
+        method: analysisForm.method,
+        body: new URLSearchParams(formData as any),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Erreur serveur (${response.status}) lors de l'analyse.`);
+      }
+
+      const html = await response.text();
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+
+      const newContent = doc.querySelector('.col-12.col-xl-10.col-xxl-9');
+      const currentContent = document.querySelector('.col-12.col-xl-10.col-xxl-9');
+
+      if (newContent && currentContent) {
+        currentContent.innerHTML = newContent.innerHTML;
+        executeScripts(newContent);
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Une erreur inattendue est survenue.';
+      setStatus(message, 'error');
+    } finally {
+      submitButton.disabled = false;
+      submitButton.innerHTML = originalButtonContent;
+    }
+  });
+
+  const executeScripts = (container: HTMLElement) => {
+    const scripts = Array.from(container.querySelectorAll('script'));
+    scripts.forEach((script) => {
+      const newScript = document.createElement('script');
+      if (script.src) {
+        newScript.src = script.src;
+        newScript.async = false; // Ensure scripts execute in order
+      } else {
+        newScript.textContent = script.textContent;
+      }
+      // Add attributes
+      for (const { name, value } of script.attributes) {
+        newScript.setAttribute(name, value);
+      }
+      script.parentNode?.replaceChild(newScript, script);
+    });
+  };
+
   newGameButton?.addEventListener('click', async () => {
     if (mode !== 'play') {
       setMode('play');
