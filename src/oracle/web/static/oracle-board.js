@@ -4436,6 +4436,12 @@ function pi() {
         }
       }
     }
+    const X = Array.isArray(A.principal_variation)
+      ? A.principal_variation.map((he) => typeof he == "string" ? he.trim() : "").filter((he) => he.length > 0)
+      : [];
+    if (X.length > 0) {
+      T.push(`Ligne principale: ${X.join(" ")}`);
+    }
     return T.length > 0 ? T.join(" - ") : void 0;
   }, be = () => {
     if (!m || !e)

@@ -216,9 +216,23 @@ class PredictNextMoves(PredictNextMovesUseCase):
         )
 
         all_evals: list[tuple[str, float]] = []
-        for move, eval_score in all_evals_with_mate:
+        principal_variations: dict[str, list[str]] = {}
+        mate_in_dict: dict[str, int] = {}
+        for evaluation in all_evals_with_mate:
+            move = evaluation[0]
+            eval_score = evaluation[1]
+            principal_variation_raw = evaluation[2] if len(evaluation) > 2 else []
+            if isinstance(principal_variation_raw, (list, tuple)):
+                principal_variations[move] = [
+                    str(pv_move).strip()
+                    for pv_move in principal_variation_raw
+                    if str(pv_move).strip()
+                ]
+            else:
+                principal_variations[move] = []
             if isinstance(eval_score, str) and eval_score.startswith("mate:"):
                 mate_value = int(eval_score.split(":")[1])
+                mate_in_dict[move] = abs(mate_value)
                 if board.turn == chess.WHITE:
                     numeric_eval = 10000 if mate_value > 0 else -10000
                 else:
@@ -347,11 +361,6 @@ class PredictNextMoves(PredictNextMovesUseCase):
             move: (prob / total_probability) * 100 for move, prob in normalized_moves_initial.items()
         }
 
-        mate_in_dict: dict[str, int] = {}
-        for move, eval_score in all_evals_with_mate:
-            if isinstance(eval_score, str) and eval_score.startswith("mate:"):
-                mate_in_dict[move] = abs(int(eval_score.split(":")[1]))
-
         multiplier = {"classical": 150, "rapid": 500, "blitz": 1000, "bullet": 4000}.get(
             game_type, 150
         )
@@ -448,6 +457,7 @@ class PredictNextMoves(PredictNextMovesUseCase):
                     win_percentage_by_rating=rating_breakdown,
                     notation=notation,
                     is_best_move=is_best_move,
+                    principal_variation=principal_variations.get(move, []),
                 )
             )
 

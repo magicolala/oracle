@@ -38,8 +38,8 @@ class MoveAnalyzer(Protocol):
         depth: int,
         threads: int,
         hash_size: int,
-    ) -> list[tuple[str, float | str]]:
-        """Return tuples of SAN moves and either centipawn or mate evaluations."""
+    ) -> list[tuple[str, float | str, list[str]]]:
+        """Return tuples of SAN moves, evaluations, and principal variations."""
 
 
 class PredictNextMovesUseCase(Protocol):
