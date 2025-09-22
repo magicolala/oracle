@@ -6,3 +6,4 @@
 - Updated example environment settings to use `HUGGINGFACEHUB_API_TOKEN`, `HUGGINGFACE_MODEL_ID`, and `STOCKFISH_PATH` instead of the previous provider-specific variables.
 - Noted the new `tabulate` dependency, which the CLI uses to format prediction tables.
 - Added configurable Elo buckets to `OracleConfig` and surfaced the per-rating win percentages in the CLI and web result views.
+- Exposed the Stockfish principal variation in play mode so the engine's reply is easier to understand.

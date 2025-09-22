@@ -83,6 +83,7 @@ class MovePrediction:
     notation: str
     is_best_move: bool
     win_percentage_by_rating: dict[int, float] = field(default_factory=dict)
+    principal_variation: list[str] = field(default_factory=list)
 
 
 @dataclass
