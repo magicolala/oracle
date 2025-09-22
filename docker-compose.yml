@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  oracle:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN}
+      - HUGGINGFACE_MODEL_ID=${HUGGINGFACE_MODEL_ID}
+      - STOCKFISH_PATH=/usr/games/stockfish
+    volumes:
+      # Optional: mount local Stockfish if you prefer a different version
+      # - /path/to/your/stockfish:/usr/games/stockfish
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
