@@ -297,6 +297,127 @@ function setupIndexPage(): void {
     gameStatus.classList.add(className);
   };
 
+  const formatPercentage = (value: unknown, fractionDigits = 1): string | null => {
+    if (typeof value === 'number' && Number.isFinite(value)) {
+      return value.toFixed(fractionDigits);
+    }
+    if (typeof value === 'string') {
+      const parsed = Number.parseFloat(value);
+      if (Number.isFinite(parsed)) {
+        return parsed.toFixed(fractionDigits);
+      }
+    }
+    return null;
+  };
+
+  const annotationLabels: Record<string, string> = {
+    '!!': 'coup brillant',
+    '!': 'bon coup',
+    '?!': 'coup douteux',
+    '?': 'erreur',
+    '??': 'bourde',
+  };
+
+  const describeAnnotation = (notation: unknown): string | null => {
+    if (typeof notation !== 'string') {
+      return null;
+    }
+    const symbol = notation.trim();
+    if (!symbol) {
+      return null;
+    }
+    const label = annotationLabels[symbol];
+    return label ? `${symbol} - ${label}` : symbol;
+  };
+
+  const buildMoveStatusMessage = (payload: any): string | undefined => {
+    let move: unknown;
+    if (payload && typeof payload === 'object' && 'move' in payload) {
+      move = (payload as { move?: unknown }).move;
+    }
+    if (!move || typeof move !== 'object') {
+      return undefined;
+    }
+    const moveRecord = move as Record<string, unknown>;
+    const parts: string[] = [];
+
+    const san = typeof moveRecord.san === 'string' ? moveRecord.san.trim() : '';
+    const annotation = describeAnnotation(moveRecord.notation);
+    if (san) {
+      let headline = `Oracle joue ${san}`;
+      if (annotation) {
+        headline += ` (${annotation})`;
+      }
+      parts.push(headline);
+    }
+
+    const likelihood = formatPercentage(moveRecord.likelihood, 1);
+    if (likelihood) {
+      parts.push(`Probabilite estimee: ${likelihood}%`);
+    }
+
+    const expectedScore = formatPercentage(moveRecord.win_percentage, 1);
+    if (expectedScore) {
+      parts.push(`Score attendu: ${expectedScore}%`);
+    }
+
+    const breakdown = moveRecord.win_percentage_by_rating;
+    if (breakdown && typeof breakdown === 'object') {
+      const entries = Object.entries(breakdown as Record<string, unknown>)
+        .map(([rating, score]) => {
+          const parsedRating = Number.parseInt(rating, 10);
+          const parsedScore = (
+            typeof score === 'number'
+              ? score
+              : typeof score === 'string'
+              ? Number.parseFloat(score)
+              : Number.NaN
+          );
+          return Number.isInteger(parsedRating) && Number.isFinite(parsedScore)
+            ? ([parsedRating, parsedScore] as const)
+            : null;
+        })
+        .filter((entry): entry is readonly [number, number] => entry !== null)
+        .sort((a, b) => a[0] - b[0]);
+
+      if (entries.length > 0) {
+        const selectedLevel = Number.parseInt(gameState.selectedLevel, 10);
+        let hasSelectedSummary = false;
+        if (Number.isFinite(selectedLevel)) {
+          const matching = entries.find(([rating]) => rating === selectedLevel);
+          if (matching) {
+            const formatted = formatPercentage(matching[1], 1);
+            if (formatted) {
+              parts.push(`Score Elo ${matching[0]}: ${formatted}%`);
+              hasSelectedSummary = true;
+            }
+          }
+        }
+
+        const [lowest] = entries;
+        const [highest] = entries.slice(-1);
+        if (lowest) {
+          const lowestFormatted = formatPercentage(lowest[1], 1);
+          if (highest && highest[0] !== lowest[0]) {
+            const highestFormatted = formatPercentage(highest[1], 1);
+            if (lowestFormatted && highestFormatted) {
+              const label = hasSelectedSummary ? 'Amplitude Elo' : 'Echelle Elo';
+              parts.push(
+                `${label}: ${lowest[0]} -> ${lowestFormatted}% | ${highest[0]} -> ${highestFormatted}%`,
+              );
+            } else if (!hasSelectedSummary && lowestFormatted) {
+              parts.push(`Score Elo ${lowest[0]}: ${lowestFormatted}%`);
+            }
+          } else if (!hasSelectedSummary && lowestFormatted) {
+            parts.push(`Score Elo ${lowest[0]}: ${lowestFormatted}%`);
+          }
+        }
+      }
+    }
+
+    return parts.length > 0 ? parts.join(' - ') : undefined;
+  };
+
   const syncBoardToTextarea = (): void => {
     if (!board || !textarea) {
       return;
@@ -356,22 +477,34 @@ function setupIndexPage(): void {
     setTextareaValue(normalized);
 
     const finished = Boolean(data?.finished);
+    const moveMessage = buildMoveStatusMessage(data);
+    const statusText = typeof data?.status === 'string' ? data.status : undefined;
+    const fallbackText = typeof data?.message === 'string' ? data.message : undefined;
+
     let message: string | undefined;
-    if (typeof data?.status === 'string') {
-      message = data.status;
-    } else if (typeof data?.message === 'string') {
-      message = data.message;
+    if (moveMessage && statusText) {
+      message = `${moveMessage}
+${statusText}`;
+    } else if (moveMessage && fallbackText) {
+      message = `${moveMessage}
+${fallbackText}`;
+    } else if (moveMessage) {
+      message = moveMessage;
+    } else if (statusText) {
+      message = statusText;
+    } else if (fallbackText) {
+      message = fallbackText;
     } else if (finished) {
-      message = 'Partie terminée.';
+      message = 'Partie terminee.';
     }
-    setStatus(message ?? 'Coup joué.', finished ? 'success' : 'info');
+
+    setStatus(message ?? 'Coup joue.', finished ? 'success' : 'info');
 
     if (finished) {
       gameState.inProgress = false;
     }
     updateGameControls();
   };
-
   const postJson = async (url: string, payload: Record<string, unknown>): Promise<any> => {
     if (!url) {
       throw new Error('Endpoint de partie indisponible.');
