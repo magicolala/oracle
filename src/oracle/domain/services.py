@@ -64,8 +64,9 @@ def clean_pgn(pgn: str) -> str:
             last_dot_index = moves_str.rfind(".")
 
             move_number_start = moves_str.rfind(" ", 0, last_dot_index) + 1
-            move_number = int(moves_str[move_number_start:last_dot_index]) + 1
-            moves_str += f" {move_number}."
+            move_number_text = moves_str[move_number_start:last_dot_index]
+            next_move_number = int(move_number_text) + 1
+            moves_str += f" {next_move_number}."
 
     moves = moves_str.split(" ") if moves_str else []
 
@@ -90,10 +91,10 @@ def parse_time_control(time_control: str) -> int:
 
     for i, phase in enumerate(phases):
         if "/" in phase:
-            moves, base_increment = phase.split("/")
+            moves_text, base_increment = phase.split("/")
             base_time = int(base_increment.split("+")[0])
-            moves = int(moves)
-            total_time += base_time + (moves * increments[i])
+            moves_count = int(moves_text)
+            total_time += base_time + (moves_count * increments[i])
         else:
             base_time = int(phase.split("+")[0])
             if i == len(phases) - 1:
