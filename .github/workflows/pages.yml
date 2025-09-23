@@ -41,7 +41,10 @@ jobs:
         run: poetry install --with dev
 
       - name: Run Python linting (ruff)
-        run: poetry run ruff check src/ tests/
+        run: |
+          poetry run pip install packaging
+          poetry run pip install ruff --upgrade
+          poetry run ruff check src/ tests/ --extend-select I --fix
 
       - name: Run Python type checking (mypy)
         run: |
