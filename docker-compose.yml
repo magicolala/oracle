@@ -9,9 +9,9 @@ services:
       - HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN}
       - HUGGINGFACE_MODEL_ID=${HUGGINGFACE_MODEL_ID}
       - STOCKFISH_PATH=/usr/games/stockfish
-    volumes:
-      # Optional: mount local Stockfish if you prefer a different version
-      # - /path/to/your/stockfish:/usr/games/stockfish
+    # Optional: mount local Stockfish if you prefer a different version
+    # volumes:
+    #   - /path/to/your/stockfish:/usr/games/stockfish
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/"]

@@ -34,18 +34,19 @@ WORKDIR /app
 
 # Copy Python dependency files
 COPY pyproject.toml poetry.lock ./
+COPY README.md ./
 
 # Configure poetry to not create virtual environment
 RUN poetry config virtualenvs.create false
 
 # Install Python dependencies
-RUN poetry install --only=main --no-dev
+RUN poetry install --without dev --no-root
 
 # Copy source code
 COPY src/ ./src/
 
 # Copy built frontend assets to static directory
-COPY --from=frontend-builder /app/frontend/dist/ ./src/oracle/web/static/
+COPY --from=frontend-builder /app/static/ ./src/oracle/web/static/
 
 # Create non-root user
 RUN useradd --create-home --shell /bin/bash app \
