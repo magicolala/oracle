@@ -16,6 +16,7 @@ class OracleConfig:
     temperature: float | None = 0.7
     top_p: float | None = None
     top_k: int | None = None
+    top_n_tokens: int | None = None
     repetition_penalty: float | None = None
     depth: int = 5
     prob_threshold: float = 0.001
@@ -32,9 +33,15 @@ class OracleConfig:
     available_time_controls: list[str] = field(
         default_factory=lambda: ["10+0", "180+0", "600+0", "1800+0"]
     )
+    rating_buckets: list[int] = field(default_factory=list)
+    level_time_controls: dict[int, str] = field(default_factory=dict)
     play_mode_time_control: str = "600+0"
     huggingface_client: Any | None = None
     engine_factory: Callable[[str], Any] | None = None
+
+    def __post_init__(self) -> None:
+        if not self.rating_buckets:
+            self.rating_buckets = list(self.available_elos)
 
     @property
     def available_levels(self) -> tuple[int, ...]:
@@ -49,6 +56,8 @@ class OracleConfig:
 
         if mode == "play":
             return self.play_mode_time_control
+        if level in self.level_time_controls:
+            return self.level_time_controls[level]
         return self.available_time_controls[0] if self.available_time_controls else None
 
     def time_control_for_mode(self, mode: str) -> str | None:

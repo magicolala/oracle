@@ -39,9 +39,27 @@ class PredictNextMoves(PredictNextMovesUseCase):
     config: OracleConfig
 
     def execute(
-        self, pgn: str, selected_elo: int | None = None, selected_time_control: str | None = None, *, mode: str | None = None
+        self,
+        pgn: str,
+        selected_elo: int | None = None,
+        selected_time_control: str | None = None,
+        *,
+        mode: str | None = None,
+        selected_level: int | None = None,
     ) -> PredictionResult:
         metrics = PredictionMetrics()
+
+        validated_level = None
+        if selected_level is not None:
+            valid_levels = set(self.config.available_levels)
+            valid_levels.update(
+                level
+                for level in self.config.level_time_controls
+                if isinstance(level, int)
+            )
+            if selected_level not in valid_levels:
+                raise ValueError(f"Unknown level: {selected_level}")
+            validated_level = selected_level
 
         cleaned_pgn = clean_pgn(pgn)
 
@@ -51,7 +69,11 @@ class PredictNextMoves(PredictNextMovesUseCase):
 
         header_lines, token_queue = self._extract_headers_and_tokens(cleaned_pgn)
         white_elo_val, black_elo_val, game_type = self._resolve_game_context(
-            game, selected_elo, selected_time_control, mode
+            game,
+            selected_elo,
+            selected_time_control,
+            mode,
+            validated_level,
         )
         high_rating = max(white_elo_val, black_elo_val)
 
@@ -143,18 +165,34 @@ class PredictNextMoves(PredictNextMovesUseCase):
         selected_elo: int | None = None,
         selected_time_control: str | None = None,
         mode: str | None = None,
+        selected_level: int | None = None,
     ) -> tuple[int, int, str]:
         white_elo_header = game.headers.get("WhiteElo")
         black_elo_header = game.headers.get("BlackElo")
         time_control_header = game.headers.get("TimeControl")
 
-        white_elo = selected_elo or (
-            int(white_elo_header) if white_elo_header and white_elo_header.isdigit() else self.config.default_white_elo
-        )
-        black_elo = selected_elo or (
-            int(black_elo_header) if black_elo_header and black_elo_header.isdigit() else self.config.default_black_elo
-        )
+        if selected_level is not None:
+            white_elo = selected_level
+            black_elo = selected_level
+        else:
+            white_elo = selected_elo or (
+                int(white_elo_header) if white_elo_header and white_elo_header.isdigit() else self.config.default_white_elo
+            )
+            black_elo = selected_elo or (
+                int(black_elo_header) if black_elo_header and black_elo_header.isdigit() else self.config.default_black_elo
+            )
+
         time_control = selected_time_control or time_control_header
+
+        if selected_level is not None:
+            level_time_control = self.config.time_control_for_level(selected_level, mode)
+            if level_time_control:
+                time_control = level_time_control
+
+        if mode:
+            mode_time_control = self.config.time_control_for_mode(mode)
+            if mode_time_control:
+                time_control = mode_time_control
 
         if time_control:
             game_type = determine_game_type(time_control)
@@ -192,6 +230,7 @@ class PredictNextMoves(PredictNextMovesUseCase):
             temperature=self.config.temperature,
             top_p=self.config.top_p,
             top_k=self.config.top_k,
+            top_n_tokens=(self.config.top_n_tokens or self.config.top_k),
             repetition_penalty=self.config.repetition_penalty,
         )
 
@@ -251,9 +290,14 @@ class PredictNextMoves(PredictNextMovesUseCase):
             move: (prob / total_probability) * 100 for move, prob in move_probabilities.items()
         }
 
+        rating_buckets_source = (
+            self.config.rating_buckets
+            if self.config.rating_buckets
+            else self.config.available_elos
+        )
         rating_buckets_config = [
             bucket
-            for bucket in dict.fromkeys(self.config.available_elos)
+            for bucket in dict.fromkeys(rating_buckets_source)
             if isinstance(bucket, int)
         ]
         rating_buckets = [bucket for bucket in rating_buckets_config if bucket > 0]
