@@ -47,7 +47,6 @@ jobs:
 
       - name: Run Python type checking (mypy)
         run: |
-          poetry run pip install mypy
           poetry run mypy src/ --ignore-missing-imports
 
       - name: Run tests
