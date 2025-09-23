@@ -1,1 +1,58 @@
-:root{--oracle-board-shadow: 0 20px 45px rgba(15, 23, 42, .15);--oracle-board-border: rgba(27, 31, 35, .08);--oracle-board-bg: linear-gradient(180deg, #fdfdfd 0%, #f6f8fa 100%)}#oracle-board{position:relative;width:100%;max-width:720px;margin:1rem auto;border-radius:18px;border:1px solid var(--oracle-board-border);background:var(--oracle-board-bg);box-shadow:var(--oracle-board-shadow);overflow:hidden}#oracle-board:after{content:"";position:absolute;top:0;right:0;bottom:0;left:0;border-radius:inherit;pointer-events:none;box-shadow:inset 0 0 0 1px #ffffffa6}@media (max-width: 768px){#oracle-board{margin:1.5rem auto;max-width:min(100%,520px)}}.board-panel{position:relative}.board-loader{position:absolute;top:0;left:0;width:100%;height:100%;background-color:#00000080;display:flex;justify-content:center;align-items:center;z-index:10;border-radius:18px}.prediction-chart-container{position:relative;min-height:260px}.prediction-chart-container canvas{width:100%;height:100%}
+:root {
+  --oracle-board-shadow: 0 32px 70px rgba(5, 4, 3, 0.55);
+  --oracle-board-border: rgba(255, 255, 255, 0.12);
+  --oracle-board-bg: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.08), rgba(12, 11, 9, 0.92));
+}
+
+#oracle-board {
+  position: relative;
+  width: 100%;
+  max-width: 640px;
+  aspect-ratio: 1 / 1;
+  margin: 0 auto;
+  border-radius: 24px;
+  border: 1px solid var(--oracle-board-border);
+  background: var(--oracle-board-bg);
+  box-shadow: var(--oracle-board-shadow);
+  overflow: hidden;
+}
+
+#oracle-board::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+.board-panel {
+  position: relative;
+}
+
+.board-loader {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.55);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+  border-radius: 24px;
+}
+
+.prediction-chart-container {
+  position: relative;
+  min-height: 260px;
+}
+
+.prediction-chart-container canvas {
+  width: 100%;
+  height: 100%;
+}
+
+@media (max-width: 768px) {
+  #oracle-board {
+    max-width: min(100%, 520px);
+  }
+}

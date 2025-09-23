@@ -3,6 +3,12 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500&display=swap"
+      rel="stylesheet"
+    />
     <title>Oracle Analyzer</title>
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
@@ -19,6 +25,12 @@
     {% set is_analyze_mode = current_mode == 'analyze' %}
     {% set is_prediction_mode = current_mode == 'prediction' %}
     {% set is_play_mode = current_mode == 'play' %}
+    {% set mode_labels = {
+      'analyze': "Analyse",
+      'prediction': "Prédictions",
+      'play': "Jeu contre l'ordinateur"
+    } %}
+    {% set current_mode_label = mode_labels.get(current_mode, 'Analyse') %}
     <!-- Initial Configuration Modal -->
     <div class="modal fade" id="initialConfigModal" tabindex="-1" aria-labelledby="initialConfigModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
       <div class="modal-dialog modal-dialog-centered">
@@ -105,24 +117,42 @@
                 </div>
               </div>
             </div>
-            <div data-mode-panel="play" {% if not is_play_mode %}hidden{% endif %}>
-              <div class="col-12 col-md-6">
-                <label for="modal-play-level" class="form-label fw-semibold">Niveau de l'adversaire</label>
-                <select class="form-select" id="modal-play-level" data-game-level>
-                  <option value="" {% if not selected_level %}selected{% endif %}>
-                    Recommandé automatiquement
-                  </option>
-                  {% for option in levels or [] %}
-                  <option value="{{ option.value }}" {% if selected_level == option.value %}selected{% endif %}>
-                    {{ option.label }}
-                  </option>
-                  {% endfor %}
-                </select>
-                <div class="form-text">
-                  Ajustez la difficulté ou laissez Oracle choisir un niveau adapté en fonction de la position.
-                </div>
-              </div>
-            </div>
+            <div data-mode-panel="play" class="mode-intro lichess-panel" {% if not is_play_mode %}hidden{% endif %}>
+                      <h1 class="h3 mb-3">Jouer contre l'ordinateur</h1>
+                      <p class="text-secondary mb-4">
+                        Choisissez la force adverse, dǸmarrez une nouvelle partie puis jouez vos coups directement sur le plateau.
+                        L'ordinateur rǸpondra automatiquement.
+                      </p>
+                    </div>
+                    <div data-mode-panel="play" class="lichess-panel lichess-panel--form mt-3" {% if not is_play_mode %}hidden{% endif %}>
+                      <div class="row g-3">
+                        <div class="col-12 col-md-6">
+                          <label for="play-level" class="form-label fw-semibold">Niveau de l'adversaire</label>
+                          <select class="form-select" id="play-level" data-game-level>
+                            <option value="" {% if not selected_level %}selected{% endif %}>
+                              RecommandǸ automatiquement
+                            </option>
+                            {% for option in levels or [] %}
+                            <option value="{{ option.value }}" {% if selected_level == option.value %}selected{% endif %}>
+                              {{ option.label }}
+                            </option>
+                            {% endfor %}
+                          </select>
+                          <div class="form-text">
+                            Ajustez la difficultǸ ou laissez Oracle choisir un niveau adaptǸ en fonction de la position.
+                          </div>
+                        </div>
+                        <div class="col-12 d-flex flex-wrap gap-2">
+                          <button type="button" class="btn btn-primary" data-game-new>
+                            <span class="me-2" aria-hidden="true">�-��?</span>
+                            Nouvelle partie
+                          </button>
+                          <button type="button" class="btn btn-outline-danger" data-game-resign disabled>
+                            Abandonner
+                          </button>
+                        </div>
+                      </div>
+                    </div>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Commencer</button>
@@ -131,8 +161,46 @@
       </div>
     </div>
     <nav class="app-nav navbar navbar-dark">
-      <div class="container-xxl">
-        <a class="navbar-brand" href="/">Oracle Analyzer</a>
+      <div class="container-xxl app-nav__inner">
+        <div class="app-nav__brand">
+          <a class="navbar-brand" href="/">
+            <span class="brand-primary">oracle</span>
+            <span class="brand-secondary">analyzer</span>
+          </a>
+          <span class="app-nav__badge">beta</span>
+        </div>
+        <div class="app-nav__links">
+          <a
+            class="app-nav__link {% if current_mode == 'analyze' %}is-active{% endif %}"
+            href="/?mode=analyze"
+            data-mode-link="analyze"
+          >
+            Analyse
+          </a>
+          <a
+            class="app-nav__link {% if current_mode == 'prediction' %}is-active{% endif %}"
+            href="/?mode=prediction"
+            data-mode-link="prediction"
+          >
+            Prédictions
+          </a>
+          <a
+            class="app-nav__link {% if current_mode == 'play' %}is-active{% endif %}"
+            href="/?mode=play"
+            data-mode-link="play"
+          >
+            Jouer
+          </a>
+        </div>
+        <div class="app-nav__actions">
+          <div class="app-nav__status">
+            <span class="app-nav__status-dot"></span>
+            <span class="app-nav__status-label" data-mode-label>{{ current_mode_label }}</span>
+          </div>
+          <button class="btn btn-primary app-nav__cta" type="button" data-open-config>
+            Paramétrer
+          </button>
+        </div>
       </div>
     </nav>
     <main class="app-main">
@@ -150,16 +218,16 @@
             </div>
             {% endif %}
             <div
-              class="card p-4 p-lg-5"
+              class="card p-4 p-lg-5 lichess-shell lichess-shell--main"
               data-app-root
               data-active-mode="{{ current_mode }}"
               data-game-new-endpoint="/play/new"
               data-game-move-endpoint="/play/move"
               data-game-resign-endpoint="/play/resign"
             >
-              <div class="row g-5 align-items-start">
-                <div class="col-12 col-lg-6">
-                  <div class="board-panel h-100">
+              <div class="row g-5 align-items-start lichess-grid">
+                <div class="col-12 col-lg-6 lichess-board-column">
+                  <div class="board-panel h-100 lichess-board-panel">
                     <p class="board-panel__header mb-1">Plateau interactif</p>
                     <div id="oracle-board"></div>
                     <p class="board-panel__hint mb-0">
@@ -167,15 +235,15 @@
                     </p>
                   </div>
                 </div>
-                  <div class="col-12 col-lg-6 d-flex flex-column gap-4" hidden id="controls-column">
-                    <div data-mode-panel="analyze" class="mode-intro" {% if not is_analyze_mode %}hidden{% endif %}>
+                  <div class="col-12 col-lg-6 d-flex flex-column gap-4 lichess-side-column" hidden id="controls-column">
+                    <div data-mode-panel="analyze" class="mode-intro lichess-panel" {% if not is_analyze_mode %}hidden{% endif %}>
                       <h1 class="h3 mb-3">Analyser un PGN</h1>
                       <p class="text-secondary mb-4">
                         Collez la partie jusqu'au coup à étudier puis lancez une analyse complète pour découvrir les
                         séquences les plus probables.
                       </p>
                     </div>
-                    <div data-mode-panel="prediction" class="mode-intro" {% if not is_prediction_mode %}hidden{% endif %}>
+                    <div data-mode-panel="prediction" class="mode-intro lichess-panel" {% if not is_prediction_mode %}hidden{% endif %}>
                       <h1 class="h3 mb-3">Mode Prédictions</h1>
                       <p class="text-secondary mb-4">
                         Utilisez le plateau ou un PGN pour générer instantanément les prochains coups suggérés tout en
@@ -185,7 +253,7 @@
                     <form
                       method="post"
                       action="/analyze"
-                      class="row g-3"
+                      class="row g-3 lichess-panel lichess-panel--form"
                       data-mode-panel="analyze,prediction"
                       {% if current_mode not in analysis_modes %}hidden{% endif %}
                     >
@@ -250,18 +318,20 @@
                         </button>
                       </div>
                     </form>
-                    <div data-mode-panel="play" {% if not is_play_mode %}hidden{% endif %}>
+                    <div data-mode-panel="play" class="mode-intro lichess-panel" {% if not is_play_mode %}hidden{% endif %}>
                       <h1 class="h3 mb-3">Jouer contre l'ordinateur</h1>
                       <p class="text-secondary mb-4">
-                        Choisissez la force adverse, démarrez une nouvelle partie puis jouez vos coups directement sur le plateau.
-                        L'ordinateur répondra automatiquement.
+                        Choisissez la force adverse, dǸmarrez une nouvelle partie puis jouez vos coups directement sur le plateau.
+                        L'ordinateur rǸpondra automatiquement.
                       </p>
+                    </div>
+                    <div data-mode-panel="play" class="lichess-panel lichess-panel--form mt-3" {% if not is_play_mode %}hidden{% endif %}>
                       <div class="row g-3">
                         <div class="col-12 col-md-6">
                           <label for="play-level" class="form-label fw-semibold">Niveau de l'adversaire</label>
                           <select class="form-select" id="play-level" data-game-level>
                             <option value="" {% if not selected_level %}selected{% endif %}>
-                              Recommandé automatiquement
+                              RecommandǸ automatiquement
                             </option>
                             {% for option in levels or [] %}
                             <option value="{{ option.value }}" {% if selected_level == option.value %}selected{% endif %}>
@@ -270,27 +340,23 @@
                             {% endfor %}
                           </select>
                           <div class="form-text">
-                            Ajustez la difficulté ou laissez Oracle choisir un niveau adapté en fonction de la position.
+                            Ajustez la difficultǸ ou laissez Oracle choisir un niveau adaptǸ en fonction de la position.
                           </div>
                         </div>
                         <div class="col-12 d-flex flex-wrap gap-2">
                           <button type="button" class="btn btn-primary" data-game-new>
-                            <span class="me-2" aria-hidden="true">▶️</span>
+                            <span class="me-2" aria-hidden="true">�-��?</span>
                             Nouvelle partie
                           </button>
                           <button type="button" class="btn btn-outline-danger" data-game-resign disabled>
-                            <span class="me-2" aria-hidden="true">🏳️</span>
-                            Abandon
+                            Abandonner
                           </button>
-                        </div>
-                        <div class="col-12">
-                          <div class="alert alert-info mt-2" data-game-status hidden role="alert"></div>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
-            <div class="card p-4 p-lg-5 mt-4" id="guide">
+            <div class="card p-4 p-lg-5 lichess-shell lichess-shell--guide mt-4" id="guide">
               <h2 class="h5 mb-3">Profiter pleinement d'Oracle</h2>
               <p class="text-secondary">
                 Ce guide reprend les principales étapes de la documentation officielle pour préparer votre environnement,
@@ -420,6 +486,34 @@
         }
 
         const appRoot = document.querySelector('[data-app-root]');
+        const navModeLinks = document.querySelectorAll('[data-mode-link]');
+        const navModeLabel = document.querySelector('[data-mode-label]');
+        const openConfigButtons = document.querySelectorAll('[data-open-config]');
+        const modeNames = {
+          analyze: 'Analyse',
+          prediction: 'Prédictions',
+          play: "Jeu contre l'ordinateur",
+        };
+
+        const refreshActiveMode = (mode) => {
+          if (appRoot) {
+            appRoot.dataset.activeMode = mode;
+          }
+          navModeLinks.forEach((link) => {
+            const linkMode = link.dataset.modeLink;
+            link.classList.toggle('is-active', linkMode === mode);
+          });
+          if (navModeLabel) {
+            navModeLabel.textContent = modeNames[mode] ?? mode;
+          }
+        };
+
+        openConfigButtons.forEach((button) => {
+          button.addEventListener('click', () => {
+            initialConfigModal?.show();
+          });
+        });
+
         const modalModePanels = {
           analyze: modalElement?.querySelector('[data-mode-panel="analyze"]') ?? null,
           prediction: modalElement?.querySelector('[data-mode-panel="prediction"]') ?? null,
@@ -433,51 +527,42 @@
         const analysisFormTimeControlSelect = document.getElementById('analysis-time-control');
         const playFormSelect = document.getElementById('play-level');
         const commenceButton = document.querySelector('#initialConfigModal .btn-primary');
-        const controlsColumn = document.getElementById('controls-column'); // Get the controls column
+        const controlsColumn = document.getElementById('controls-column');
 
-        // Get references to layout elements
         const navElement = document.querySelector('.app-nav');
         const footerElement = document.querySelector('.app-footer');
         const mainElement = document.querySelector('.app-main');
         const oracleBoard = document.getElementById('oracle-board');
         const boardPanel = document.querySelector('.board-panel');
 
-
-        // Function to calculate and set chessboard size
         const setChessboardSize = () => {
           const navHeight = navElement ? navElement.offsetHeight : 0;
           const footerHeight = footerElement ? footerElement.offsetHeight : 0;
-          const mainPadding = 32; // Approximate padding from .card p-4 p-lg-5 and row g-4
-          const availableHeight = window.innerHeight - navHeight - footerHeight - (mainPadding * 2); // Adjust for main content padding/margins
+          const shellPadding = 96;
+          const availableHeight = window.innerHeight - navHeight - footerHeight - shellPadding;
           const containerWidth = boardPanel ? boardPanel.clientWidth : mainElement.offsetWidth;
 
           if (!containerWidth) {
             return;
           }
 
-          // The chessboard is a square, so its size is limited by the minimum of available height and width
           const baseSize = Math.min(availableHeight, containerWidth);
-          const minimumComfortSize = Math.min(containerWidth, 320);
+          const minimumComfortSize = Math.min(containerWidth, 360);
           const boardSize = Math.max(baseSize, minimumComfortSize);
 
           if (oracleBoard && boardPanel) {
             oracleBoard.style.width = `${boardSize}px`;
             oracleBoard.style.height = `${boardSize}px`;
-            const panelStyles = window.getComputedStyle(boardPanel);
-            const horizontalPadding =
-              parseFloat(panelStyles.paddingLeft || '0') + parseFloat(panelStyles.paddingRight || '0');
-            const horizontalBorder =
-              parseFloat(panelStyles.borderLeftWidth || '0') + parseFloat(panelStyles.borderRightWidth || '0');
-            const panelWidth = boardSize + horizontalPadding + horizontalBorder;
-            boardPanel.style.maxWidth = `${panelWidth}px`;
+            boardPanel.style.setProperty('--board-size', `${boardSize}px`);
+            boardPanel.style.maxWidth = `${boardSize}px`;
             boardPanel.style.marginInline = 'auto';
           }
         };
 
-        // Function to update UI based on selected mode
         const analysisModeSet = new Set(['analyze', 'prediction']);
 
         const updateModeUI = (mode) => {
+          refreshActiveMode(mode);
           (Object.entries(modalModePanels) || []).forEach(([panelMode, panelElement]) => {
             if (!panelElement) {
               return;
@@ -489,30 +574,28 @@
           }
         };
 
-        // Event listener for mode selection in modal
-        modeInputs.forEach(input => {
+        modeInputs.forEach((input) => {
           input.addEventListener('change', (event) => {
             updateModeUI(event.target.value);
           });
         });
 
-        // Initial UI update based on default checked mode
-        const initialMode = document.querySelector('input[name="oracle-mode"]:checked').value;
+        const initialModeInput = document.querySelector('input[name="oracle-mode"]:checked');
+        const initialMode = initialModeInput ? initialModeInput.value : 'analyze';
         updateModeUI(initialMode);
 
-
-        commenceButton.addEventListener('click', () => {
-          const selectedMode = document.querySelector('input[name="oracle-mode"]:checked').value;
+        commenceButton?.addEventListener('click', () => {
+          const selectedModeInput = document.querySelector('input[name="oracle-mode"]:checked');
+          const selectedMode = selectedModeInput ? selectedModeInput.value : 'analyze';
           const isAnalysisMode = analysisModeSet.has(selectedMode);
           const selectedElo = analysisEloSelect?.value ?? '';
           const selectedTimeControl = analysisTimeControlSelect?.value ?? '';
           const selectedLevel = playLevelSelect?.value ?? '';
 
-          appRoot.dataset.activeMode = selectedMode;
           updateModeUI(selectedMode);
           if (isAnalysisMode) {
-            if(analysisFormEloSelect) analysisFormEloSelect.value = selectedElo;
-            if(analysisFormTimeControlSelect) analysisFormTimeControlSelect.value = selectedTimeControl;
+            if (analysisFormEloSelect) analysisFormEloSelect.value = selectedElo;
+            if (analysisFormTimeControlSelect) analysisFormTimeControlSelect.value = selectedTimeControl;
           }
           if (selectedMode === 'play' && playFormSelect) {
             playFormSelect.value = selectedLevel;
@@ -523,10 +606,9 @@
           } else if (modalElement) {
             modalElement.classList.add('d-none');
           }
-          setChessboardSize(); // Set chessboard size after modal is dismissed
+          setChessboardSize();
         });
 
-        // Set initial size and add resize listener
         setChessboardSize();
         window.addEventListener('resize', setChessboardSize);
       });
