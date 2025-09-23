@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import math
+from collections import OrderedDict
 from typing import Any
 
 from oracle.domain import PredictionMetrics
@@ -55,3 +56,50 @@ def test_provider_requests_top_tokens_and_returns_sequences() -> None:
     assert all(logprob <= 0 for _, logprob in sequences)
     assert metrics.input_tokens >= 0
     assert metrics.output_tokens >= 0
+
+
+class DuplicateTokenClient:
+    def __init__(self) -> None:
+        self.prompts: list[str] = []
+
+    def text_generation(self, prompt: str, **kwargs: Any) -> Any:
+        self.prompts.append(prompt)
+        return {"prompt": prompt}
+
+
+def test_provider_deduplicates_sequences_without_mutating_legals(monkeypatch) -> None:
+    client = DuplicateTokenClient()
+    provider = HuggingFaceSequenceProvider(client)
+    metrics = PredictionMetrics()
+    legal_moves = ["Qh5"]
+
+    def fake_extract(response: Any) -> OrderedDict[str, float]:
+        prompt = response["prompt"]
+        if prompt == "[Event \"?\"]":
+            return OrderedDict([(" Q", math.log(0.9))])
+        if prompt == "[Event \"?\"] Q":
+            return OrderedDict(
+                [
+                    (" h", math.log(0.8)),
+                    ("h", math.log(0.7)),
+                ]
+            )
+        return OrderedDict()
+
+    monkeypatch.setattr(
+        "oracle.service.prediction._extract_token_logprobs",
+        fake_extract,
+    )
+
+    sequences = provider.get_top_sequences(
+        "[Event \"?\"]",
+        legal_moves,
+        depth=2,
+        metrics=metrics,
+        prob_threshold=0.0,
+    )
+
+    assert legal_moves == ["Qh5"]
+    assert len(sequences) == 1
+    assert sequences[0][0] == "Qh5"
+    assert all(logprob <= 0 for _, logprob in sequences)
