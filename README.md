@@ -15,8 +15,10 @@ Oracle is the first chess engine that plays like a human, from amateur to super 
 
 ## Usage
 
-- **Oracle_one_move:** Set your openAI API key and the path to your Stockfish at the top of the file then run the file. Past the PGN up to the move you want to predict into the console, type END and press Enter
-- **Oracle_pgn_file:** Set your openAI API key, the path to your Stockfish, your input pgn file, and your output csv file, and then run the file. Oracle will write her predictions for every move of every game of the PGN into the csv file.
+- **Oracle_one_move:** Export `OPENAI_API_KEY` and `STOCKFISH_PATH` (or edit the overrides at the top of `Oracle_one_move`) then run `python Oracle_one_move`. Paste the PGN up to the move you want to predict into the console, type `END`, and press Enter.
+- **Oracle_pgn_file:** Export `OPENAI_API_KEY` and `STOCKFISH_PATH` (or edit the overrides at the top of `Oracle_pgn_file`). Run `python Oracle_pgn_file --pgn my_games.pgn --output analysis.csv` to generate predictions; omit the flags to fall back to the defaults defined in the script.
+- **Oracle_web:** Installez `flask` (`pip install flask`) puis lancez `python Oracle_web.py`. Ouvrez le navigateur sur http://127.0.0.1:8000 pour utiliser l'interface graphique.
+  - Réglez ORACLE_WEB_LOG_LEVEL (ex. DEBUG) et ORACLE_WEB_DEBUG=true pour activer un journal détaillé.
 
 ## Examples
 

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <title>Oracle Web</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 2rem; background-color: #f6f7fb; }
+        header { margin-bottom: 1.5rem; }
+        form { background: #fff; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+        textarea { width: 100%; height: 160px; font-family: monospace; }
+        input[type="number"], select { width: 100%; padding: 0.5rem; }
+        .field { margin-bottom: 1rem; }
+        button { padding: 0.6rem 1.2rem; background-color: #005bbb; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background-color: #004a94; }
+        table { width: 100%; border-collapse: collapse; margin-top: 2rem; background: #fff; }
+        th, td { padding: 0.6rem; border-bottom: 1px solid #e0e0e0; text-align: left; }
+        th { background-color: #f0f2f8; }
+        .metrics { margin-top: 1.5rem; background: #fff; padding: 1rem; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
+        .error { color: #c62828; margin-top: 1rem; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Oracle – Interface Web</h1>
+        <p>Soumettez un PGN pour obtenir les coups probables et les évaluations d'Oracle.</p>
+    </header>
+    <section>
+        <form method="post">
+            <div class="field">
+                <label for="pgn">PGN</label>
+                <textarea id="pgn" name="pgn" required>{{ form_data.pgn }}</textarea>
+            </div>
+            <div class="field">
+                <label for="white_elo">Elo Blanc</label>
+                <input id="white_elo" name="white_elo" type="number" min="100" max="4000" value="{{ form_data.white_elo }}" />
+            </div>
+            <div class="field">
+                <label for="black_elo">Elo Noir</label>
+                <input id="black_elo" name="black_elo" type="number" min="100" max="4000" value="{{ form_data.black_elo }}" />
+            </div>
+            <div class="field">
+                <label for="game_type">Type de partie</label>
+                <select id="game_type" name="game_type">
+                    {% for key, label in game_types.items() %}
+                        <option value="{{ key }}" {% if form_data.game_type == key %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="field">
+                <label for="depth">Profondeur GPT</label>
+                <input id="depth" name="depth" type="number" min="1" max="7" value="{{ form_data.depth }}" />
+            </div>
+            <div class="field">
+                <label for="prob_threshold">Seuil de probabilité</label>
+                <input id="prob_threshold" name="prob_threshold" type="number" step="0.0001" min="0.0001" max="0.1" value="{{ form_data.prob_threshold }}" />
+            </div>
+            <button type="submit">Analyser</button>
+        </form>
+        {% if error %}
+            <div class="error">{{ error }}</div>
+        {% endif %}
+    </section>
+    {% if report %}
+        <section class="metrics">
+            <p><strong>Temps total :</strong> {{ report.elapsed_seconds|round(2) }} s</p>
+            <p><strong>Évaluation courante :</strong> {{ report.current_win_percentage|round(2) }}%</p>
+            <p><strong>Jetons :</strong> {{ report.usage.input_tokens }} in / {{ report.usage.output_tokens }} out</p>
+            <p><strong>Coût estimé :</strong> ${{ report.usage.cost_usd|round(4) }}</p>
+        </section>
+        <section>
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Coup</th>
+                        <th>Probabilité</th>
+                        <th>Évaluation</th>
+                        <th>Perte %</th>
+                        <th>Notation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in report.rows %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>{{ row.move }}</td>
+                            <td>{{ row.normalized_probability|round(2) }}%</td>
+                            <td>{{ row.win_percentage|round(2) }}%</td>
+                            <td>{{ row.percentage_loss|round(2) }}%</td>
+                            <td>{{ row.notation }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+    {% endif %}
+</body>
+</html>
