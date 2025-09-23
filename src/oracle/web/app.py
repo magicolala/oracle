@@ -299,7 +299,7 @@ async def analyze(
     raw_mode = (mode or "").strip()
     active_mode, _ = _resolve_analysis_mode(raw_mode or None)
     analysis_form_mode = _analysis_form_mode(active_mode)
-    base_context = {
+    base_context: dict[str, Any] = {
         "request": request,
         "pgn": normalized_pgn,
         "elos": elos,
@@ -467,9 +467,8 @@ async def analyze(
         "current_win_percentage": prediction.current_win_percentage,
         "metrics": prediction.metrics,
     }
-    link_mode = raw_mode or MODE_ALIASES.get(
-        base_context.get("active_mode"), base_context.get("active_mode")
-    )
+    default_mode = MODE_ALIASES.get(active_mode, active_mode)
+    link_mode = raw_mode or default_mode
     context["active_mode"] = link_mode
     return templates.TemplateResponse(request, "result.html", context)
 
@@ -539,7 +538,7 @@ async def play_next_move(payload: PlayMoveRequest) -> JSONResponse:
             hint=exc.hint,
         )
 
-    execution_kwargs = {"mode": "play"}
+    execution_kwargs: dict[str, Any] = {"mode": "play"}
     if selected_level is not None:
         execution_kwargs["selected_level"] = selected_level
         logger.info("[DEBUG] Using selected level: %s", selected_level)
