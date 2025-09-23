@@ -1,3 +1,3 @@
 """Application layer for Oracle."""
 
-__all__ = []
+__all__: list[str] = []

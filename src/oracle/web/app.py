@@ -372,7 +372,7 @@ async def analyze(
         )
 
     try:
-        execution_kwargs = {}
+        execution_kwargs: dict[str, int | str] = {}
         if selected_elo_value is not None:
             execution_kwargs["selected_elo"] = selected_elo_value
         if selected_tc_raw:
@@ -485,7 +485,7 @@ async def play_next_move(payload: PlayMoveRequest) -> JSONResponse:
             hint=exc.hint,
         )
 
-    execution_kwargs = {"mode": "play"}
+    execution_kwargs: dict[str, int | str] = {"mode": "play"}
     if selected_level is not None:
         execution_kwargs["selected_level"] = selected_level
         logger.info("[DEBUG] Using selected level: %s", selected_level)

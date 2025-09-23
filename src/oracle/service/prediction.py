@@ -326,8 +326,11 @@ class HuggingFaceSequenceProvider(SequenceProvider):
         return sequences
 
 
-def _clamp_score(score: float) -> float:
-    return max(-2000.0, min(2000.0, score))
+def _clamp_score(score: float | int | None) -> float:
+    if score is None:
+        return 0.0
+    score_value = float(score)
+    return max(-2000.0, min(2000.0, score_value))
 
 
 class StockfishMoveAnalyzer(MoveAnalyzer):
