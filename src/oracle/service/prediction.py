@@ -60,6 +60,39 @@ def _update_usage_metrics(metrics: PredictionMetrics, response: Any) -> None:
     metrics.output_tokens += len(tokens or [])
 
 
+def _format_top_tokens_debug(response: Any, limit: int = 10) -> str:
+    """Build a compact 'token: xx.xx%' list for logging."""
+    details = getattr(response, "details", None)
+    if details is None and isinstance(response, dict):
+        details = response.get("details")
+    if not details:
+        return ""
+    tokens = getattr(details, "tokens", None)
+    if tokens is None and isinstance(details, dict):
+        tokens = details.get("tokens")
+    if not tokens:
+        return ""
+    first = tokens[0]
+    top_tokens = getattr(first, "top_tokens", None)
+    if top_tokens is None and isinstance(first, dict):
+        top_tokens = first.get("top_tokens")
+    if not top_tokens:
+        return ""
+    parts = []
+    for cand in top_tokens[:limit]:
+        text = getattr(cand, "text", None) or getattr(cand, "token", None)
+        if text is None and isinstance(cand, dict):
+            text = cand.get("text") or cand.get("token")
+        lp = getattr(cand, "logprob", None)
+        if lp is None and isinstance(cand, dict):
+            lp = cand.get("logprob")
+        if text is None or lp is None:
+            continue
+        pct = math.exp(float(lp)) * 100.0
+        parts.append(f"{repr(text)}:{pct:.2f}%")
+    return " | ".join(parts)
+
+
 def _extract_token_logprobs(response: Any) -> dict[str, float]:
     details = getattr(response, "details", None)
     if details is None and isinstance(response, dict):
@@ -142,9 +175,18 @@ class HuggingFaceSequenceProvider(SequenceProvider):
                         "max_new_tokens": 1,
                         "details": True,
                         "return_full_text": False,
+                        # pour des probabilités stables:
+                        # - pas d’échantillonnage
+                        # - température neutre
+                        "do_sample": False,
+                        "temperature": 0,
+                        # utile si tu veux diagnostiquer le pré-remplissage
+                        "decoder_input_details": True,
                     }
+                    # si l'appelant force une température, on repasse en mode sampling explicite
                     if temperature is not None:
                         generation_kwargs["temperature"] = temperature
+                        generation_kwargs["do_sample"] = temperature > 0
                     if top_p is not None:
                         generation_kwargs["top_p"] = top_p
                     if top_k is not None:
@@ -156,7 +198,17 @@ class HuggingFaceSequenceProvider(SequenceProvider):
                     if repetition_penalty is not None:
                         generation_kwargs["repetition_penalty"] = repetition_penalty
 
+                    LOGGER.debug(
+                        "HF Request: prompt=%r kwargs=%s",
+                        prompt_text,
+                        {k: v for k, v in generation_kwargs.items() if k != "decoder_input_details"},
+                    )
                     response = self._client.text_generation(prompt_text, **generation_kwargs)
+                    # Log des top tokens avec pourcentages pour le 1er pas
+                    top_debug = _format_top_tokens_debug(response)
+                    if top_debug:
+                        LOGGER.debug("HF Top tokens (step0): %s", top_debug)
+
                     _update_usage_metrics(metrics, response)
                     return response
                 except (
