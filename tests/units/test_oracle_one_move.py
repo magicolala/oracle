@@ -24,6 +24,7 @@ class StubSequenceProvider:
         temperature: float | None = None,
         top_p: float | None = None,
         top_k: int | None = None,
+        top_n_tokens: int | None = None,
         repetition_penalty: float | None = None,
     ) -> list[tuple[str, float]]:
         self.calls.append((prompt, tuple(legal_moves), depth))

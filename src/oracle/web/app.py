@@ -6,7 +6,7 @@ import logging
 import os
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import chess
 import chess.pgn
@@ -128,6 +128,7 @@ async def index(request: Request) -> HTMLResponse:
         "elos": elos,
         "time_controls": time_controls,
         "selected_elo": "",
+        "selected_level": "",
         "selected_time_control": "",
         "pgn": "",
         "active_mode": active_mode,
@@ -225,7 +226,14 @@ def _resolve_level(
     else:
         resolved = int(level_value)
 
-    if resolved not in config.available_levels:
+    valid_levels = set(config.available_levels)
+    valid_levels.update(
+        level
+        for level in config.level_time_controls
+        if isinstance(level, int)
+    )
+
+    if resolved not in valid_levels:
         return None, _json_error(
             status.HTTP_400_BAD_REQUEST,
             "Niveau inconnu",
@@ -279,14 +287,17 @@ async def analyze(
     pgn: str = Form(...),
     elo: str | None = Form(None),
     time_control: str | None = Form(None),
-    mode: str = Form(DEFAULT_MODE),
+    level: str | None = Form(None),
+    mode: str | None = Form(None),
 ) -> HTMLResponse:
     config = get_oracle_config()
     elos, time_controls = build_level_options(config)
     normalized_pgn = pgn.strip()
     selected_elo_raw = (elo or "").strip()
     selected_tc_raw = (time_control or "").strip()
-    active_mode, _ = _resolve_analysis_mode(mode)
+    selected_level_raw = (level or "").strip()
+    raw_mode = (mode or "").strip()
+    active_mode, _ = _resolve_analysis_mode(raw_mode or None)
     analysis_form_mode = _analysis_form_mode(active_mode)
     base_context = {
         "request": request,
@@ -294,6 +305,7 @@ async def analyze(
         "elos": elos,
         "time_controls": time_controls,
         "selected_elo": selected_elo_raw,
+        "selected_level": selected_level_raw,
         "selected_time_control": selected_tc_raw,
         "active_mode": active_mode,
         "analysis_form_mode": analysis_form_mode,
@@ -342,6 +354,42 @@ async def analyze(
             status_code=status.HTTP_400_BAD_REQUEST,
         )
 
+    selected_level_value: int | None = None
+    if selected_level_raw:
+        try:
+            selected_level_value = int(selected_level_raw)
+        except ValueError:
+            error = ErrorMessage(
+                title="Niveau invalide",
+                detail="Le niveau sélectionné doit être un entier.",
+                hint="Choisissez un niveau proposé dans la liste déroulante.",
+            )
+            return templates.TemplateResponse(
+                request,
+                "index.html",
+                {**base_context, "error": error},
+                status_code=status.HTTP_400_BAD_REQUEST,
+            )
+        valid_levels = set(config.available_levels)
+        valid_levels.update(
+            level_value
+            for level_value in config.level_time_controls
+            if isinstance(level_value, int)
+        )
+        if selected_level_value not in valid_levels:
+            error = ErrorMessage(
+                title="Niveau inconnu",
+                detail="La valeur sélectionnée ne correspond à aucun niveau pris en charge.",
+                hint="Sélectionnez un niveau listé dans l'interface ou laissez le champ vide.",
+            )
+            return templates.TemplateResponse(
+                request,
+                "index.html",
+                {**base_context, "error": error},
+                status_code=status.HTTP_400_BAD_REQUEST,
+            )
+        base_context["selected_level"] = str(selected_level_value)
+
     if not normalized_pgn:
         error = ErrorMessage(
             title="PGN requis",
@@ -372,11 +420,13 @@ async def analyze(
         )
 
     try:
-        execution_kwargs = {}
+        execution_kwargs: dict[str, Any] = {}
         if selected_elo_value is not None:
             execution_kwargs["selected_elo"] = selected_elo_value
         if selected_tc_raw:
             execution_kwargs["selected_time_control"] = selected_tc_raw
+        if selected_level_value is not None:
+            execution_kwargs["selected_level"] = selected_level_value
         prediction = await run_in_threadpool(
             service.execute,
             normalized_pgn,
@@ -417,6 +467,10 @@ async def analyze(
         "current_win_percentage": prediction.current_win_percentage,
         "metrics": prediction.metrics,
     }
+    link_mode = raw_mode or MODE_ALIASES.get(
+        base_context.get("active_mode"), base_context.get("active_mode")
+    )
+    context["active_mode"] = link_mode
     return templates.TemplateResponse(request, "result.html", context)
 
 

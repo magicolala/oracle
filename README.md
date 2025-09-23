@@ -35,7 +35,7 @@ L’application web d’Oracle s’appuie sur FastAPI et Jinja2 : la page d’a
 ### Prérequis
 
 1. **Moteur Stockfish** : installez Stockfish localement et exportez son chemin absolu dans la variable d’environnement `STOCKFISH_PATH`. Sans cette variable, l’interface affiche un message d’erreur détaillé permettant de corriger la configuration.
-2. **Modèle Hugging Face** : par défaut, Oracle appelle `mistralai/Mistral-7B-Instruct-v0.2`. Vous pouvez remplacer ce modèle en définissant `HUGGINGFACE_MODEL_ID` et fournir un jeton via `HUGGINGFACEHUB_API_TOKEN` si l’endpoint choisi n’accepte pas les requêtes anonymes.
+2. **Modèle Hugging Face** : par défaut, Oracle appelle `mistralai/Mistral-7B-Instruct-v0.2`. Vous pouvez remplacer ce modèle en définissant `HUGGINGFACE_MODEL_ID` et fournir un jeton via `HUGGINGFACEHUB_API_TOKEN` si l’endpoint choisi n’accepte pas les requêtes anonymes. Ajustez éventuellement `HUGGINGFACE_TOP_K` (et `HUGGINGFACE_TOP_N_TOKENS`) pour contrôler le nombre de candidats retournés par l’API d’inférence.
 3. **Paramètres par défaut** : sans variables d’environnement, Oracle s’appuie sur la configuration définie par `OracleConfig` (profondeur d’analyse, temps limite, etc.), que vous pouvez adapter dans le code si nécessaire.
 
 ### Démarrage du serveur
@@ -46,6 +46,7 @@ L’application web d’Oracle s’appuie sur FastAPI et Jinja2 : la page d’a
    export STOCKFISH_PATH=/chemin/vers/stockfish
    export HUGGINGFACEHUB_API_TOKEN=...        # optionnel
    export HUGGINGFACE_MODEL_ID=...            # optionnel
+   export HUGGINGFACE_TOP_K=20                # optionnel, nombre de candidats LLM
    ```
 
 2. Lancez le serveur local avec Uvicorn :
@@ -104,6 +105,7 @@ Un bouton permet de revenir au formulaire pour une nouvelle analyse.
 
 - Ajustez les paramètres d’analyse (temps limite, profondeur, threads) ou les valeurs par défaut des Elo et contrôles de temps en modifiant `OracleConfig`. Cela peut être utile pour adapter l’application à des contextes particuliers (par exemple des parties blitz).
   Utilisez notamment le champ `rating_buckets` pour suivre l’évaluation d’un coup selon plusieurs paliers Elo en parallèle.
+  Les champs `top_k` et `top_n_tokens` permettent de calibrer le nombre de candidats demandés au modèle Hugging Face.
 - Surcharger `HUGGINGFACE_MODEL_ID` et `HUGGINGFACEHUB_API_TOKEN` à l’exécution permet d’expérimenter avec d’autres modèles hébergés sur Hugging Face sans toucher au code.
 
 ### Dépannage rapide

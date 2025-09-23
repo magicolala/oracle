@@ -27,6 +27,22 @@ from oracle.domain import MovePrediction, OracleConfig, PredictionMetrics, Predi
 LOGGER = logging.getLogger(__name__)
 
 
+def _parse_int_env(var_name: str) -> int | None:
+    """Safely parse integer environment variables."""
+
+    raw_value = os.getenv(var_name)
+    if raw_value is None:
+        return None
+    stripped = raw_value.strip()
+    if not stripped:
+        return None
+    try:
+        return int(stripped)
+    except ValueError:
+        LOGGER.warning("Ignoring %s with non-integer value %r", var_name, raw_value)
+        return None
+
+
 def _update_usage_metrics(metrics: PredictionMetrics, response: Any) -> None:
     details = getattr(response, "details", None)
     if details is None and isinstance(response, dict):
@@ -111,6 +127,7 @@ class HuggingFaceSequenceProvider(SequenceProvider):
         temperature: float | None = None,
         top_p: float | None = None,
         top_k: int | None = None,
+        top_n_tokens: int | None = None,
         repetition_penalty: float | None = None,
         retries: int = 3,
     ) -> list[tuple[str, float]]:
@@ -132,6 +149,10 @@ class HuggingFaceSequenceProvider(SequenceProvider):
                         generation_kwargs["top_p"] = top_p
                     if top_k is not None:
                         generation_kwargs["top_k"] = top_k
+                    if top_n_tokens is not None and top_n_tokens > 0:
+                        generation_kwargs["top_n_tokens"] = top_n_tokens
+                    elif top_k is not None and top_k > 0:
+                        generation_kwargs["top_n_tokens"] = top_k
                     if repetition_penalty is not None:
                         generation_kwargs["repetition_penalty"] = repetition_penalty
 
@@ -319,6 +340,7 @@ class HuggingFaceSequenceProvider(SequenceProvider):
                 temperature,
                 top_p,
                 top_k,
+                top_n_tokens,
                 repetition_penalty,
                 retries,
             )
@@ -416,6 +438,7 @@ def get_top_sequences(
     temperature: float | None = None,
     top_p: float | None = None,
     top_k: int | None = None,
+    top_n_tokens: int | None = None,
     repetition_penalty: float | None = None,
 ) -> list[tuple[str, float]]:
     """Compatibility wrapper delegating to the sequence provider adapter."""
@@ -430,6 +453,7 @@ def get_top_sequences(
         temperature=temperature,
         top_p=top_p,
         top_k=top_k,
+        top_n_tokens=top_n_tokens,
         repetition_penalty=repetition_penalty,
         retries=retries,
     )
@@ -463,6 +487,25 @@ def build_predict_next_moves_use_case(
     )
     resolved_factory = engine_factory if engine_factory is not None else config.engine_factory
 
+    env_top_k = _parse_int_env("HUGGINGFACE_TOP_K")
+    env_top_n_tokens = _parse_int_env("HUGGINGFACE_TOP_N_TOKENS")
+
+    resolved_top_k = config.top_k if config.top_k is not None else env_top_k
+    if resolved_top_k is not None and resolved_top_k <= 0:
+        LOGGER.warning("Ignoring non-positive top_k value: %s", resolved_top_k)
+        resolved_top_k = None
+
+    resolved_top_n_tokens = (
+        config.top_n_tokens
+        if config.top_n_tokens is not None
+        else (env_top_n_tokens if env_top_n_tokens is not None else resolved_top_k)
+    )
+    if resolved_top_n_tokens is not None and resolved_top_n_tokens <= 0:
+        LOGGER.warning(
+            "Ignoring non-positive top_n_tokens value: %s", resolved_top_n_tokens
+        )
+        resolved_top_n_tokens = None
+
     full_config = replace(
         config,
         stockfish_path=stockfish_path,
@@ -470,6 +513,8 @@ def build_predict_next_moves_use_case(
         huggingface_token=resolved_token,
         huggingface_client=resolved_client,
         engine_factory=resolved_factory,
+        top_k=resolved_top_k,
+        top_n_tokens=resolved_top_n_tokens,
     )
 
     composed_sequence_provider = sequence_provider or HuggingFaceSequenceProvider.from_config(

@@ -22,6 +22,7 @@ class SequenceProvider(Protocol):
         temperature: float | None = None,
         top_p: float | None = None,
         top_k: int | None = None,
+        top_n_tokens: int | None = None,
         repetition_penalty: float | None = None,
     ) -> list[tuple[str, float]]:
         """Return sequences along with their log probabilities."""
@@ -52,5 +53,6 @@ class PredictNextMovesUseCase(Protocol):
         selected_time_control: str | None = None,
         *,
         mode: str | None = None,
+        selected_level: int | None = None,
     ) -> PredictionResult:
         """Predict the next moves for the given PGN string."""
