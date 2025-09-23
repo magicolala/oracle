@@ -5,6 +5,7 @@ import concurrent.futures
 import logging
 import math
 import os
+import threading
 import time
 from dataclasses import replace
 from typing import Any, Callable
@@ -89,7 +90,7 @@ def _format_top_tokens_debug(response: Any, limit: int = 10) -> str:
         if text is None or lp is None:
             continue
         pct = math.exp(float(lp)) * 100.0
-        parts.append(f"{repr(text)}:{pct:.2f}%")
+        parts.append(f"{text!r}:{pct:.2f}%")
     return " | ".join(parts)
 
 
@@ -176,7 +177,7 @@ class HuggingFaceSequenceProvider(SequenceProvider):
                         "details": True,
                         "return_full_text": False,
                         # pour des probabilités stables:
-                        # - pas d’échantillonnage
+                        # - pas d'échantillonnage
                         # - température neutre
                         "do_sample": False,
                         "temperature": 0,
@@ -230,6 +231,19 @@ class HuggingFaceSequenceProvider(SequenceProvider):
             return any(legal_move.startswith(potential_sequence) for legal_move in legal)
 
         sequences: list[tuple[str, float]] = []
+        seen_sequences: set[str] = set()
+        sequences_lock = threading.Lock()
+
+        def record_sequence(move: str, logprob: float) -> None:
+            with sequences_lock:
+                if move in seen_sequences:
+                    return
+                seen_sequences.add(move)
+                sequences.append((move, logprob))
+
+        def unseen_moves(candidates: list[str]) -> list[str]:
+            with sequences_lock:
+                return [move for move in candidates if move not in seen_sequences]
 
         def expand_sequence(
             base_prompt: str,
@@ -275,11 +289,12 @@ class HuggingFaceSequenceProvider(SequenceProvider):
                     possible_moves = [
                         move for move in legal if move.startswith(combined_sequence)
                     ]
-                    if len(possible_moves) == 1:
-                        complete_sequence = possible_moves[0]
-                        sequences.append((complete_sequence, combined_logprob))
-                        if complete_sequence in legal:
-                            legal.remove(complete_sequence)
+                    filtered_moves = unseen_moves(possible_moves)
+                    if len(filtered_moves) == 1:
+                        record_sequence(filtered_moves[0], combined_logprob)
+                        continue
+                    if not filtered_moves:
+                        continue
                     else:
                         if "O-O" in legal and "O-O-O" in legal and combined_sequence == "O-O":
                             response_after_castling = make_api_call(
@@ -307,26 +322,22 @@ class HuggingFaceSequenceProvider(SequenceProvider):
                                     )
 
                                     if combined_prob_tall_castling >= threshold:
-                                        sequences.append(
-                                            ("O-O-O", combined_logprob_tall_castling)
+                                        record_sequence(
+                                            "O-O-O", combined_logprob_tall_castling
                                         )
-                                        if "O-O-O" in legal:
-                                            legal.remove("O-O-O")
 
                                     if (
                                         combined_logprob_castling != float("-inf")
                                         and combined_prob_castling >= threshold
                                     ):
-                                        sequences.append(
-                                            (combined_sequence, combined_logprob_castling)
+                                        record_sequence(
+                                            combined_sequence, combined_logprob_castling
                                         )
-                                        if combined_sequence in legal:
-                                            legal.remove(combined_sequence)
                                 else:
                                     if combined_prob >= threshold:
-                                        sequences.append((combined_sequence, combined_logprob))
-                                        if combined_sequence in legal:
-                                            legal.remove(combined_sequence)
+                                        record_sequence(
+                                            combined_sequence, combined_logprob
+                                        )
                         else:
                             futures.append(
                                 executor.submit(
@@ -334,7 +345,7 @@ class HuggingFaceSequenceProvider(SequenceProvider):
                                     base_prompt,
                                     combined_sequence,
                                     combined_logprob,
-                                    legal,
+                                    legal.copy(),
                                     remaining_depth - 1,
                                     retries_left,
                                     threshold,
