@@ -90,10 +90,10 @@ def parse_time_control(time_control: str) -> int:
 
     for i, phase in enumerate(phases):
         if "/" in phase:
-            moves, base_increment = phase.split("/")
+            moves_str, base_increment = phase.split("/")
             base_time = int(base_increment.split("+")[0])
-            moves = int(moves)
-            total_time += base_time + (moves * increments[i])
+            move_count = int(moves_str)
+            total_time += base_time + (move_count * increments[i])
         else:
             base_time = int(phase.split("+")[0])
             if i == len(phases) - 1:
