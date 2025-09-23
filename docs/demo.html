@@ -1,187 +1,542 @@
 <!DOCTYPE html>
 <html lang="fr">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Oracle Chess Assistant - Demo</title>
-  <link
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-    rel="stylesheet"
-    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
-    crossorigin="anonymous"
-  />
-  <link rel="stylesheet" href="static/github-dark.css" />
-  <link rel="stylesheet" href="static/oracle-board.css" />
-  <style>
-    .demo-notice {
-      background: #fef3c7;
-      border: 1px solid #f59e0b;
-      color: #92400e;
-      padding: 1rem;
-      border-radius: 8px;
-      margin-bottom: 2rem;
-    }
-    .demo-section {
-      margin-bottom: 2rem;
-      padding: 1.5rem;
-      border: 1px solid #e5e7eb;
-      border-radius: 8px;
-    }
-  </style>
-</head>
-<body class="app-shell">
-  <nav class="app-nav navbar navbar-dark">
-    <div class="container-xxl">
-      <a class="navbar-brand" href="index.html">Oracle Analyzer</a>
-    </div>
-  </nav>
-  <main class="app-main">
-    <div class="container-xxl">
-      <div class="row g-4 justify-content-center">
-        <div class="col-12 col-xl-10 col-xxl-9">
-          <div class="demo-notice">
-            <h4 class="h5 mb-2">🔧 Démo Interactive</h4>
-            <p class="mb-0">
-              Cette page présente l'interface utilisateur d'Oracle. Notez que c'est une démonstration statique -
-              les fonctionnalités d'analyse et de prédiction nécessitent un serveur backend pour fonctionner.
-              Pour utiliser pleinement Oracle, <a href="https://github.com/magicolala/oracle" target="_blank">clônez le dépôt</a>
-              et suivez les instructions d'installation.
-            </p>
-          </div>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Oracle Chess Assistant - Démo Interactive</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="static/github-dark.css" />
+    <link rel="stylesheet" href="static/oracle-board.css" />
+    <style>
+      .demo-banner {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+        border-radius: 12px;
+      }
+      .demo-banner h1 {
+        color: white;
+        margin-bottom: 0.5rem;
+      }
+      .demo-banner .lead {
+        color: rgba(255, 255, 255, 0.9);
+        margin-bottom: 0;
+      }
+      .feature-highlight {
+        background: #f8fafc;
+        border-left: 4px solid #3b82f6;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        border-radius: 0 8px 8px 0;
+      }
+      .code-example {
+        background: #1e293b;
+        color: #e2e8f0;
+        padding: 1rem;
+        border-radius: 8px;
+        font-family: 'Fira Code', 'SFMono-Regular', Consolas, monospace;
+        font-size: 0.875rem;
+        overflow-x: auto;
+      }
+      .compatibility-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin: 1.5rem 0;
+      }
+      .compatibility-item {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 1rem;
+        text-align: center;
+      }
+      .compatibility-item .icon {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+      }
+      .compatibility-item.works .icon {
+        color: #10b981;
+      }
+      .compatibility-item.limited .icon {
+        color: #f59e0b;
+      }
+      .compatibility-item.no .icon {
+        color: #ef4444;
+      }
+    </style>
+  </head>
+  <body class="app-shell">
+    <!-- Navigation -->
+    <nav class="app-nav navbar navbar-dark">
+      <div class="container-xxl">
+        <a class="navbar-brand" href="index.html">Oracle Analyzer</a>
+        <div class="navbar-nav ms-auto">
+          <a class="nav-link" href="index.html">Accueil</a>
+          <a class="nav-link active" href="demo/">Démo</a>
+          <a class="nav-link" href="release-notes/">Notes de version</a>
+        </div>
+      </div>
+    </nav>
 
-          <div class="demo-section">
-            <h2 class="h4 mb-3">Échiquier Interactif</h2>
-            <p class="text-secondary mb-3">
-              L'échiquier ci-dessous montre le composant principal de l'interface. Vous pouvez déplacer les pièces
-              pour explorer différentes positions.
-            </p>
-            <div class="board-panel h-100">
-              <p class="board-panel__header mb-1">Plateau de démonstration</p>
-              <div id="oracle-board"></div>
-              <p class="board-panel__hint mb-0">
-                Cliquez et glissez les pièces pour les déplacer. Cette interface est utilisée dans les modes Analyse et Prédiction.
+    <main class="app-main">
+      <div class="container-xxl">
+        <!-- Demo Banner -->
+        <div class="demo-banner text-center">
+          <h1 class="display-4 fw-bold">🔮 Oracle Chess Assistant</h1>
+          <p class="lead">Découvrez l'interface complète d'Oracle en action</p>
+          <div class="mt-3">
+            <span class="badge bg-light text-dark me-2">FastAPI</span>
+            <span class="badge bg-light text-dark me-2">Stockfish</span>
+            <span class="badge bg-light text-dark me-2">Hugging Face</span>
+            <span class="badge bg-light text-dark">TypeScript</span>
+          </div>
+        </div>
+
+        <div class="row g-4 justify-content-center">
+          <div class="col-12 col-xl-10 col-xxl-9">
+            <!-- Warning Notice -->
+            <div class="alert alert-warning border-warning" role="alert">
+              <h5 class="alert-heading">⚠️ Démonstration Interactive</h5>
+              <p class="mb-2">
+                Cette page présente l'interface utilisateur complète d'Oracle avec un échiquier interactif.
+                <strong>Notez que les fonctionnalités d'analyse et de prédiction sont simulées</strong> - elles nécessitent
+                un serveur backend pour fonctionner pleinement.
+              </p>
+              <hr>
+              <p class="mb-0">
+                Pour utiliser Oracle avec toutes ses fonctionnalités,
+                <a href="https://github.com/magicolala/oracle" class="alert-link" target="_blank">clônez le dépôt</a>
+                et suivez le guide d'installation ci-dessous.
               </p>
             </div>
-          </div>
 
-          <div class="demo-section">
-            <h2 class="h4 mb-3">Modes d'Utilisation</h2>
-            <div class="row g-3">
-              <div class="col-md-4">
-                <div class="card h-100">
-                  <div class="card-body">
-                    <h5 class="card-title">♟️ Analyse</h5>
-                    <p class="card-text">
-                      Collez un PGN et obtenez une analyse complète avec prédictions de coups pour chaque position.
-                    </p>
-                  </div>
-                </div>
+            <!-- Main Interface Demo -->
+            <div class="card shadow-lg mb-4">
+              <div class="card-header bg-primary text-white">
+                <h2 class="h4 mb-0">Interface Principale d'Oracle</h2>
               </div>
-              <div class="col-md-4">
-                <div class="card h-100">
-                  <div class="card-body">
-                    <h5 class="card-title">🔮 Prédictions</h5>
-                    <p class="card-text">
-                      Mode rapide pour des suggestions de coups instantanées. Idéal pour l'analyse tactique.
-                    </p>
+              <div class="card-body p-4 p-lg-5">
+                <div class="row g-5 align-items-start">
+                  <!-- Chess Board -->
+                  <div class="col-12 col-lg-6">
+                    <div class="board-panel h-100">
+                      <p class="board-panel__header mb-1">Plateau Interactif</p>
+                      <div id="oracle-board"></div>
+                      <p class="board-panel__hint mb-0">
+                        Cliquez et glissez les pièces pour explorer différentes positions.
+                        Cette interface est au cœur des modes Analyse et Prédiction.
+                      </p>
+                    </div>
                   </div>
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="card h-100">
-                  <div class="card-body">
-                    <h5 class="card-title">🎯 Jouer</h5>
-                    <p class="card-text">
-                      Affrontez l'ordinateur à différents niveaux de difficulté sur l'échiquier interactif.
-                    </p>
+
+                  <!-- Controls -->
+                  <div class="col-12 col-lg-6">
+                    <!-- Mode Selection Modal (Demo) -->
+                    <div class="mb-4">
+                      <h5 class="fw-semibold mb-3">Configuration Initiale</h5>
+                      <div class="border rounded p-3 bg-light">
+                        <div class="mb-3">
+                          <label class="form-label fw-semibold">Mode d'utilisation</label>
+                          <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check" name="demo-mode" id="mode-analyze" value="analyze" checked>
+                            <label class="btn btn-outline-primary" for="mode-analyze">Analyse</label>
+                            <input type="radio" class="btn-check" name="demo-mode" id="mode-prediction" value="prediction">
+                            <label class="btn btn-outline-primary" for="mode-prediction">Prédictions</label>
+                            <input type="radio" class="btn-check" name="demo-mode" id="mode-play" value="play">
+                            <label class="btn btn-outline-primary" for="mode-play">Jouer</label>
+                          </div>
+                        </div>
+
+                        <div id="analyze-config" class="mode-config">
+                          <div class="row g-3">
+                            <div class="col-12 col-md-6">
+                              <label class="form-label fw-semibold">Elo (optionnel)</label>
+                              <select class="form-select">
+                                <option selected>Utiliser l'Elo du PGN</option>
+                                <option value="800">Elo 800</option>
+                                <option value="1200">Elo 1200</option>
+                                <option value="1500">Elo 1500</option>
+                                <option value="1800">Elo 1800</option>
+                                <option value="2100">Elo 2100</option>
+                                <option value="2400">Elo 2400</option>
+                              </select>
+                            </div>
+                            <div class="col-12 col-md-6">
+                              <label class="form-label fw-semibold">Cadence (optionnel)</label>
+                              <select class="form-select">
+                                <option selected>Utiliser la cadence du PGN</option>
+                                <option value="10+0">Blitz (10+0)</option>
+                                <option value="180+0">Rapide (180+0)</option>
+                                <option value="600+0">Classique (600+0)</option>
+                                <option value="1800+0">Classique (1800+0)</option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div id="prediction-config" class="mode-config" style="display: none;">
+                          <div class="row g-3">
+                            <div class="col-12 col-md-6">
+                              <label class="form-label fw-semibold">Elo (optionnel)</label>
+                              <select class="form-select">
+                                <option selected>Utiliser l'Elo du PGN</option>
+                                <option value="800">Elo 800</option>
+                                <option value="1200">Elo 1200</option>
+                                <option value="1500">Elo 1500</option>
+                                <option value="1800">Elo 1800</option>
+                                <option value="2100">Elo 2100</option>
+                                <option value="2400">Elo 2400</option>
+                              </select>
+                            </div>
+                            <div class="col-12 col-md-6">
+                              <label class="form-label fw-semibold">Cadence (optionnel)</label>
+                              <select class="form-select">
+                                <option selected>Utiliser la cadence du PGN</option>
+                                <option value="10+0">Blitz (10+0)</option>
+                                <option value="180+0">Rapide (180+0)</option>
+                                <option value="600+0">Classique (600+0)</option>
+                                <option value="1800+0">Classique (1800+0)</option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div id="play-config" class="mode-config" style="display: none;">
+                          <div class="col-12 col-md-6">
+                            <label class="form-label fw-semibold">Niveau de l'adversaire</label>
+                            <select class="form-select">
+                              <option selected>Recommandé automatiquement</option>
+                              <option value="800">Elo 800</option>
+                              <option value="1200">Elo 1200</option>
+                              <option value="1500">Elo 1500</option>
+                              <option value="1800">Elo 1800</option>
+                              <option value="2100">Elo 2100</option>
+                              <option value="2400">Elo 2400</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Analysis Form (Demo) -->
+                    <div id="analysis-form">
+                      <h5 class="fw-semibold mb-3">Mode Analyse</h5>
+                      <form class="row g-3">
+                        <div class="col-12">
+                          <label class="form-label fw-semibold">PGN à analyser</label>
+                          <div class="input-group">
+                            <textarea class="form-control" rows="4" placeholder="Collez votre PGN ici...">[Event "Demo Game"]
+[Site "Oracle Demo"]
+[White "Joueur Blanc"]
+[Black "Joueur Noir"]
+[Result "*"]
+
+1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 5. O-O Be7 *</textarea>
+                            <button class="btn btn-outline-secondary" type="button" onclick="syncBoard()">
+                              <i class="bi bi-arrow-repeat"></i> Synchroniser
+                            </button>
+                          </div>
+                          <div class="form-text">
+                            Notation PGN complète jusqu'au coup à analyser
+                          </div>
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                          <label class="form-label fw-semibold">Elo cible (optionnel)</label>
+                          <select class="form-select">
+                            <option selected>Utiliser l'Elo du PGN</option>
+                            <option value="800">Elo 800</option>
+                            <option value="1200">Elo 1200</option>
+                            <option value="1500">Elo 1500</option>
+                            <option value="1800">Elo 1800</option>
+                            <option value="2100">Elo 2100</option>
+                            <option value="2400">Elo 2400</option>
+                          </select>
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                          <label class="form-label fw-semibold">Cadence (optionnel)</label>
+                          <select class="form-select">
+                            <option selected>Utiliser la cadence du PGN</option>
+                            <option value="10+0">Blitz (10+0)</option>
+                            <option value="180+0">Rapide (180+0)</option>
+                            <option value="600+0">Classique (600+0)</option>
+                            <option value="1800+0">Classique (1800+0)</option>
+                          </select>
+                        </div>
+
+                        <div class="col-12">
+                          <button type="button" class="btn btn-primary w-100" onclick="showDemoResults()">
+                            <span class="me-2">♟️</span>
+                            Lancer l'analyse (Démonstration)
+                          </button>
+                        </div>
+                      </form>
+                    </div>
+
+                    <!-- Play Mode (Demo) -->
+                    <div id="play-mode" style="display: none;">
+                      <h5 class="fw-semibold mb-3">Mode Jouer contre l'ordinateur</h5>
+                      <div class="row g-3">
+                        <div class="col-12 col-md-6">
+                          <label class="form-label fw-semibold">Niveau de l'adversaire</label>
+                          <select class="form-select">
+                            <option selected>Recommandé automatiquement</option>
+                            <option value="800">Elo 800</option>
+                            <option value="1200">Elo 1200</option>
+                            <option value="1500">Elo 1500</option>
+                            <option value="1800">Elo 1800</option>
+                            <option value="2100">Elo 2100</option>
+                            <option value="2400">Elo 2400</option>
+                          </select>
+                        </div>
+                        <div class="col-12">
+                          <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-success" onclick="startNewGame()">
+                              <span class="me-2">▶️</span>
+                              Nouvelle partie
+                            </button>
+                            <button type="button" class="btn btn-outline-danger" disabled>
+                              <span class="me-2">🏳️</span>
+                              Abandon
+                            </button>
+                          </div>
+                        </div>
+                        <div class="col-12">
+                          <div class="alert alert-info" id="game-status">
+                            Choisissez un niveau et démarrez une nouvelle partie
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          <div class="demo-section">
-            <h2 class="h4 mb-3">Configuration</h2>
-            <p class="text-secondary mb-3">
-              Oracle permet de configurer indépendamment l'Elo des joueurs et la cadence de jeu pour des analyses personnalisées.
-            </p>
-            <div class="row g-3">
+            <!-- Features Overview -->
+            <div class="row g-4 mb-4">
               <div class="col-md-6">
-                <label class="form-label fw-semibold">Elo (optionnel)</label>
-                <select class="form-select" disabled>
-                  <option>800</option>
-                  <option>1200</option>
-                  <option selected>1500</option>
-                  <option>1800</option>
-                  <option>2100</option>
-                  <option>2400</option>
-                </select>
+                <div class="feature-highlight">
+                  <h4 class="h5 mb-2">♟️ Mode Analyse Complet</h4>
+                  <p class="mb-0">
+                    Analyse profonde de positions avec prédictions de coups pour chaque étape du jeu.
+                    Idéal pour l'étude de parties et l'amélioration stratégique.
+                  </p>
+                </div>
               </div>
               <div class="col-md-6">
-                <label class="form-label fw-semibold">Cadence (optionnel)</label>
-                <select class="form-select" disabled>
-                  <option>10+0 (Blitz)</option>
-                  <option selected>180+0 (Rapide)</option>
-                  <option>600+0 (Classique)</option>
-                  <option>1800+0 (Classique)</option>
-                </select>
+                <div class="feature-highlight">
+                  <h4 class="h5 mb-2">🔮 Prédictions Instantanées</h4>
+                  <p class="mb-0">
+                    Suggestions rapides de coups optimaux. Parfait pour les analyses tactiques
+                    et les décisions en tournoi.
+                  </p>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="feature-highlight">
+                  <h4 class="h5 mb-2">🎯 Jeu contre l'ordinateur</h4>
+                  <p class="mb-0">
+                    Affrontez Oracle à différents niveaux de difficulté. L'IA s'adapte
+                    à votre style de jeu.
+                  </p>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="feature-highlight">
+                  <h4 class="h5 mb-2">⚙️ Configuration Flexible</h4>
+                  <p class="mb-0">
+                    Elo et cadence configurables indépendamment pour des analyses
+                    personnalisées selon vos besoins.
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div class="card p-4 p-lg-5 mt-4">
-            <h2 class="h5 mb-3">Installation et Utilisation</h2>
-            <div class="guide-section pb-3">
-              <h3 class="h6 text-uppercase text-secondary fw-semibold">1. Prérequis</h3>
-              <ul class="mb-0">
-                <li>Python 3.11+</li>
-                <li>Stockfish (moteur d'échecs)</li>
-                <li>Token Hugging Face (optionnel)</li>
-              </ul>
+            <!-- Technical Details -->
+            <div class="card mb-4">
+              <div class="card-header">
+                <h3 class="h5 mb-0">Architecture Technique</h3>
+              </div>
+              <div class="card-body">
+                <div class="compatibility-grid">
+                  <div class="compatibility-item works">
+                    <div class="icon">🐍</div>
+                    <h6>Backend Python</h6>
+                    <p class="small mb-0">FastAPI + Pydantic</p>
+                  </div>
+                  <div class="compatibility-item works">
+                    <div class="icon">♟️</div>
+                    <h6>Moteur d'échecs</h6>
+                    <p class="small mb-0">Stockfish intégré</p>
+                  </div>
+                  <div class="compatibility-item works">
+                    <div class="icon">🤖</div>
+                    <h6>IA Langage</h6>
+                    <p class="small mb-0">Hugging Face models</p>
+                  </div>
+                  <div class="compatibility-item works">
+                    <div class="icon">⚛️</div>
+                    <h6>Frontend</h6>
+                    <p class="small mb-0">TypeScript + Vite</p>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div class="guide-section pb-3">
-              <h3 class="h6 text-uppercase text-secondary fw-semibold">2. Installation</h3>
-              <pre class="code-block">git clone https://github.com/magicolala/oracle.git
+
+            <!-- Installation Guide -->
+            <div class="card">
+              <div class="card-header bg-success text-white">
+                <h3 class="h5 mb-0">🚀 Guide d'Installation Complet</h3>
+              </div>
+              <div class="card-body">
+                <div class="row g-4">
+                  <div class="col-md-6">
+                    <h5>1. Prérequis système</h5>
+                    <ul class="list-unstyled">
+                      <li>✅ Python 3.11 ou supérieur</li>
+                      <li>✅ Stockfish (moteur d'échecs)</li>
+                      <li>✅ Git</li>
+                      <li>ℹ️ Token Hugging Face (optionnel)</li>
+                    </ul>
+
+                    <h5 class="mt-4">2. Installation de Stockfish</h5>
+                    <div class="code-example">
+# Ubuntu/Debian
+sudo apt install stockfish
+
+# macOS
+brew install stockfish
+
+# Windows - Téléchargez depuis stockfishchess.org
+                    </div>
+                  </div>
+
+                  <div class="col-md-6">
+                    <h5>3. Installation d'Oracle</h5>
+                    <div class="code-example">
+# Cloner le dépôt
+git clone https://github.com/magicolala/oracle.git
 cd oracle
+
+# Installer Poetry (gestionnaire de dépendances)
 pip install poetry
-poetry install</pre>
-            </div>
-            <div class="guide-section pb-3">
-              <h3 class="h6 text-uppercase text-secondary fw-semibold">3. Configuration</h3>
-              <pre class="code-block">export STOCKFISH_PATH=/path/to/stockfish
-export HUGGINGFACEHUB_API_TOKEN=your_token_here</pre>
-            </div>
-            <div class="guide-section pb-1">
-              <h3 class="h6 text-uppercase text-secondary fw-semibold">4. Lancement</h3>
-              <pre class="code-block">poetry run uvicorn src.oracle.web.app:app --reload</pre>
-              <p class="mt-2 mb-0">Puis ouvrez <code>http://127.0.0.1:8000</code> dans votre navigateur.</p>
+
+# Installer les dépendances
+poetry install
+                    </div>
+
+                    <h5 class="mt-4">4. Configuration</h5>
+                    <div class="code-example">
+# Variables d'environnement
+export STOCKFISH_PATH=/usr/bin/stockfish
+export HUGGINGFACEHUB_API_TOKEN=votre_token
+
+# Ou créer un fichier .env
+echo "STOCKFISH_PATH=/usr/bin/stockfish" > .env
+echo "HUGGINGFACEHUB_API_TOKEN=votre_token" >> .env
+                    </div>
+                  </div>
+                </div>
+
+                <hr class="my-4">
+
+                <div class="text-center">
+                  <h5>5. Lancement de l'application</h5>
+                  <div class="code-example d-inline-block">
+poetry run uvicorn src.oracle.web.app:app --reload
+                  </div>
+                  <p class="mt-3 mb-0">
+                    Puis ouvrez <strong><a href="http://127.0.0.1:8000" target="_blank">http://127.0.0.1:8000</a></strong>
+                    dans votre navigateur pour accéder à l'interface complète.
+                  </p>
+                </div>
+
+                <div class="alert alert-info mt-4">
+                  <h6>🔧 Commandes CLI disponibles</h6>
+                  <p class="mb-1">Oracle propose également des outils en ligne de commande :</p>
+                  <ul class="mb-0">
+                    <li><code>poetry run python oracle_one_move.py</code> - Analyse interactive d'une position</li>
+                    <li><code>poetry run python oracle_pgn_file.py</code> - Traitement par lot de fichiers PGN</li>
+                  </ul>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  </main>
-  <footer class="app-footer text-center small">
-    <div class="container-xxl">
-      <span>
-        <a href="https://github.com/magicolala/oracle" target="_blank">Oracle Chess Assistant</a> -
-        Développé avec FastAPI, Stockfish et l'IA de Hugging Face
-      </span>
-    </div>
-  </footer>
+    </main>
 
-  <script
-    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-    crossorigin="anonymous"
-  ></script>
-  <script type="module" src="static/oracle-board.js"></script>
-  <script>
-    // Initialize the chess board for demo
-    document.addEventListener('DOMContentLoaded', () => {
-      // The oracle-board.js will initialize the board automatically
-      console.log('Oracle Demo: Chess board initialized');
-    });
-  </script>
-</body>
+    <!-- Footer -->
+    <footer class="app-footer text-center small py-4">
+      <div class="container-xxl">
+        <p class="mb-2">
+          <strong>Oracle Chess Assistant</strong> - Développé avec ❤️ utilisant FastAPI, Stockfish et l'IA de Hugging Face
+        </p>
+        <p class="mb-0">
+          <a href="https://github.com/magicolala/oracle" target="_blank" class="text-decoration-none">
+            <i class="bi bi-github"></i> Code source sur GitHub
+          </a>
+          |
+          <a href="https://github.com/magicolala/oracle/blob/main/README.md" target="_blank" class="text-decoration-none">
+            📖 Documentation complète
+          </a>
+        </p>
+      </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+            crossorigin="anonymous"></script>
+    <script type="module" src="static/oracle-board.js"></script>
+
+    <script>
+      // Demo functionality
+      document.addEventListener('DOMContentLoaded', () => {
+        // Mode switching
+        document.querySelectorAll('input[name="demo-mode"]').forEach(radio => {
+          radio.addEventListener('change', (e) => {
+            const mode = e.target.value;
+
+            // Hide all configs
+            document.querySelectorAll('.mode-config').forEach(config => {
+              config.style.display = 'none';
+            });
+
+            // Show selected config
+            document.getElementById(`${mode}-config`).style.display = 'block';
+
+            // Show/hide forms
+            document.getElementById('analysis-form').style.display = (mode === 'analyze' || mode === 'prediction') ? 'block' : 'none';
+            document.getElementById('play-mode').style.display = (mode === 'play') ? 'block' : 'none';
+          });
+        });
+
+        console.log('Oracle Demo: Interface loaded successfully');
+      });
+
+      function syncBoard() {
+        alert('🔄 Fonctionnalité de synchronisation (simulée)\n\nDans la vraie application, ceci synchroniserait l\'échiquier avec le PGN saisi.');
+      }
+
+      function showDemoResults() {
+        alert('📊 Résultats d\'analyse (simulés)\n\nDans la vraie application, ceci afficherait :\n• Les coups recommandés avec probabilités\n• Évaluations Stockfish\n• Variantes principales\n• Métriques d\'utilisation de l\'IA');
+      }
+
+      function startNewGame() {
+        const statusEl = document.getElementById('game-status');
+        statusEl.className = 'alert alert-success';
+        statusEl.textContent = '🎯 Nouvelle partie démarrée ! L\'ordinateur joue les Blancs. À votre tour de jouer...';
+      }
+    </script>
+  </body>
 </html>
