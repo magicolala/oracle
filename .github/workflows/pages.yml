@@ -72,6 +72,15 @@ jobs:
                   "nav_href": "index.html",
               },
               {
+                  "source": Path("docs/demo.html"),
+                  "destination": root / "demo/index.html",
+                  "title": "Oracle Chess Assistant - Interactive Demo",
+                  "heading": "Interactive Demo",
+                  "description": "Try the Oracle chess interface with an interactive demo.",
+                  "nav_label": "Demo",
+                  "nav_href": "demo/",
+              },
+              {
                   "source": Path("docs/RELEASE_NOTES.md"),
                   "destination": root / "release-notes/index.html",
                   "title": "Oracle Release Notes",
