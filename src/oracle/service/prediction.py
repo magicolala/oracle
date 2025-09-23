@@ -397,10 +397,9 @@ class StockfishMoveAnalyzer(MoveAnalyzer):
                     eval_value: float | str = f"mate:{eval_score.mate()}"
                 else:
                     raw_score = eval_score.score()
-                    if raw_score is None:
-                        score_value = 0.0
-                    else:
-                        score_value = _clamp_score(float(raw_score))
+                    score_value = (
+                        0.0 if raw_score is None else _clamp_score(float(raw_score))
+                    )
                     if board.turn == chess.BLACK:
                         score_value = -score_value
                     eval_value = score_value
