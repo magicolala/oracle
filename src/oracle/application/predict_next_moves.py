@@ -1,4 +1,4 @@
-"""Predict next moves use case implementation.
+"""Predict next moves use case implementation."""
 from __future__ import annotations
 
 import io
@@ -34,8 +34,6 @@ from oracle.domain.services import (
 
 @dataclass
 class PredictNextMoves(PredictNextMovesUseCase):
-    """Application service orchestrating prediction ports."""
-
     sequence_provider: SequenceProvider
     move_analyzer: MoveAnalyzer
     config: OracleConfig

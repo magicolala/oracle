@@ -396,7 +396,7 @@ async def analyze(
                 {**base_context, "error": error},
                 status_code=status.HTTP_400_BAD_REQUEST,
             )
-        except Exception as exc:  # pragma: no cover - defensive branch
+    except Exception as exc:  # pragma: no cover - defensive branch
             logger.exception("Unexpected error while running prediction")
             error = ErrorMessage(
                 title="Erreur d'analyse",

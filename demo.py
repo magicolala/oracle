@@ -15,6 +15,7 @@ import os
 import subprocess
 import sys
 
+
 def run_command(command: list[str]):
     """Runs a command and prints its output."""
     print(f"\n--- Running command: {' '.join(command)} ---\n")
@@ -26,27 +27,22 @@ def run_command(command: list[str]):
             text=True,
             encoding='utf-8'
         )
-        print("--- Command successful ---
-")
+        print("--- Command successful ---")
         if process.stdout:
-            print("--- STDOUT ---
-")
+            print("--- STDOUT ---")
             print(process.stdout)
         if process.stderr:
-            print("--- STDERR ---
-")
+            print("--- STDERR ---")
             print(process.stderr)
     except FileNotFoundError:
         print(f"Error: Command not found. Please ensure '{command[0]}' is in your PATH.")
     except subprocess.CalledProcessError as e:
         print(f"--- Command failed with exit code {e.returncode} ---")
         if e.stdout:
-            print("--- STDOUT ---
-")
+            print("--- STDOUT ---")
             print(e.stdout)
         if e.stderr:
-            print("--- STDERR ---
-")
+            print("--- STDERR ---")
             print(e.stderr)
     except Exception as e:
         print(f"An unexpected error occurred: {e}")

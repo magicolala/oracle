@@ -83,7 +83,7 @@ def parse_time_control(time_control: str) -> int:
 
     for phase in phases:
         if "+" in phase:
-            base, increment = phase.split("+")
+            _, increment = phase.split("+")
             increments.append(int(increment))
         else:
             increments.append(0)

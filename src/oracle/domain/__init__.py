@@ -125,9 +125,9 @@ class PredictionResult:
 
 
 __all__ = [
+    "MovePrediction",
     "OracleConfig",
     "PredictionMetrics",
-    "MovePrediction",
-    "PredictionSnapshot",
     "PredictionResult",
+    "PredictionSnapshot",
 ]

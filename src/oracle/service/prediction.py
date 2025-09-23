@@ -505,16 +505,16 @@ def predict_next_moves(pgn: str, config: OracleConfig) -> PredictionResult:
 
 
 __all__ = [
+    "HuggingFaceSequenceProvider",
     "MovePrediction",
     "OracleConfig",
     "PredictionMetrics",
     "PredictionResult",
-    "HuggingFaceSequenceProvider",
     "StockfishMoveAnalyzer",
     "_get_client",
-    "get_legal_moves",
-    "get_top_sequences",
     "build_predict_next_moves_use_case",
     "create_prediction_service",
+    "get_legal_moves",
+    "get_top_sequences",
     "predict_next_moves",
 ]
